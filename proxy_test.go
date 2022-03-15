@@ -9,14 +9,13 @@ import (
 	"testing"
 )
 
-func TestProxy(t *testing.T) {
-	expected := "<html><head></head><body>hello</body></html>"
+func TestProxy1(t *testing.T) {
+	normalBody := "<body>ok</body>"
 
 	t.Run("test proxy", func(t *testing.T) {
 		testServ := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
-			fmt.Fprintln(writer, "<body>hi</body>")
+			fmt.Fprintln(writer, normalBody)
 			userAgent := req.Header.Get("User-Agent")
-			userId := req.Header.Get("X-TUASET-User-ID")
 			token := req.Header.Get("X-TUASET-Proxy-Token")
 
 			if userAgent != "tuaset" {
@@ -24,18 +23,13 @@ func TestProxy(t *testing.T) {
 				t.Error(msg)
 			}
 
-			if userId != "<user_id>" {
-				msg := fmt.Sprintf("wrong user agent: %s", userId)
-				t.Error(msg)
-			}
-
-			if token != "<token>" {
-				msg := fmt.Sprintf("wrong user agent: %s", token)
+			if token != "<proxy_token>" {
+				msg := fmt.Sprintf("wrong proxy token: %s", token)
 				t.Error(msg)
 			}
 		}))
 
-		LOGIN_PAGE_URL = testServ.URL
+		EXAMPLE_URL = testServ.URL
 
 		rp := httputil.ReverseProxy{
 			Director:       director,
@@ -61,10 +55,53 @@ func TestProxy(t *testing.T) {
 			t.Error(err)
 		}
 
-		bs := string(b)
+		bs := string(b[:len(b)-1])
 
-		if bs != expected {
-			msg := fmt.Sprintf("wrong response: %s", bs)
+		if bs != normalBody {
+			msg := fmt.Sprintf("wrong response: '%s'expected: '%s'", bs, normalBody)
+			t.Error(msg)
+		}
+	})
+}
+
+func TestProxy2(t *testing.T) {
+	loginBody := "<body>login</body>"
+
+	loginServ := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
+		fmt.Fprintln(writer, loginBody)
+	}))
+
+	t.Run("test proxy", func(t *testing.T) {
+		LOGIN_PAGE_URL = loginServ.URL
+
+		rp := httputil.ReverseProxy{
+			Director:       director,
+			ModifyResponse: modifyResponse,
+		}
+
+		serv := httptest.NewServer(&rp)
+
+		defer serv.Close()
+
+		req, err := http.NewRequest(http.MethodPost, serv.URL, nil)
+		if err != nil {
+			t.Error(err)
+		}
+
+		resp, err := new(http.Client).Do(req)
+		if err != nil {
+			t.Error(err)
+		}
+
+		b, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			t.Error(err)
+		}
+
+		bs := string(b[:len(b)-1])
+
+		if bs != loginBody {
+			msg := fmt.Sprintf("wrong response: '%s'\nexpected: '%s'", bs, loginBody)
 			t.Error(msg)
 		}
 	})
