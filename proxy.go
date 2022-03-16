@@ -24,8 +24,8 @@ func director(req *http.Request) {
 		req.URL.Scheme = exampleURL.Scheme
 		req.URL.Host = exampleURL.Host
 
-		req.Header.Set("User-Agent", "tuaset")
-		req.Header.Set("X-TUASET-Proxy-Token", "<proxy_token>")
+		req.Header.Set("User-Agent", "bullet")
+		req.Header.Set("X-BULLET-Proxy-Token", "<proxy_token>")
 	} else {
 		req.URL.Scheme = loginURL.Scheme
 		req.URL.Host = loginURL.Host
