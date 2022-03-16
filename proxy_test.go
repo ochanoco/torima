@@ -16,9 +16,9 @@ func TestProxy1(t *testing.T) {
 		testServ := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
 			fmt.Fprintln(writer, normalBody)
 			userAgent := req.Header.Get("User-Agent")
-			token := req.Header.Get("X-TUASET-Proxy-Token")
+			token := req.Header.Get("X-BULLET-Proxy-Token")
 
-			if userAgent != "tuaset" {
+			if userAgent != "bullet" {
 				msg := fmt.Sprintf("wrong user agent: %s", userAgent)
 				t.Error(msg)
 			}
