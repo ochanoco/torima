@@ -400,6 +400,8 @@ type ProjectMutation struct {
 	typ           string
 	id            *int
 	name          *string
+	domain        *string
+	destination   *string
 	line_id       *string
 	clearedFields map[string]struct{}
 	pages         map[int]struct{}
@@ -544,6 +546,78 @@ func (m *ProjectMutation) ResetName() {
 	m.name = nil
 }
 
+// SetDomain sets the "domain" field.
+func (m *ProjectMutation) SetDomain(s string) {
+	m.domain = &s
+}
+
+// Domain returns the value of the "domain" field in the mutation.
+func (m *ProjectMutation) Domain() (r string, exists bool) {
+	v := m.domain
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDomain returns the old "domain" field's value of the Project entity.
+// If the Project object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProjectMutation) OldDomain(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDomain is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDomain requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDomain: %w", err)
+	}
+	return oldValue.Domain, nil
+}
+
+// ResetDomain resets all changes to the "domain" field.
+func (m *ProjectMutation) ResetDomain() {
+	m.domain = nil
+}
+
+// SetDestination sets the "destination" field.
+func (m *ProjectMutation) SetDestination(s string) {
+	m.destination = &s
+}
+
+// Destination returns the value of the "destination" field in the mutation.
+func (m *ProjectMutation) Destination() (r string, exists bool) {
+	v := m.destination
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDestination returns the old "destination" field's value of the Project entity.
+// If the Project object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProjectMutation) OldDestination(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDestination is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDestination requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDestination: %w", err)
+	}
+	return oldValue.Destination, nil
+}
+
+// ResetDestination resets all changes to the "destination" field.
+func (m *ProjectMutation) ResetDestination() {
+	m.destination = nil
+}
+
 // SetLineID sets the "line_id" field.
 func (m *ProjectMutation) SetLineID(s string) {
 	m.line_id = &s
@@ -653,9 +727,15 @@ func (m *ProjectMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ProjectMutation) Fields() []string {
-	fields := make([]string, 0, 2)
+	fields := make([]string, 0, 4)
 	if m.name != nil {
 		fields = append(fields, project.FieldName)
+	}
+	if m.domain != nil {
+		fields = append(fields, project.FieldDomain)
+	}
+	if m.destination != nil {
+		fields = append(fields, project.FieldDestination)
 	}
 	if m.line_id != nil {
 		fields = append(fields, project.FieldLineID)
@@ -670,6 +750,10 @@ func (m *ProjectMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case project.FieldName:
 		return m.Name()
+	case project.FieldDomain:
+		return m.Domain()
+	case project.FieldDestination:
+		return m.Destination()
 	case project.FieldLineID:
 		return m.LineID()
 	}
@@ -683,6 +767,10 @@ func (m *ProjectMutation) OldField(ctx context.Context, name string) (ent.Value,
 	switch name {
 	case project.FieldName:
 		return m.OldName(ctx)
+	case project.FieldDomain:
+		return m.OldDomain(ctx)
+	case project.FieldDestination:
+		return m.OldDestination(ctx)
 	case project.FieldLineID:
 		return m.OldLineID(ctx)
 	}
@@ -700,6 +788,20 @@ func (m *ProjectMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetName(v)
+		return nil
+	case project.FieldDomain:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDomain(v)
+		return nil
+	case project.FieldDestination:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDestination(v)
 		return nil
 	case project.FieldLineID:
 		v, ok := value.(string)
@@ -759,6 +861,12 @@ func (m *ProjectMutation) ResetField(name string) error {
 	switch name {
 	case project.FieldName:
 		m.ResetName()
+		return nil
+	case project.FieldDomain:
+		m.ResetDomain()
+		return nil
+	case project.FieldDestination:
+		m.ResetDestination()
 		return nil
 	case project.FieldLineID:
 		m.ResetLineID()

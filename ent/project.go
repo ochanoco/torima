@@ -17,6 +17,10 @@ type Project struct {
 	ID int `json:"id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
+	// Domain holds the value of the "domain" field.
+	Domain string `json:"domain,omitempty"`
+	// Destination holds the value of the "destination" field.
+	Destination string `json:"destination,omitempty"`
 	// LineID holds the value of the "line_id" field.
 	LineID string `json:"line_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -49,7 +53,7 @@ func (*Project) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case project.FieldID:
 			values[i] = new(sql.NullInt64)
-		case project.FieldName, project.FieldLineID:
+		case project.FieldName, project.FieldDomain, project.FieldDestination, project.FieldLineID:
 			values[i] = new(sql.NullString)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Project", columns[i])
@@ -77,6 +81,18 @@ func (pr *Project) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				pr.Name = value.String
+			}
+		case project.FieldDomain:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field domain", values[i])
+			} else if value.Valid {
+				pr.Domain = value.String
+			}
+		case project.FieldDestination:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field destination", values[i])
+			} else if value.Valid {
+				pr.Destination = value.String
 			}
 		case project.FieldLineID:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -119,6 +135,10 @@ func (pr *Project) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v", pr.ID))
 	builder.WriteString(", name=")
 	builder.WriteString(pr.Name)
+	builder.WriteString(", domain=")
+	builder.WriteString(pr.Domain)
+	builder.WriteString(", destination=")
+	builder.WriteString(pr.Destination)
 	builder.WriteString(", line_id=")
 	builder.WriteString(pr.LineID)
 	builder.WriteByte(')')

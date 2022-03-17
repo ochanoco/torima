@@ -98,6 +98,20 @@ func Name(v string) predicate.Project {
 	})
 }
 
+// Domain applies equality check predicate on the "domain" field. It's identical to DomainEQ.
+func Domain(v string) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldDomain), v))
+	})
+}
+
+// Destination applies equality check predicate on the "destination" field. It's identical to DestinationEQ.
+func Destination(v string) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldDestination), v))
+	})
+}
+
 // LineID applies equality check predicate on the "line_id" field. It's identical to LineIDEQ.
 func LineID(v string) predicate.Project {
 	return predicate.Project(func(s *sql.Selector) {
@@ -213,6 +227,228 @@ func NameEqualFold(v string) predicate.Project {
 func NameContainsFold(v string) predicate.Project {
 	return predicate.Project(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldName), v))
+	})
+}
+
+// DomainEQ applies the EQ predicate on the "domain" field.
+func DomainEQ(v string) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldDomain), v))
+	})
+}
+
+// DomainNEQ applies the NEQ predicate on the "domain" field.
+func DomainNEQ(v string) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldDomain), v))
+	})
+}
+
+// DomainIn applies the In predicate on the "domain" field.
+func DomainIn(vs ...string) predicate.Project {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Project(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldDomain), v...))
+	})
+}
+
+// DomainNotIn applies the NotIn predicate on the "domain" field.
+func DomainNotIn(vs ...string) predicate.Project {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Project(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldDomain), v...))
+	})
+}
+
+// DomainGT applies the GT predicate on the "domain" field.
+func DomainGT(v string) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldDomain), v))
+	})
+}
+
+// DomainGTE applies the GTE predicate on the "domain" field.
+func DomainGTE(v string) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldDomain), v))
+	})
+}
+
+// DomainLT applies the LT predicate on the "domain" field.
+func DomainLT(v string) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldDomain), v))
+	})
+}
+
+// DomainLTE applies the LTE predicate on the "domain" field.
+func DomainLTE(v string) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldDomain), v))
+	})
+}
+
+// DomainContains applies the Contains predicate on the "domain" field.
+func DomainContains(v string) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldDomain), v))
+	})
+}
+
+// DomainHasPrefix applies the HasPrefix predicate on the "domain" field.
+func DomainHasPrefix(v string) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldDomain), v))
+	})
+}
+
+// DomainHasSuffix applies the HasSuffix predicate on the "domain" field.
+func DomainHasSuffix(v string) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldDomain), v))
+	})
+}
+
+// DomainEqualFold applies the EqualFold predicate on the "domain" field.
+func DomainEqualFold(v string) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldDomain), v))
+	})
+}
+
+// DomainContainsFold applies the ContainsFold predicate on the "domain" field.
+func DomainContainsFold(v string) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldDomain), v))
+	})
+}
+
+// DestinationEQ applies the EQ predicate on the "destination" field.
+func DestinationEQ(v string) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldDestination), v))
+	})
+}
+
+// DestinationNEQ applies the NEQ predicate on the "destination" field.
+func DestinationNEQ(v string) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldDestination), v))
+	})
+}
+
+// DestinationIn applies the In predicate on the "destination" field.
+func DestinationIn(vs ...string) predicate.Project {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Project(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldDestination), v...))
+	})
+}
+
+// DestinationNotIn applies the NotIn predicate on the "destination" field.
+func DestinationNotIn(vs ...string) predicate.Project {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Project(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldDestination), v...))
+	})
+}
+
+// DestinationGT applies the GT predicate on the "destination" field.
+func DestinationGT(v string) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldDestination), v))
+	})
+}
+
+// DestinationGTE applies the GTE predicate on the "destination" field.
+func DestinationGTE(v string) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldDestination), v))
+	})
+}
+
+// DestinationLT applies the LT predicate on the "destination" field.
+func DestinationLT(v string) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldDestination), v))
+	})
+}
+
+// DestinationLTE applies the LTE predicate on the "destination" field.
+func DestinationLTE(v string) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldDestination), v))
+	})
+}
+
+// DestinationContains applies the Contains predicate on the "destination" field.
+func DestinationContains(v string) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldDestination), v))
+	})
+}
+
+// DestinationHasPrefix applies the HasPrefix predicate on the "destination" field.
+func DestinationHasPrefix(v string) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldDestination), v))
+	})
+}
+
+// DestinationHasSuffix applies the HasSuffix predicate on the "destination" field.
+func DestinationHasSuffix(v string) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldDestination), v))
+	})
+}
+
+// DestinationEqualFold applies the EqualFold predicate on the "destination" field.
+func DestinationEqualFold(v string) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldDestination), v))
+	})
+}
+
+// DestinationContainsFold applies the ContainsFold predicate on the "destination" field.
+func DestinationContainsFold(v string) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldDestination), v))
 	})
 }
 

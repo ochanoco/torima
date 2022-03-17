@@ -34,6 +34,18 @@ func (pu *ProjectUpdate) SetName(s string) *ProjectUpdate {
 	return pu
 }
 
+// SetDomain sets the "domain" field.
+func (pu *ProjectUpdate) SetDomain(s string) *ProjectUpdate {
+	pu.mutation.SetDomain(s)
+	return pu
+}
+
+// SetDestination sets the "destination" field.
+func (pu *ProjectUpdate) SetDestination(s string) *ProjectUpdate {
+	pu.mutation.SetDestination(s)
+	return pu
+}
+
 // SetLineID sets the "line_id" field.
 func (pu *ProjectUpdate) SetLineID(s string) *ProjectUpdate {
 	pu.mutation.SetLineID(s)
@@ -160,6 +172,20 @@ func (pu *ProjectUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: project.FieldName,
 		})
 	}
+	if value, ok := pu.mutation.Domain(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: project.FieldDomain,
+		})
+	}
+	if value, ok := pu.mutation.Destination(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: project.FieldDestination,
+		})
+	}
 	if value, ok := pu.mutation.LineID(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -243,6 +269,18 @@ type ProjectUpdateOne struct {
 // SetName sets the "name" field.
 func (puo *ProjectUpdateOne) SetName(s string) *ProjectUpdateOne {
 	puo.mutation.SetName(s)
+	return puo
+}
+
+// SetDomain sets the "domain" field.
+func (puo *ProjectUpdateOne) SetDomain(s string) *ProjectUpdateOne {
+	puo.mutation.SetDomain(s)
+	return puo
+}
+
+// SetDestination sets the "destination" field.
+func (puo *ProjectUpdateOne) SetDestination(s string) *ProjectUpdateOne {
+	puo.mutation.SetDestination(s)
 	return puo
 }
 
@@ -394,6 +432,20 @@ func (puo *ProjectUpdateOne) sqlSave(ctx context.Context) (_node *Project, err e
 			Type:   field.TypeString,
 			Value:  value,
 			Column: project.FieldName,
+		})
+	}
+	if value, ok := puo.mutation.Domain(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: project.FieldDomain,
+		})
+	}
+	if value, ok := puo.mutation.Destination(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: project.FieldDestination,
 		})
 	}
 	if value, ok := puo.mutation.LineID(); ok {
