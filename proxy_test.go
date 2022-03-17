@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestProxy1(t *testing.T) {
+func TestProxyAuthOK(t *testing.T) {
 	normalBody := "<body>ok</body>"
 
 	t.Run("test proxy", func(t *testing.T) {
@@ -64,7 +64,7 @@ func TestProxy1(t *testing.T) {
 	})
 }
 
-func TestProxy2(t *testing.T) {
+func TestProxyRedirectToLogin(t *testing.T) {
 	loginBody := "<body>login</body>"
 
 	loginServ := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
@@ -72,7 +72,7 @@ func TestProxy2(t *testing.T) {
 	}))
 
 	t.Run("test proxy", func(t *testing.T) {
-		LOGIN_PAGE_URL = loginServ.URL
+		LOGIN_REDIRECT_PAGE_URL = loginServ.URL
 
 		rp := httputil.ReverseProxy{
 			Director:       director,
