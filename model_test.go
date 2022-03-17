@@ -6,7 +6,7 @@ import (
 )
 
 func TestModel(t *testing.T) {
-	// DB_CONFIG = "file:ent?mode=memory&cache=shared&_fk=1"
+	DB_CONFIG = "file:ent?mode=memory&cache=shared&_fk=1"
 
 	t.Run("test proxy", func(t *testing.T) {
 		db, err := init_db()

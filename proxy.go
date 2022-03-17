@@ -7,23 +7,28 @@ import (
 )
 
 var LOGIN_REDIRECT_PAGE_URL = "http://localhost:3000/redirect"
-var EXAMPLE_URL = "http://example.com"
+var EXAMPLE_URL = "http://localhost:3000"
 
 func director(req *http.Request) {
 	exampleURL, err := url.Parse(EXAMPLE_URL)
 	if err != nil {
 		log.Fatal(err)
 	}
+	req.URL.Scheme = exampleURL.Scheme
+	req.URL.Host = exampleURL.Host
 
 	loginRedirectURL, err := url.Parse(LOGIN_REDIRECT_PAGE_URL)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if authenticateRequest(req) {
-		req.URL.Scheme = exampleURL.Scheme
-		req.URL.Host = exampleURL.Host
+	isValid := passIfCleanContent(req)
 
+	if authenticateRequest(req) {
+		isValid = true
+	}
+
+	if isValid {
 		req.Header.Set("User-Agent", "bullet")
 		req.Header.Set("X-BULLET-Proxy-Token", "<proxy_token>")
 	} else {
