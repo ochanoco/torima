@@ -8,9 +8,7 @@ import (
 	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent"
 )
 
-var DB_TYPE = "sqlite3"
 
-var DB_CONFIG = "file:./db.sqlite3?_fk=1"
 
 type Database struct {
 	ctx    context.Context
