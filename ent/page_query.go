@@ -24,6 +24,7 @@ type PageQuery struct {
 	order      []OrderFunc
 	fields     []string
 	predicates []predicate.Page
+	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -311,9 +312,13 @@ func (pq *PageQuery) prepareQuery(ctx context.Context) error {
 
 func (pq *PageQuery) sqlAll(ctx context.Context) ([]*Page, error) {
 	var (
-		nodes = []*Page{}
-		_spec = pq.querySpec()
+		nodes   = []*Page{}
+		withFKs = pq.withFKs
+		_spec   = pq.querySpec()
 	)
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, page.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
 		node := &Page{config: pq.config}
 		nodes = append(nodes, node)

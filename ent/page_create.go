@@ -31,12 +31,6 @@ func (pc *PageCreate) SetSkip(b bool) *PageCreate {
 	return pc
 }
 
-// SetProjectID sets the "project_id" field.
-func (pc *PageCreate) SetProjectID(i int) *PageCreate {
-	pc.mutation.SetProjectID(i)
-	return pc
-}
-
 // Mutation returns the PageMutation object of the builder.
 func (pc *PageCreate) Mutation() *PageMutation {
 	return pc.mutation
@@ -113,9 +107,6 @@ func (pc *PageCreate) check() error {
 	if _, ok := pc.mutation.Skip(); !ok {
 		return &ValidationError{Name: "skip", err: errors.New(`ent: missing required field "Page.skip"`)}
 	}
-	if _, ok := pc.mutation.ProjectID(); !ok {
-		return &ValidationError{Name: "project_id", err: errors.New(`ent: missing required field "Page.project_id"`)}
-	}
 	return nil
 }
 
@@ -158,14 +149,6 @@ func (pc *PageCreate) createSpec() (*Page, *sqlgraph.CreateSpec) {
 			Column: page.FieldSkip,
 		})
 		_node.Skip = value
-	}
-	if value, ok := pc.mutation.ProjectID(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: page.FieldProjectID,
-		})
-		_node.ProjectID = value
 	}
 	return _node, _spec
 }

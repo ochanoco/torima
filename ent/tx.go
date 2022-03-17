@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// Page is the client for interacting with the Page builders.
 	Page *PageClient
+	// Project is the client for interacting with the Project builders.
+	Project *ProjectClient
 
 	// lazily loaded.
 	client     *Client
@@ -150,6 +152,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Page = NewPageClient(tx.config)
+	tx.Project = NewProjectClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

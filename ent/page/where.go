@@ -104,13 +104,6 @@ func Skip(v bool) predicate.Page {
 	})
 }
 
-// ProjectID applies equality check predicate on the "project_id" field. It's identical to ProjectIDEQ.
-func ProjectID(v int) predicate.Page {
-	return predicate.Page(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldProjectID), v))
-	})
-}
-
 // URLEQ applies the EQ predicate on the "url" field.
 func URLEQ(v string) predicate.Page {
 	return predicate.Page(func(s *sql.Selector) {
@@ -233,82 +226,6 @@ func SkipEQ(v bool) predicate.Page {
 func SkipNEQ(v bool) predicate.Page {
 	return predicate.Page(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldSkip), v))
-	})
-}
-
-// ProjectIDEQ applies the EQ predicate on the "project_id" field.
-func ProjectIDEQ(v int) predicate.Page {
-	return predicate.Page(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldProjectID), v))
-	})
-}
-
-// ProjectIDNEQ applies the NEQ predicate on the "project_id" field.
-func ProjectIDNEQ(v int) predicate.Page {
-	return predicate.Page(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldProjectID), v))
-	})
-}
-
-// ProjectIDIn applies the In predicate on the "project_id" field.
-func ProjectIDIn(vs ...int) predicate.Page {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Page(func(s *sql.Selector) {
-		// if not arguments were provided, append the FALSE constants,
-		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(v) == 0 {
-			s.Where(sql.False())
-			return
-		}
-		s.Where(sql.In(s.C(FieldProjectID), v...))
-	})
-}
-
-// ProjectIDNotIn applies the NotIn predicate on the "project_id" field.
-func ProjectIDNotIn(vs ...int) predicate.Page {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Page(func(s *sql.Selector) {
-		// if not arguments were provided, append the FALSE constants,
-		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(v) == 0 {
-			s.Where(sql.False())
-			return
-		}
-		s.Where(sql.NotIn(s.C(FieldProjectID), v...))
-	})
-}
-
-// ProjectIDGT applies the GT predicate on the "project_id" field.
-func ProjectIDGT(v int) predicate.Page {
-	return predicate.Page(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldProjectID), v))
-	})
-}
-
-// ProjectIDGTE applies the GTE predicate on the "project_id" field.
-func ProjectIDGTE(v int) predicate.Page {
-	return predicate.Page(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldProjectID), v))
-	})
-}
-
-// ProjectIDLT applies the LT predicate on the "project_id" field.
-func ProjectIDLT(v int) predicate.Page {
-	return predicate.Page(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldProjectID), v))
-	})
-}
-
-// ProjectIDLTE applies the LTE predicate on the "project_id" field.
-func ProjectIDLTE(v int) predicate.Page {
-	return predicate.Page(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldProjectID), v))
 	})
 }
 
