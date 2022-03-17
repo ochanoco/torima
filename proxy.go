@@ -6,8 +6,8 @@ import (
 	"net/url"
 )
 
-var LOGIN_PAGE_URL = "https://example.com"
-var EXAMPLE_URL = "https://example.com"
+var LOGIN_REDIRECT_PAGE_URL = "http://localhost:3000/redirect"
+var EXAMPLE_URL = "http://example.com"
 
 func director(req *http.Request) {
 	exampleURL, err := url.Parse(EXAMPLE_URL)
@@ -15,7 +15,7 @@ func director(req *http.Request) {
 		log.Fatal(err)
 	}
 
-	loginURL, err := url.Parse(LOGIN_PAGE_URL)
+	loginRedirectURL, err := url.Parse(LOGIN_REDIRECT_PAGE_URL)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -27,8 +27,9 @@ func director(req *http.Request) {
 		req.Header.Set("User-Agent", "bullet")
 		req.Header.Set("X-BULLET-Proxy-Token", "<proxy_token>")
 	} else {
-		req.URL.Scheme = loginURL.Scheme
-		req.URL.Host = loginURL.Host
+		req.URL.Scheme = loginRedirectURL.Scheme
+		req.URL.Host = loginRedirectURL.Host
+		req.URL.Path = "/redirect"
 	}
 }
 
