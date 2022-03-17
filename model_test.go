@@ -15,27 +15,30 @@ func TestModel(t *testing.T) {
 			t.Errorf("model_test: %v", err)
 		}
 
-		page, err := createAndSavePage(db, "https://example.com", true)
+		wl := createWhiteList(db, "https://example.com")
 
 		if err != nil {
-			t.Errorf("failed creating page: %v", err)
+			t.Errorf("failed creating white list: %v", err)
 			return
 		}
 
-		proj, err := createAndSaveProj(db, "<id>", "<name>")
+		projc := createProject(db, "<domain>", "<destination>", "<line_id>", "<name>")
+		proj, nil := projc.Save(db.ctx)
 
 		if err != nil {
 			t.Errorf("failed creating project: %v", err)
 			return
 		}
 
-		proj, err = addPageToProj(db, proj, page)
+		proj, err = savePageOnProj(db, proj, wl)
 
 		if err != nil {
-			t.Errorf("failed add page to project: %v", err)
+			t.Errorf("failed add white list to project: %v", err)
 			return
 		}
 
-		log.Printf("project and page created:\n    %v\n    %v", proj, page)
+		log.Print(proj, wl)
+
+		// log.Printf("project and white list created:\n    %v\n    %v", proj, wl)
 	})
 }

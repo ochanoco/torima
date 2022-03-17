@@ -10,9 +10,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/page"
 	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/predicate"
 	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/project"
+	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/whitelist"
 )
 
 // ProjectUpdate is the builder for updating Project entities.
@@ -52,19 +52,19 @@ func (pu *ProjectUpdate) SetLineID(s string) *ProjectUpdate {
 	return pu
 }
 
-// AddPageIDs adds the "pages" edge to the Page entity by IDs.
-func (pu *ProjectUpdate) AddPageIDs(ids ...int) *ProjectUpdate {
-	pu.mutation.AddPageIDs(ids...)
+// AddWhitelistIDs adds the "whitelists" edge to the WhiteList entity by IDs.
+func (pu *ProjectUpdate) AddWhitelistIDs(ids ...int) *ProjectUpdate {
+	pu.mutation.AddWhitelistIDs(ids...)
 	return pu
 }
 
-// AddPages adds the "pages" edges to the Page entity.
-func (pu *ProjectUpdate) AddPages(p ...*Page) *ProjectUpdate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// AddWhitelists adds the "whitelists" edges to the WhiteList entity.
+func (pu *ProjectUpdate) AddWhitelists(w ...*WhiteList) *ProjectUpdate {
+	ids := make([]int, len(w))
+	for i := range w {
+		ids[i] = w[i].ID
 	}
-	return pu.AddPageIDs(ids...)
+	return pu.AddWhitelistIDs(ids...)
 }
 
 // Mutation returns the ProjectMutation object of the builder.
@@ -72,25 +72,25 @@ func (pu *ProjectUpdate) Mutation() *ProjectMutation {
 	return pu.mutation
 }
 
-// ClearPages clears all "pages" edges to the Page entity.
-func (pu *ProjectUpdate) ClearPages() *ProjectUpdate {
-	pu.mutation.ClearPages()
+// ClearWhitelists clears all "whitelists" edges to the WhiteList entity.
+func (pu *ProjectUpdate) ClearWhitelists() *ProjectUpdate {
+	pu.mutation.ClearWhitelists()
 	return pu
 }
 
-// RemovePageIDs removes the "pages" edge to Page entities by IDs.
-func (pu *ProjectUpdate) RemovePageIDs(ids ...int) *ProjectUpdate {
-	pu.mutation.RemovePageIDs(ids...)
+// RemoveWhitelistIDs removes the "whitelists" edge to WhiteList entities by IDs.
+func (pu *ProjectUpdate) RemoveWhitelistIDs(ids ...int) *ProjectUpdate {
+	pu.mutation.RemoveWhitelistIDs(ids...)
 	return pu
 }
 
-// RemovePages removes "pages" edges to Page entities.
-func (pu *ProjectUpdate) RemovePages(p ...*Page) *ProjectUpdate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// RemoveWhitelists removes "whitelists" edges to WhiteList entities.
+func (pu *ProjectUpdate) RemoveWhitelists(w ...*WhiteList) *ProjectUpdate {
+	ids := make([]int, len(w))
+	for i := range w {
+		ids[i] = w[i].ID
 	}
-	return pu.RemovePageIDs(ids...)
+	return pu.RemoveWhitelistIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -193,33 +193,33 @@ func (pu *ProjectUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: project.FieldLineID,
 		})
 	}
-	if pu.mutation.PagesCleared() {
+	if pu.mutation.WhitelistsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   project.PagesTable,
-			Columns: []string{project.PagesColumn},
+			Table:   project.WhitelistsTable,
+			Columns: []string{project.WhitelistsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: page.FieldID,
+					Column: whitelist.FieldID,
 				},
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := pu.mutation.RemovedPagesIDs(); len(nodes) > 0 && !pu.mutation.PagesCleared() {
+	if nodes := pu.mutation.RemovedWhitelistsIDs(); len(nodes) > 0 && !pu.mutation.WhitelistsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   project.PagesTable,
-			Columns: []string{project.PagesColumn},
+			Table:   project.WhitelistsTable,
+			Columns: []string{project.WhitelistsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: page.FieldID,
+					Column: whitelist.FieldID,
 				},
 			},
 		}
@@ -228,17 +228,17 @@ func (pu *ProjectUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := pu.mutation.PagesIDs(); len(nodes) > 0 {
+	if nodes := pu.mutation.WhitelistsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   project.PagesTable,
-			Columns: []string{project.PagesColumn},
+			Table:   project.WhitelistsTable,
+			Columns: []string{project.WhitelistsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: page.FieldID,
+					Column: whitelist.FieldID,
 				},
 			},
 		}
@@ -290,19 +290,19 @@ func (puo *ProjectUpdateOne) SetLineID(s string) *ProjectUpdateOne {
 	return puo
 }
 
-// AddPageIDs adds the "pages" edge to the Page entity by IDs.
-func (puo *ProjectUpdateOne) AddPageIDs(ids ...int) *ProjectUpdateOne {
-	puo.mutation.AddPageIDs(ids...)
+// AddWhitelistIDs adds the "whitelists" edge to the WhiteList entity by IDs.
+func (puo *ProjectUpdateOne) AddWhitelistIDs(ids ...int) *ProjectUpdateOne {
+	puo.mutation.AddWhitelistIDs(ids...)
 	return puo
 }
 
-// AddPages adds the "pages" edges to the Page entity.
-func (puo *ProjectUpdateOne) AddPages(p ...*Page) *ProjectUpdateOne {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// AddWhitelists adds the "whitelists" edges to the WhiteList entity.
+func (puo *ProjectUpdateOne) AddWhitelists(w ...*WhiteList) *ProjectUpdateOne {
+	ids := make([]int, len(w))
+	for i := range w {
+		ids[i] = w[i].ID
 	}
-	return puo.AddPageIDs(ids...)
+	return puo.AddWhitelistIDs(ids...)
 }
 
 // Mutation returns the ProjectMutation object of the builder.
@@ -310,25 +310,25 @@ func (puo *ProjectUpdateOne) Mutation() *ProjectMutation {
 	return puo.mutation
 }
 
-// ClearPages clears all "pages" edges to the Page entity.
-func (puo *ProjectUpdateOne) ClearPages() *ProjectUpdateOne {
-	puo.mutation.ClearPages()
+// ClearWhitelists clears all "whitelists" edges to the WhiteList entity.
+func (puo *ProjectUpdateOne) ClearWhitelists() *ProjectUpdateOne {
+	puo.mutation.ClearWhitelists()
 	return puo
 }
 
-// RemovePageIDs removes the "pages" edge to Page entities by IDs.
-func (puo *ProjectUpdateOne) RemovePageIDs(ids ...int) *ProjectUpdateOne {
-	puo.mutation.RemovePageIDs(ids...)
+// RemoveWhitelistIDs removes the "whitelists" edge to WhiteList entities by IDs.
+func (puo *ProjectUpdateOne) RemoveWhitelistIDs(ids ...int) *ProjectUpdateOne {
+	puo.mutation.RemoveWhitelistIDs(ids...)
 	return puo
 }
 
-// RemovePages removes "pages" edges to Page entities.
-func (puo *ProjectUpdateOne) RemovePages(p ...*Page) *ProjectUpdateOne {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// RemoveWhitelists removes "whitelists" edges to WhiteList entities.
+func (puo *ProjectUpdateOne) RemoveWhitelists(w ...*WhiteList) *ProjectUpdateOne {
+	ids := make([]int, len(w))
+	for i := range w {
+		ids[i] = w[i].ID
 	}
-	return puo.RemovePageIDs(ids...)
+	return puo.RemoveWhitelistIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -455,33 +455,33 @@ func (puo *ProjectUpdateOne) sqlSave(ctx context.Context) (_node *Project, err e
 			Column: project.FieldLineID,
 		})
 	}
-	if puo.mutation.PagesCleared() {
+	if puo.mutation.WhitelistsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   project.PagesTable,
-			Columns: []string{project.PagesColumn},
+			Table:   project.WhitelistsTable,
+			Columns: []string{project.WhitelistsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: page.FieldID,
+					Column: whitelist.FieldID,
 				},
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := puo.mutation.RemovedPagesIDs(); len(nodes) > 0 && !puo.mutation.PagesCleared() {
+	if nodes := puo.mutation.RemovedWhitelistsIDs(); len(nodes) > 0 && !puo.mutation.WhitelistsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   project.PagesTable,
-			Columns: []string{project.PagesColumn},
+			Table:   project.WhitelistsTable,
+			Columns: []string{project.WhitelistsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: page.FieldID,
+					Column: whitelist.FieldID,
 				},
 			},
 		}
@@ -490,17 +490,17 @@ func (puo *ProjectUpdateOne) sqlSave(ctx context.Context) (_node *Project, err e
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := puo.mutation.PagesIDs(); len(nodes) > 0 {
+	if nodes := puo.mutation.WhitelistsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   project.PagesTable,
-			Columns: []string{project.PagesColumn},
+			Table:   project.WhitelistsTable,
+			Columns: []string{project.WhitelistsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: page.FieldID,
+					Column: whitelist.FieldID,
 				},
 			},
 		}

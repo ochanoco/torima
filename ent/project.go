@@ -30,20 +30,20 @@ type Project struct {
 
 // ProjectEdges holds the relations/edges for other nodes in the graph.
 type ProjectEdges struct {
-	// Pages holds the value of the pages edge.
-	Pages []*Page `json:"pages,omitempty"`
+	// Whitelists holds the value of the whitelists edge.
+	Whitelists []*WhiteList `json:"whitelists,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
-// PagesOrErr returns the Pages value or an error if the edge
+// WhitelistsOrErr returns the Whitelists value or an error if the edge
 // was not loaded in eager-loading.
-func (e ProjectEdges) PagesOrErr() ([]*Page, error) {
+func (e ProjectEdges) WhitelistsOrErr() ([]*WhiteList, error) {
 	if e.loadedTypes[0] {
-		return e.Pages, nil
+		return e.Whitelists, nil
 	}
-	return nil, &NotLoadedError{edge: "pages"}
+	return nil, &NotLoadedError{edge: "whitelists"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -105,9 +105,9 @@ func (pr *Project) assignValues(columns []string, values []interface{}) error {
 	return nil
 }
 
-// QueryPages queries the "pages" edge of the Project entity.
-func (pr *Project) QueryPages() *PageQuery {
-	return (&ProjectClient{config: pr.config}).QueryPages(pr)
+// QueryWhitelists queries the "whitelists" edge of the Project entity.
+func (pr *Project) QueryWhitelists() *WhiteListQuery {
+	return (&ProjectClient{config: pr.config}).QueryWhitelists(pr)
 }
 
 // Update returns a builder for updating this Project.

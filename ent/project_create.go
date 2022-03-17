@@ -9,8 +9,8 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/page"
 	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/project"
+	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/whitelist"
 )
 
 // ProjectCreate is the builder for creating a Project entity.
@@ -44,19 +44,19 @@ func (pc *ProjectCreate) SetLineID(s string) *ProjectCreate {
 	return pc
 }
 
-// AddPageIDs adds the "pages" edge to the Page entity by IDs.
-func (pc *ProjectCreate) AddPageIDs(ids ...int) *ProjectCreate {
-	pc.mutation.AddPageIDs(ids...)
+// AddWhitelistIDs adds the "whitelists" edge to the WhiteList entity by IDs.
+func (pc *ProjectCreate) AddWhitelistIDs(ids ...int) *ProjectCreate {
+	pc.mutation.AddWhitelistIDs(ids...)
 	return pc
 }
 
-// AddPages adds the "pages" edges to the Page entity.
-func (pc *ProjectCreate) AddPages(p ...*Page) *ProjectCreate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// AddWhitelists adds the "whitelists" edges to the WhiteList entity.
+func (pc *ProjectCreate) AddWhitelists(w ...*WhiteList) *ProjectCreate {
+	ids := make([]int, len(w))
+	for i := range w {
+		ids[i] = w[i].ID
 	}
-	return pc.AddPageIDs(ids...)
+	return pc.AddWhitelistIDs(ids...)
 }
 
 // Mutation returns the ProjectMutation object of the builder.
@@ -200,17 +200,17 @@ func (pc *ProjectCreate) createSpec() (*Project, *sqlgraph.CreateSpec) {
 		})
 		_node.LineID = value
 	}
-	if nodes := pc.mutation.PagesIDs(); len(nodes) > 0 {
+	if nodes := pc.mutation.WhitelistsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   project.PagesTable,
-			Columns: []string{project.PagesColumn},
+			Table:   project.WhitelistsTable,
+			Columns: []string{project.WhitelistsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: page.FieldID,
+					Column: whitelist.FieldID,
 				},
 			},
 		}
