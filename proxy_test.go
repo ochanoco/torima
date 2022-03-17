@@ -10,6 +10,8 @@ import (
 )
 
 func TestProxyAuthOK(t *testing.T) {
+	setupForTest()
+
 	normalBody := "<body>ok</body>"
 
 	t.Run("test proxy", func(t *testing.T) {

@@ -4,34 +4,47 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+
+	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/project"
 )
 
+func goToErrorPage(msg string, err error, req *http.Request) {
+	log.Fatalf(msg, err)
+
+	errorPageURL, err := url.Parse(ERROR_PAGE_URL)
+
+	if err != nil {
+		log.Fatalf("parse error: %v", err)
+	}
+
+	req.URL.Scheme = errorPageURL.Scheme
+	req.URL.Host = errorPageURL.Host
+	req.URL.Path = "/404"
+}
+
 func director(req *http.Request) {
-	// db, err := initDB()
-
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// page, error = db.client.Page.Get(req.URL.Host);
-
-	exampleURL, err := url.Parse(EXAMPLE_URL)
-	if err != nil {
-		log.Fatal(err)
-	}
-	req.URL.Scheme = exampleURL.Scheme
-	req.URL.Host = exampleURL.Host
-
 	loginRedirectURL, err := url.Parse(LOGIN_REDIRECT_PAGE_URL)
+
 	if err != nil {
-		log.Fatal(err)
+		goToErrorPage("failed parse", err, req)
+		return
 	}
+
+	project, err := db.client.Project.
+		Query().
+		Where(project.DomainEQ(req.URL.Host)).
+		Only(db.ctx)
+
+	if err != nil {
+		goToErrorPage("failed find site", err, req)
+		return
+	}
+
+	req.URL.Scheme = "http"
+	req.URL.Host = project.Destination
 
 	isValid := passIfCleanContent(req)
-
-	if authenticateRequest(req) {
-		isValid = true
-	}
+	isValid = isValid || authenticateRequest(req)
 
 	if isValid {
 		req.Header.Set("User-Agent", "bullet")
