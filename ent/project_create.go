@@ -26,6 +26,18 @@ func (pc *ProjectCreate) SetName(s string) *ProjectCreate {
 	return pc
 }
 
+// SetDomain sets the "domain" field.
+func (pc *ProjectCreate) SetDomain(s string) *ProjectCreate {
+	pc.mutation.SetDomain(s)
+	return pc
+}
+
+// SetDestination sets the "destination" field.
+func (pc *ProjectCreate) SetDestination(s string) *ProjectCreate {
+	pc.mutation.SetDestination(s)
+	return pc
+}
+
 // SetLineID sets the "line_id" field.
 func (pc *ProjectCreate) SetLineID(s string) *ProjectCreate {
 	pc.mutation.SetLineID(s)
@@ -120,6 +132,12 @@ func (pc *ProjectCreate) check() error {
 	if _, ok := pc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Project.name"`)}
 	}
+	if _, ok := pc.mutation.Domain(); !ok {
+		return &ValidationError{Name: "domain", err: errors.New(`ent: missing required field "Project.domain"`)}
+	}
+	if _, ok := pc.mutation.Destination(); !ok {
+		return &ValidationError{Name: "destination", err: errors.New(`ent: missing required field "Project.destination"`)}
+	}
 	if _, ok := pc.mutation.LineID(); !ok {
 		return &ValidationError{Name: "line_id", err: errors.New(`ent: missing required field "Project.line_id"`)}
 	}
@@ -157,6 +175,22 @@ func (pc *ProjectCreate) createSpec() (*Project, *sqlgraph.CreateSpec) {
 			Column: project.FieldName,
 		})
 		_node.Name = value
+	}
+	if value, ok := pc.mutation.Domain(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: project.FieldDomain,
+		})
+		_node.Domain = value
+	}
+	if value, ok := pc.mutation.Destination(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: project.FieldDestination,
+		})
+		_node.Destination = value
 	}
 	if value, ok := pc.mutation.LineID(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

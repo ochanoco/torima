@@ -9,6 +9,10 @@ const (
 	FieldID = "id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+	// FieldDomain holds the string denoting the domain field in the database.
+	FieldDomain = "domain"
+	// FieldDestination holds the string denoting the destination field in the database.
+	FieldDestination = "destination"
 	// FieldLineID holds the string denoting the line_id field in the database.
 	FieldLineID = "line_id"
 	// EdgePages holds the string denoting the pages edge name in mutations.
@@ -28,6 +32,8 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldName,
+	FieldDomain,
+	FieldDestination,
 	FieldLineID,
 }
 

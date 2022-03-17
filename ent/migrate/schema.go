@@ -40,6 +40,8 @@ var (
 	ProjectsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString},
+		{Name: "domain", Type: field.TypeString},
+		{Name: "destination", Type: field.TypeString},
 		{Name: "line_id", Type: field.TypeString},
 	}
 	// ProjectsTable holds the schema information for the "projects" table.
@@ -47,6 +49,18 @@ var (
 		Name:       "projects",
 		Columns:    ProjectsColumns,
 		PrimaryKey: []*schema.Column{ProjectsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "project_domain",
+				Unique:  true,
+				Columns: []*schema.Column{ProjectsColumns[2]},
+			},
+			{
+				Name:    "project_line_id",
+				Unique:  true,
+				Columns: []*schema.Column{ProjectsColumns[4]},
+			},
+		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
