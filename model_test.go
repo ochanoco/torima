@@ -5,7 +5,19 @@ import (
 	"testing"
 )
 
+func setupForTest() {
+	dbl, err := initDB()
+
+	if err != nil {
+		log.Panicf("failed init db: %v", err)
+	}
+
+	db = dbl
+}
+
 func TestModel(t *testing.T) {
+	setupForTest()
+	
 	DB_CONFIG = "file:ent?mode=memory&cache=shared&_fk=1"
 
 	t.Run("test proxy", func(t *testing.T) {

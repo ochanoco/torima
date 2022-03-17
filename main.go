@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"net/http/httputil"
 
@@ -8,6 +9,14 @@ import (
 )
 
 func main() {
+	dbl, err := initDB()
+
+	if err != nil {
+		log.Panicf("failed init db: %v", err)
+	}
+
+	db = dbl
+
 	rp := httputil.ReverseProxy{
 		Director:       director,
 		ModifyResponse: modifyResponse,

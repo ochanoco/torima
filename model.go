@@ -13,6 +13,8 @@ type Database struct {
 	client *ent.Client
 }
 
+var db *Database
+
 func initDB() (*Database, error) {
 	err := errors.New("error")
 	db := new(Database)
