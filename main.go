@@ -1,7 +1,7 @@
 package main
 
 import (
-	"net/http/httptest"
+	"net/http"
 	"net/http/httputil"
 )
 
@@ -11,8 +11,10 @@ func main() {
 		ModifyResponse: modifyResponse,
 	}
 
-	serv := httptest.NewServer(&rp)
-	defer serv.Close()
+	serv := http.Server{
+		Addr:    ":9000",
+		Handler: &rp,
+	}
 
-	serv.Config.ListenAndServe()
+	serv.ListenAndServe()
 }
