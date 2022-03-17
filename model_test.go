@@ -9,32 +9,30 @@ func TestModel(t *testing.T) {
 	DB_CONFIG = "file:ent?mode=memory&cache=shared&_fk=1"
 
 	t.Run("test proxy", func(t *testing.T) {
-		db, err := init_db()
+		db, err := initDB()
 
 		if err != nil {
 			t.Errorf("model_test: %v", err)
 		}
 
-		page, err := db.client.Page.
-			Create().
-			SetURL("https://example.com").
-			SetSkip(false).
-			Save(db.ctx)
+		page, err := createAndSavePage(db, "https://example.com", true)
 
 		if err != nil {
 			t.Errorf("failed creating page: %v", err)
 			return
 		}
 
-		proj, err := db.client.Project.
-			Create().
-			SetLineID("1").
-			SetName("taro").
-			AddPages(page).
-			Save(db.ctx)
+		proj, err := createAndSaveProj(db, "<id>", "<name>")
 
 		if err != nil {
 			t.Errorf("failed creating project: %v", err)
+			return
+		}
+
+		proj, err = addPageToProj(db, proj, page)
+
+		if err != nil {
+			t.Errorf("failed add page to project: %v", err)
 			return
 		}
 
