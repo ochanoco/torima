@@ -563,25 +563,25 @@ func LineIDContainsFold(v string) predicate.Project {
 	})
 }
 
-// HasPages applies the HasEdge predicate on the "pages" edge.
-func HasPages() predicate.Project {
+// HasWhitelists applies the HasEdge predicate on the "whitelists" edge.
+func HasWhitelists() predicate.Project {
 	return predicate.Project(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(PagesTable, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, PagesTable, PagesColumn),
+			sqlgraph.To(WhitelistsTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, WhitelistsTable, WhitelistsColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasPagesWith applies the HasEdge predicate on the "pages" edge with a given conditions (other predicates).
-func HasPagesWith(preds ...predicate.Page) predicate.Project {
+// HasWhitelistsWith applies the HasEdge predicate on the "whitelists" edge with a given conditions (other predicates).
+func HasWhitelistsWith(preds ...predicate.WhiteList) predicate.Project {
 	return predicate.Project(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(PagesInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, PagesTable, PagesColumn),
+			sqlgraph.To(WhitelistsInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, WhitelistsTable, WhitelistsColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

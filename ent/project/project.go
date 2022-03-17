@@ -15,17 +15,17 @@ const (
 	FieldDestination = "destination"
 	// FieldLineID holds the string denoting the line_id field in the database.
 	FieldLineID = "line_id"
-	// EdgePages holds the string denoting the pages edge name in mutations.
-	EdgePages = "pages"
+	// EdgeWhitelists holds the string denoting the whitelists edge name in mutations.
+	EdgeWhitelists = "whitelists"
 	// Table holds the table name of the project in the database.
 	Table = "projects"
-	// PagesTable is the table that holds the pages relation/edge.
-	PagesTable = "pages"
-	// PagesInverseTable is the table name for the Page entity.
-	// It exists in this package in order to avoid circular dependency with the "page" package.
-	PagesInverseTable = "pages"
-	// PagesColumn is the table column denoting the pages relation/edge.
-	PagesColumn = "project_pages"
+	// WhitelistsTable is the table that holds the whitelists relation/edge.
+	WhitelistsTable = "white_lists"
+	// WhitelistsInverseTable is the table name for the WhiteList entity.
+	// It exists in this package in order to avoid circular dependency with the "whitelist" package.
+	WhitelistsInverseTable = "white_lists"
+	// WhitelistsColumn is the table column denoting the whitelists relation/edge.
+	WhitelistsColumn = "project_whitelists"
 )
 
 // Columns holds all SQL columns for project fields.

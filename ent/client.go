@@ -9,8 +9,8 @@ import (
 
 	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/migrate"
 
-	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/page"
 	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/project"
+	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/whitelist"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
@@ -22,10 +22,10 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
-	// Page is the client for interacting with the Page builders.
-	Page *PageClient
 	// Project is the client for interacting with the Project builders.
 	Project *ProjectClient
+	// WhiteList is the client for interacting with the WhiteList builders.
+	WhiteList *WhiteListClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -39,8 +39,8 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
-	c.Page = NewPageClient(c.config)
 	c.Project = NewProjectClient(c.config)
+	c.WhiteList = NewWhiteListClient(c.config)
 }
 
 // Open opens a database/sql.DB specified by the driver name and
@@ -72,10 +72,10 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:     ctx,
-		config:  cfg,
-		Page:    NewPageClient(cfg),
-		Project: NewProjectClient(cfg),
+		ctx:       ctx,
+		config:    cfg,
+		Project:   NewProjectClient(cfg),
+		WhiteList: NewWhiteListClient(cfg),
 	}, nil
 }
 
@@ -93,17 +93,17 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:     ctx,
-		config:  cfg,
-		Page:    NewPageClient(cfg),
-		Project: NewProjectClient(cfg),
+		ctx:       ctx,
+		config:    cfg,
+		Project:   NewProjectClient(cfg),
+		WhiteList: NewWhiteListClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Page.
+//		Project.
 //		Query().
 //		Count(ctx)
 //
@@ -126,98 +126,8 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.Page.Use(hooks...)
 	c.Project.Use(hooks...)
-}
-
-// PageClient is a client for the Page schema.
-type PageClient struct {
-	config
-}
-
-// NewPageClient returns a client for the Page from the given config.
-func NewPageClient(c config) *PageClient {
-	return &PageClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `page.Hooks(f(g(h())))`.
-func (c *PageClient) Use(hooks ...Hook) {
-	c.hooks.Page = append(c.hooks.Page, hooks...)
-}
-
-// Create returns a create builder for Page.
-func (c *PageClient) Create() *PageCreate {
-	mutation := newPageMutation(c.config, OpCreate)
-	return &PageCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of Page entities.
-func (c *PageClient) CreateBulk(builders ...*PageCreate) *PageCreateBulk {
-	return &PageCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for Page.
-func (c *PageClient) Update() *PageUpdate {
-	mutation := newPageMutation(c.config, OpUpdate)
-	return &PageUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *PageClient) UpdateOne(pa *Page) *PageUpdateOne {
-	mutation := newPageMutation(c.config, OpUpdateOne, withPage(pa))
-	return &PageUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *PageClient) UpdateOneID(id int) *PageUpdateOne {
-	mutation := newPageMutation(c.config, OpUpdateOne, withPageID(id))
-	return &PageUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for Page.
-func (c *PageClient) Delete() *PageDelete {
-	mutation := newPageMutation(c.config, OpDelete)
-	return &PageDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a delete builder for the given entity.
-func (c *PageClient) DeleteOne(pa *Page) *PageDeleteOne {
-	return c.DeleteOneID(pa.ID)
-}
-
-// DeleteOneID returns a delete builder for the given id.
-func (c *PageClient) DeleteOneID(id int) *PageDeleteOne {
-	builder := c.Delete().Where(page.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &PageDeleteOne{builder}
-}
-
-// Query returns a query builder for Page.
-func (c *PageClient) Query() *PageQuery {
-	return &PageQuery{
-		config: c.config,
-	}
-}
-
-// Get returns a Page entity by its id.
-func (c *PageClient) Get(ctx context.Context, id int) (*Page, error) {
-	return c.Query().Where(page.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *PageClient) GetX(ctx context.Context, id int) *Page {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// Hooks returns the client hooks.
-func (c *PageClient) Hooks() []Hook {
-	return c.hooks.Page
+	c.WhiteList.Use(hooks...)
 }
 
 // ProjectClient is a client for the Project schema.
@@ -305,15 +215,15 @@ func (c *ProjectClient) GetX(ctx context.Context, id int) *Project {
 	return obj
 }
 
-// QueryPages queries the pages edge of a Project.
-func (c *ProjectClient) QueryPages(pr *Project) *PageQuery {
-	query := &PageQuery{config: c.config}
+// QueryWhitelists queries the whitelists edge of a Project.
+func (c *ProjectClient) QueryWhitelists(pr *Project) *WhiteListQuery {
+	query := &WhiteListQuery{config: c.config}
 	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
 		id := pr.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(project.Table, project.FieldID, id),
-			sqlgraph.To(page.Table, page.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, project.PagesTable, project.PagesColumn),
+			sqlgraph.To(whitelist.Table, whitelist.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, project.WhitelistsTable, project.WhitelistsColumn),
 		)
 		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
 		return fromV, nil
@@ -324,4 +234,110 @@ func (c *ProjectClient) QueryPages(pr *Project) *PageQuery {
 // Hooks returns the client hooks.
 func (c *ProjectClient) Hooks() []Hook {
 	return c.hooks.Project
+}
+
+// WhiteListClient is a client for the WhiteList schema.
+type WhiteListClient struct {
+	config
+}
+
+// NewWhiteListClient returns a client for the WhiteList from the given config.
+func NewWhiteListClient(c config) *WhiteListClient {
+	return &WhiteListClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `whitelist.Hooks(f(g(h())))`.
+func (c *WhiteListClient) Use(hooks ...Hook) {
+	c.hooks.WhiteList = append(c.hooks.WhiteList, hooks...)
+}
+
+// Create returns a create builder for WhiteList.
+func (c *WhiteListClient) Create() *WhiteListCreate {
+	mutation := newWhiteListMutation(c.config, OpCreate)
+	return &WhiteListCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of WhiteList entities.
+func (c *WhiteListClient) CreateBulk(builders ...*WhiteListCreate) *WhiteListCreateBulk {
+	return &WhiteListCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for WhiteList.
+func (c *WhiteListClient) Update() *WhiteListUpdate {
+	mutation := newWhiteListMutation(c.config, OpUpdate)
+	return &WhiteListUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *WhiteListClient) UpdateOne(wl *WhiteList) *WhiteListUpdateOne {
+	mutation := newWhiteListMutation(c.config, OpUpdateOne, withWhiteList(wl))
+	return &WhiteListUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *WhiteListClient) UpdateOneID(id int) *WhiteListUpdateOne {
+	mutation := newWhiteListMutation(c.config, OpUpdateOne, withWhiteListID(id))
+	return &WhiteListUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for WhiteList.
+func (c *WhiteListClient) Delete() *WhiteListDelete {
+	mutation := newWhiteListMutation(c.config, OpDelete)
+	return &WhiteListDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *WhiteListClient) DeleteOne(wl *WhiteList) *WhiteListDeleteOne {
+	return c.DeleteOneID(wl.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *WhiteListClient) DeleteOneID(id int) *WhiteListDeleteOne {
+	builder := c.Delete().Where(whitelist.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &WhiteListDeleteOne{builder}
+}
+
+// Query returns a query builder for WhiteList.
+func (c *WhiteListClient) Query() *WhiteListQuery {
+	return &WhiteListQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a WhiteList entity by its id.
+func (c *WhiteListClient) Get(ctx context.Context, id int) (*WhiteList, error) {
+	return c.Query().Where(whitelist.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *WhiteListClient) GetX(ctx context.Context, id int) *WhiteList {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryOwner queries the owner edge of a WhiteList.
+func (c *WhiteListClient) QueryOwner(wl *WhiteList) *ProjectQuery {
+	query := &ProjectQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := wl.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(whitelist.Table, whitelist.FieldID, id),
+			sqlgraph.To(project.Table, project.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, whitelist.OwnerTable, whitelist.OwnerColumn),
+		)
+		fromV = sqlgraph.Neighbors(wl.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *WhiteListClient) Hooks() []Hook {
+	return c.hooks.WhiteList
 }

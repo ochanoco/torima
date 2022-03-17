@@ -12,9 +12,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/page"
 	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/predicate"
 	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/project"
+	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/whitelist"
 )
 
 // ProjectQuery is the builder for querying Project entities.
@@ -27,7 +27,7 @@ type ProjectQuery struct {
 	fields     []string
 	predicates []predicate.Project
 	// eager-loading edges.
-	withPages *PageQuery
+	withWhitelists *WhiteListQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -64,9 +64,9 @@ func (pq *ProjectQuery) Order(o ...OrderFunc) *ProjectQuery {
 	return pq
 }
 
-// QueryPages chains the current query on the "pages" edge.
-func (pq *ProjectQuery) QueryPages() *PageQuery {
-	query := &PageQuery{config: pq.config}
+// QueryWhitelists chains the current query on the "whitelists" edge.
+func (pq *ProjectQuery) QueryWhitelists() *WhiteListQuery {
+	query := &WhiteListQuery{config: pq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := pq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -77,8 +77,8 @@ func (pq *ProjectQuery) QueryPages() *PageQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(project.Table, project.FieldID, selector),
-			sqlgraph.To(page.Table, page.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, project.PagesTable, project.PagesColumn),
+			sqlgraph.To(whitelist.Table, whitelist.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, project.WhitelistsTable, project.WhitelistsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
 		return fromU, nil
@@ -262,12 +262,12 @@ func (pq *ProjectQuery) Clone() *ProjectQuery {
 		return nil
 	}
 	return &ProjectQuery{
-		config:     pq.config,
-		limit:      pq.limit,
-		offset:     pq.offset,
-		order:      append([]OrderFunc{}, pq.order...),
-		predicates: append([]predicate.Project{}, pq.predicates...),
-		withPages:  pq.withPages.Clone(),
+		config:         pq.config,
+		limit:          pq.limit,
+		offset:         pq.offset,
+		order:          append([]OrderFunc{}, pq.order...),
+		predicates:     append([]predicate.Project{}, pq.predicates...),
+		withWhitelists: pq.withWhitelists.Clone(),
 		// clone intermediate query.
 		sql:    pq.sql.Clone(),
 		path:   pq.path,
@@ -275,14 +275,14 @@ func (pq *ProjectQuery) Clone() *ProjectQuery {
 	}
 }
 
-// WithPages tells the query-builder to eager-load the nodes that are connected to
-// the "pages" edge. The optional arguments are used to configure the query builder of the edge.
-func (pq *ProjectQuery) WithPages(opts ...func(*PageQuery)) *ProjectQuery {
-	query := &PageQuery{config: pq.config}
+// WithWhitelists tells the query-builder to eager-load the nodes that are connected to
+// the "whitelists" edge. The optional arguments are used to configure the query builder of the edge.
+func (pq *ProjectQuery) WithWhitelists(opts ...func(*WhiteListQuery)) *ProjectQuery {
+	query := &WhiteListQuery{config: pq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
-	pq.withPages = query
+	pq.withWhitelists = query
 	return pq
 }
 
@@ -352,7 +352,7 @@ func (pq *ProjectQuery) sqlAll(ctx context.Context) ([]*Project, error) {
 		nodes       = []*Project{}
 		_spec       = pq.querySpec()
 		loadedTypes = [1]bool{
-			pq.withPages != nil,
+			pq.withWhitelists != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
@@ -375,32 +375,32 @@ func (pq *ProjectQuery) sqlAll(ctx context.Context) ([]*Project, error) {
 		return nodes, nil
 	}
 
-	if query := pq.withPages; query != nil {
+	if query := pq.withWhitelists; query != nil {
 		fks := make([]driver.Value, 0, len(nodes))
 		nodeids := make(map[int]*Project)
 		for i := range nodes {
 			fks = append(fks, nodes[i].ID)
 			nodeids[nodes[i].ID] = nodes[i]
-			nodes[i].Edges.Pages = []*Page{}
+			nodes[i].Edges.Whitelists = []*WhiteList{}
 		}
 		query.withFKs = true
-		query.Where(predicate.Page(func(s *sql.Selector) {
-			s.Where(sql.InValues(project.PagesColumn, fks...))
+		query.Where(predicate.WhiteList(func(s *sql.Selector) {
+			s.Where(sql.InValues(project.WhitelistsColumn, fks...))
 		}))
 		neighbors, err := query.All(ctx)
 		if err != nil {
 			return nil, err
 		}
 		for _, n := range neighbors {
-			fk := n.project_pages
+			fk := n.project_whitelists
 			if fk == nil {
-				return nil, fmt.Errorf(`foreign-key "project_pages" is nil for node %v`, n.ID)
+				return nil, fmt.Errorf(`foreign-key "project_whitelists" is nil for node %v`, n.ID)
 			}
 			node, ok := nodeids[*fk]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "project_pages" returned %v for node %v`, *fk, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "project_whitelists" returned %v for node %v`, *fk, n.ID)
 			}
-			node.Edges.Pages = append(node.Edges.Pages, n)
+			node.Edges.Whitelists = append(node.Edges.Whitelists, n)
 		}
 	}
 

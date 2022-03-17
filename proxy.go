@@ -6,8 +6,15 @@ import (
 	"net/url"
 )
 
-
 func director(req *http.Request) {
+	// db, err := initDB()
+
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// page, error = db.client.Page.Get(req.URL.Host);
+
 	exampleURL, err := url.Parse(EXAMPLE_URL)
 	if err != nil {
 		log.Fatal(err)

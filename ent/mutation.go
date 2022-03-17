@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/page"
 	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/predicate"
 	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/project"
+	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/whitelist"
 
 	"entgo.io/ent"
 )
@@ -24,392 +24,27 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypePage    = "Page"
-	TypeProject = "Project"
+	TypeProject   = "Project"
+	TypeWhiteList = "WhiteList"
 )
-
-// PageMutation represents an operation that mutates the Page nodes in the graph.
-type PageMutation struct {
-	config
-	op            Op
-	typ           string
-	id            *int
-	url           *string
-	skip          *bool
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*Page, error)
-	predicates    []predicate.Page
-}
-
-var _ ent.Mutation = (*PageMutation)(nil)
-
-// pageOption allows management of the mutation configuration using functional options.
-type pageOption func(*PageMutation)
-
-// newPageMutation creates new mutation for the Page entity.
-func newPageMutation(c config, op Op, opts ...pageOption) *PageMutation {
-	m := &PageMutation{
-		config:        c,
-		op:            op,
-		typ:           TypePage,
-		clearedFields: make(map[string]struct{}),
-	}
-	for _, opt := range opts {
-		opt(m)
-	}
-	return m
-}
-
-// withPageID sets the ID field of the mutation.
-func withPageID(id int) pageOption {
-	return func(m *PageMutation) {
-		var (
-			err   error
-			once  sync.Once
-			value *Page
-		)
-		m.oldValue = func(ctx context.Context) (*Page, error) {
-			once.Do(func() {
-				if m.done {
-					err = errors.New("querying old values post mutation is not allowed")
-				} else {
-					value, err = m.Client().Page.Get(ctx, id)
-				}
-			})
-			return value, err
-		}
-		m.id = &id
-	}
-}
-
-// withPage sets the old Page of the mutation.
-func withPage(node *Page) pageOption {
-	return func(m *PageMutation) {
-		m.oldValue = func(context.Context) (*Page, error) {
-			return node, nil
-		}
-		m.id = &node.ID
-	}
-}
-
-// Client returns a new `ent.Client` from the mutation. If the mutation was
-// executed in a transaction (ent.Tx), a transactional client is returned.
-func (m PageMutation) Client() *Client {
-	client := &Client{config: m.config}
-	client.init()
-	return client
-}
-
-// Tx returns an `ent.Tx` for mutations that were executed in transactions;
-// it returns an error otherwise.
-func (m PageMutation) Tx() (*Tx, error) {
-	if _, ok := m.driver.(*txDriver); !ok {
-		return nil, errors.New("ent: mutation is not running in a transaction")
-	}
-	tx := &Tx{config: m.config}
-	tx.init()
-	return tx, nil
-}
-
-// ID returns the ID value in the mutation. Note that the ID is only available
-// if it was provided to the builder or after it was returned from the database.
-func (m *PageMutation) ID() (id int, exists bool) {
-	if m.id == nil {
-		return
-	}
-	return *m.id, true
-}
-
-// IDs queries the database and returns the entity ids that match the mutation's predicate.
-// That means, if the mutation is applied within a transaction with an isolation level such
-// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
-// or updated by the mutation.
-func (m *PageMutation) IDs(ctx context.Context) ([]int, error) {
-	switch {
-	case m.op.Is(OpUpdateOne | OpDeleteOne):
-		id, exists := m.ID()
-		if exists {
-			return []int{id}, nil
-		}
-		fallthrough
-	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().Page.Query().Where(m.predicates...).IDs(ctx)
-	default:
-		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
-	}
-}
-
-// SetURL sets the "url" field.
-func (m *PageMutation) SetURL(s string) {
-	m.url = &s
-}
-
-// URL returns the value of the "url" field in the mutation.
-func (m *PageMutation) URL() (r string, exists bool) {
-	v := m.url
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldURL returns the old "url" field's value of the Page entity.
-// If the Page object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PageMutation) OldURL(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldURL is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldURL requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldURL: %w", err)
-	}
-	return oldValue.URL, nil
-}
-
-// ResetURL resets all changes to the "url" field.
-func (m *PageMutation) ResetURL() {
-	m.url = nil
-}
-
-// SetSkip sets the "skip" field.
-func (m *PageMutation) SetSkip(b bool) {
-	m.skip = &b
-}
-
-// Skip returns the value of the "skip" field in the mutation.
-func (m *PageMutation) Skip() (r bool, exists bool) {
-	v := m.skip
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldSkip returns the old "skip" field's value of the Page entity.
-// If the Page object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PageMutation) OldSkip(ctx context.Context) (v bool, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldSkip is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldSkip requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSkip: %w", err)
-	}
-	return oldValue.Skip, nil
-}
-
-// ResetSkip resets all changes to the "skip" field.
-func (m *PageMutation) ResetSkip() {
-	m.skip = nil
-}
-
-// Where appends a list predicates to the PageMutation builder.
-func (m *PageMutation) Where(ps ...predicate.Page) {
-	m.predicates = append(m.predicates, ps...)
-}
-
-// Op returns the operation name.
-func (m *PageMutation) Op() Op {
-	return m.op
-}
-
-// Type returns the node type of this mutation (Page).
-func (m *PageMutation) Type() string {
-	return m.typ
-}
-
-// Fields returns all fields that were changed during this mutation. Note that in
-// order to get all numeric fields that were incremented/decremented, call
-// AddedFields().
-func (m *PageMutation) Fields() []string {
-	fields := make([]string, 0, 2)
-	if m.url != nil {
-		fields = append(fields, page.FieldURL)
-	}
-	if m.skip != nil {
-		fields = append(fields, page.FieldSkip)
-	}
-	return fields
-}
-
-// Field returns the value of a field with the given name. The second boolean
-// return value indicates that this field was not set, or was not defined in the
-// schema.
-func (m *PageMutation) Field(name string) (ent.Value, bool) {
-	switch name {
-	case page.FieldURL:
-		return m.URL()
-	case page.FieldSkip:
-		return m.Skip()
-	}
-	return nil, false
-}
-
-// OldField returns the old value of the field from the database. An error is
-// returned if the mutation operation is not UpdateOne, or the query to the
-// database failed.
-func (m *PageMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
-	switch name {
-	case page.FieldURL:
-		return m.OldURL(ctx)
-	case page.FieldSkip:
-		return m.OldSkip(ctx)
-	}
-	return nil, fmt.Errorf("unknown Page field %s", name)
-}
-
-// SetField sets the value of a field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *PageMutation) SetField(name string, value ent.Value) error {
-	switch name {
-	case page.FieldURL:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetURL(v)
-		return nil
-	case page.FieldSkip:
-		v, ok := value.(bool)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetSkip(v)
-		return nil
-	}
-	return fmt.Errorf("unknown Page field %s", name)
-}
-
-// AddedFields returns all numeric fields that were incremented/decremented during
-// this mutation.
-func (m *PageMutation) AddedFields() []string {
-	return nil
-}
-
-// AddedField returns the numeric value that was incremented/decremented on a field
-// with the given name. The second boolean return value indicates that this field
-// was not set, or was not defined in the schema.
-func (m *PageMutation) AddedField(name string) (ent.Value, bool) {
-	return nil, false
-}
-
-// AddField adds the value to the field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *PageMutation) AddField(name string, value ent.Value) error {
-	switch name {
-	}
-	return fmt.Errorf("unknown Page numeric field %s", name)
-}
-
-// ClearedFields returns all nullable fields that were cleared during this
-// mutation.
-func (m *PageMutation) ClearedFields() []string {
-	return nil
-}
-
-// FieldCleared returns a boolean indicating if a field with the given name was
-// cleared in this mutation.
-func (m *PageMutation) FieldCleared(name string) bool {
-	_, ok := m.clearedFields[name]
-	return ok
-}
-
-// ClearField clears the value of the field with the given name. It returns an
-// error if the field is not defined in the schema.
-func (m *PageMutation) ClearField(name string) error {
-	return fmt.Errorf("unknown Page nullable field %s", name)
-}
-
-// ResetField resets all changes in the mutation for the field with the given name.
-// It returns an error if the field is not defined in the schema.
-func (m *PageMutation) ResetField(name string) error {
-	switch name {
-	case page.FieldURL:
-		m.ResetURL()
-		return nil
-	case page.FieldSkip:
-		m.ResetSkip()
-		return nil
-	}
-	return fmt.Errorf("unknown Page field %s", name)
-}
-
-// AddedEdges returns all edge names that were set/added in this mutation.
-func (m *PageMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
-	return edges
-}
-
-// AddedIDs returns all IDs (to other nodes) that were added for the given edge
-// name in this mutation.
-func (m *PageMutation) AddedIDs(name string) []ent.Value {
-	return nil
-}
-
-// RemovedEdges returns all edge names that were removed in this mutation.
-func (m *PageMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
-	return edges
-}
-
-// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
-// the given name in this mutation.
-func (m *PageMutation) RemovedIDs(name string) []ent.Value {
-	return nil
-}
-
-// ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *PageMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
-	return edges
-}
-
-// EdgeCleared returns a boolean which indicates if the edge with the given name
-// was cleared in this mutation.
-func (m *PageMutation) EdgeCleared(name string) bool {
-	return false
-}
-
-// ClearEdge clears the value of the edge with the given name. It returns an error
-// if that edge is not defined in the schema.
-func (m *PageMutation) ClearEdge(name string) error {
-	return fmt.Errorf("unknown Page unique edge %s", name)
-}
-
-// ResetEdge resets all changes to the edge with the given name in this mutation.
-// It returns an error if the edge is not defined in the schema.
-func (m *PageMutation) ResetEdge(name string) error {
-	return fmt.Errorf("unknown Page edge %s", name)
-}
 
 // ProjectMutation represents an operation that mutates the Project nodes in the graph.
 type ProjectMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *int
-	name          *string
-	domain        *string
-	destination   *string
-	line_id       *string
-	clearedFields map[string]struct{}
-	pages         map[int]struct{}
-	removedpages  map[int]struct{}
-	clearedpages  bool
-	done          bool
-	oldValue      func(context.Context) (*Project, error)
-	predicates    []predicate.Project
+	op                Op
+	typ               string
+	id                *int
+	name              *string
+	domain            *string
+	destination       *string
+	line_id           *string
+	clearedFields     map[string]struct{}
+	whitelists        map[int]struct{}
+	removedwhitelists map[int]struct{}
+	clearedwhitelists bool
+	done              bool
+	oldValue          func(context.Context) (*Project, error)
+	predicates        []predicate.Project
 }
 
 var _ ent.Mutation = (*ProjectMutation)(nil)
@@ -654,58 +289,58 @@ func (m *ProjectMutation) ResetLineID() {
 	m.line_id = nil
 }
 
-// AddPageIDs adds the "pages" edge to the Page entity by ids.
-func (m *ProjectMutation) AddPageIDs(ids ...int) {
-	if m.pages == nil {
-		m.pages = make(map[int]struct{})
+// AddWhitelistIDs adds the "whitelists" edge to the WhiteList entity by ids.
+func (m *ProjectMutation) AddWhitelistIDs(ids ...int) {
+	if m.whitelists == nil {
+		m.whitelists = make(map[int]struct{})
 	}
 	for i := range ids {
-		m.pages[ids[i]] = struct{}{}
+		m.whitelists[ids[i]] = struct{}{}
 	}
 }
 
-// ClearPages clears the "pages" edge to the Page entity.
-func (m *ProjectMutation) ClearPages() {
-	m.clearedpages = true
+// ClearWhitelists clears the "whitelists" edge to the WhiteList entity.
+func (m *ProjectMutation) ClearWhitelists() {
+	m.clearedwhitelists = true
 }
 
-// PagesCleared reports if the "pages" edge to the Page entity was cleared.
-func (m *ProjectMutation) PagesCleared() bool {
-	return m.clearedpages
+// WhitelistsCleared reports if the "whitelists" edge to the WhiteList entity was cleared.
+func (m *ProjectMutation) WhitelistsCleared() bool {
+	return m.clearedwhitelists
 }
 
-// RemovePageIDs removes the "pages" edge to the Page entity by IDs.
-func (m *ProjectMutation) RemovePageIDs(ids ...int) {
-	if m.removedpages == nil {
-		m.removedpages = make(map[int]struct{})
+// RemoveWhitelistIDs removes the "whitelists" edge to the WhiteList entity by IDs.
+func (m *ProjectMutation) RemoveWhitelistIDs(ids ...int) {
+	if m.removedwhitelists == nil {
+		m.removedwhitelists = make(map[int]struct{})
 	}
 	for i := range ids {
-		delete(m.pages, ids[i])
-		m.removedpages[ids[i]] = struct{}{}
+		delete(m.whitelists, ids[i])
+		m.removedwhitelists[ids[i]] = struct{}{}
 	}
 }
 
-// RemovedPages returns the removed IDs of the "pages" edge to the Page entity.
-func (m *ProjectMutation) RemovedPagesIDs() (ids []int) {
-	for id := range m.removedpages {
+// RemovedWhitelists returns the removed IDs of the "whitelists" edge to the WhiteList entity.
+func (m *ProjectMutation) RemovedWhitelistsIDs() (ids []int) {
+	for id := range m.removedwhitelists {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// PagesIDs returns the "pages" edge IDs in the mutation.
-func (m *ProjectMutation) PagesIDs() (ids []int) {
-	for id := range m.pages {
+// WhitelistsIDs returns the "whitelists" edge IDs in the mutation.
+func (m *ProjectMutation) WhitelistsIDs() (ids []int) {
+	for id := range m.whitelists {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetPages resets all changes to the "pages" edge.
-func (m *ProjectMutation) ResetPages() {
-	m.pages = nil
-	m.clearedpages = false
-	m.removedpages = nil
+// ResetWhitelists resets all changes to the "whitelists" edge.
+func (m *ProjectMutation) ResetWhitelists() {
+	m.whitelists = nil
+	m.clearedwhitelists = false
+	m.removedwhitelists = nil
 }
 
 // Where appends a list predicates to the ProjectMutation builder.
@@ -878,8 +513,8 @@ func (m *ProjectMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ProjectMutation) AddedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.pages != nil {
-		edges = append(edges, project.EdgePages)
+	if m.whitelists != nil {
+		edges = append(edges, project.EdgeWhitelists)
 	}
 	return edges
 }
@@ -888,9 +523,9 @@ func (m *ProjectMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *ProjectMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case project.EdgePages:
-		ids := make([]ent.Value, 0, len(m.pages))
-		for id := range m.pages {
+	case project.EdgeWhitelists:
+		ids := make([]ent.Value, 0, len(m.whitelists))
+		for id := range m.whitelists {
 			ids = append(ids, id)
 		}
 		return ids
@@ -901,8 +536,8 @@ func (m *ProjectMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ProjectMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.removedpages != nil {
-		edges = append(edges, project.EdgePages)
+	if m.removedwhitelists != nil {
+		edges = append(edges, project.EdgeWhitelists)
 	}
 	return edges
 }
@@ -911,9 +546,9 @@ func (m *ProjectMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *ProjectMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
-	case project.EdgePages:
-		ids := make([]ent.Value, 0, len(m.removedpages))
-		for id := range m.removedpages {
+	case project.EdgeWhitelists:
+		ids := make([]ent.Value, 0, len(m.removedwhitelists))
+		for id := range m.removedwhitelists {
 			ids = append(ids, id)
 		}
 		return ids
@@ -924,8 +559,8 @@ func (m *ProjectMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ProjectMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.clearedpages {
-		edges = append(edges, project.EdgePages)
+	if m.clearedwhitelists {
+		edges = append(edges, project.EdgeWhitelists)
 	}
 	return edges
 }
@@ -934,8 +569,8 @@ func (m *ProjectMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *ProjectMutation) EdgeCleared(name string) bool {
 	switch name {
-	case project.EdgePages:
-		return m.clearedpages
+	case project.EdgeWhitelists:
+		return m.clearedwhitelists
 	}
 	return false
 }
@@ -952,9 +587,389 @@ func (m *ProjectMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *ProjectMutation) ResetEdge(name string) error {
 	switch name {
-	case project.EdgePages:
-		m.ResetPages()
+	case project.EdgeWhitelists:
+		m.ResetWhitelists()
 		return nil
 	}
 	return fmt.Errorf("unknown Project edge %s", name)
+}
+
+// WhiteListMutation represents an operation that mutates the WhiteList nodes in the graph.
+type WhiteListMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *int
+	url           *string
+	clearedFields map[string]struct{}
+	owner         *int
+	clearedowner  bool
+	done          bool
+	oldValue      func(context.Context) (*WhiteList, error)
+	predicates    []predicate.WhiteList
+}
+
+var _ ent.Mutation = (*WhiteListMutation)(nil)
+
+// whitelistOption allows management of the mutation configuration using functional options.
+type whitelistOption func(*WhiteListMutation)
+
+// newWhiteListMutation creates new mutation for the WhiteList entity.
+func newWhiteListMutation(c config, op Op, opts ...whitelistOption) *WhiteListMutation {
+	m := &WhiteListMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeWhiteList,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withWhiteListID sets the ID field of the mutation.
+func withWhiteListID(id int) whitelistOption {
+	return func(m *WhiteListMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *WhiteList
+		)
+		m.oldValue = func(ctx context.Context) (*WhiteList, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().WhiteList.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withWhiteList sets the old WhiteList of the mutation.
+func withWhiteList(node *WhiteList) whitelistOption {
+	return func(m *WhiteListMutation) {
+		m.oldValue = func(context.Context) (*WhiteList, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m WhiteListMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m WhiteListMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *WhiteListMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *WhiteListMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().WhiteList.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetURL sets the "url" field.
+func (m *WhiteListMutation) SetURL(s string) {
+	m.url = &s
+}
+
+// URL returns the value of the "url" field in the mutation.
+func (m *WhiteListMutation) URL() (r string, exists bool) {
+	v := m.url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldURL returns the old "url" field's value of the WhiteList entity.
+// If the WhiteList object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *WhiteListMutation) OldURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldURL: %w", err)
+	}
+	return oldValue.URL, nil
+}
+
+// ResetURL resets all changes to the "url" field.
+func (m *WhiteListMutation) ResetURL() {
+	m.url = nil
+}
+
+// SetOwnerID sets the "owner" edge to the Project entity by id.
+func (m *WhiteListMutation) SetOwnerID(id int) {
+	m.owner = &id
+}
+
+// ClearOwner clears the "owner" edge to the Project entity.
+func (m *WhiteListMutation) ClearOwner() {
+	m.clearedowner = true
+}
+
+// OwnerCleared reports if the "owner" edge to the Project entity was cleared.
+func (m *WhiteListMutation) OwnerCleared() bool {
+	return m.clearedowner
+}
+
+// OwnerID returns the "owner" edge ID in the mutation.
+func (m *WhiteListMutation) OwnerID() (id int, exists bool) {
+	if m.owner != nil {
+		return *m.owner, true
+	}
+	return
+}
+
+// OwnerIDs returns the "owner" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// OwnerID instead. It exists only for internal usage by the builders.
+func (m *WhiteListMutation) OwnerIDs() (ids []int) {
+	if id := m.owner; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetOwner resets all changes to the "owner" edge.
+func (m *WhiteListMutation) ResetOwner() {
+	m.owner = nil
+	m.clearedowner = false
+}
+
+// Where appends a list predicates to the WhiteListMutation builder.
+func (m *WhiteListMutation) Where(ps ...predicate.WhiteList) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// Op returns the operation name.
+func (m *WhiteListMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (WhiteList).
+func (m *WhiteListMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *WhiteListMutation) Fields() []string {
+	fields := make([]string, 0, 1)
+	if m.url != nil {
+		fields = append(fields, whitelist.FieldURL)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *WhiteListMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case whitelist.FieldURL:
+		return m.URL()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *WhiteListMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case whitelist.FieldURL:
+		return m.OldURL(ctx)
+	}
+	return nil, fmt.Errorf("unknown WhiteList field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *WhiteListMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case whitelist.FieldURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetURL(v)
+		return nil
+	}
+	return fmt.Errorf("unknown WhiteList field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *WhiteListMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *WhiteListMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *WhiteListMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown WhiteList numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *WhiteListMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *WhiteListMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *WhiteListMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown WhiteList nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *WhiteListMutation) ResetField(name string) error {
+	switch name {
+	case whitelist.FieldURL:
+		m.ResetURL()
+		return nil
+	}
+	return fmt.Errorf("unknown WhiteList field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *WhiteListMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.owner != nil {
+		edges = append(edges, whitelist.EdgeOwner)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *WhiteListMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case whitelist.EdgeOwner:
+		if id := m.owner; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *WhiteListMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *WhiteListMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *WhiteListMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedowner {
+		edges = append(edges, whitelist.EdgeOwner)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *WhiteListMutation) EdgeCleared(name string) bool {
+	switch name {
+	case whitelist.EdgeOwner:
+		return m.clearedowner
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *WhiteListMutation) ClearEdge(name string) error {
+	switch name {
+	case whitelist.EdgeOwner:
+		m.ClearOwner()
+		return nil
+	}
+	return fmt.Errorf("unknown WhiteList unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *WhiteListMutation) ResetEdge(name string) error {
+	switch name {
+	case whitelist.EdgeOwner:
+		m.ResetOwner()
+		return nil
+	}
+	return fmt.Errorf("unknown WhiteList edge %s", name)
 }

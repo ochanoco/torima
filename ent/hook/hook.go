@@ -9,19 +9,6 @@ import (
 	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent"
 )
 
-// The PageFunc type is an adapter to allow the use of ordinary
-// function as Page mutator.
-type PageFunc func(context.Context, *ent.PageMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f PageFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.PageMutation)
-	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PageMutation", m)
-	}
-	return f(ctx, mv)
-}
-
 // The ProjectFunc type is an adapter to allow the use of ordinary
 // function as Project mutator.
 type ProjectFunc func(context.Context, *ent.ProjectMutation) (ent.Value, error)
@@ -31,6 +18,19 @@ func (f ProjectFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 	mv, ok := m.(*ent.ProjectMutation)
 	if !ok {
 		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProjectMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The WhiteListFunc type is an adapter to allow the use of ordinary
+// function as WhiteList mutator.
+type WhiteListFunc func(context.Context, *ent.WhiteListMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f WhiteListFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.WhiteListMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.WhiteListMutation", m)
 	}
 	return f(ctx, mv)
 }

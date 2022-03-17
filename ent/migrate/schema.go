@@ -8,34 +8,6 @@ import (
 )
 
 var (
-	// PagesColumns holds the columns for the "pages" table.
-	PagesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "url", Type: field.TypeString},
-		{Name: "skip", Type: field.TypeBool},
-		{Name: "project_pages", Type: field.TypeInt, Nullable: true},
-	}
-	// PagesTable holds the schema information for the "pages" table.
-	PagesTable = &schema.Table{
-		Name:       "pages",
-		Columns:    PagesColumns,
-		PrimaryKey: []*schema.Column{PagesColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "pages_projects_pages",
-				Columns:    []*schema.Column{PagesColumns[3]},
-				RefColumns: []*schema.Column{ProjectsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
-		Indexes: []*schema.Index{
-			{
-				Name:    "page_url",
-				Unique:  true,
-				Columns: []*schema.Column{PagesColumns[1]},
-			},
-		},
-	}
 	// ProjectsColumns holds the columns for the "projects" table.
 	ProjectsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -62,13 +34,33 @@ var (
 			},
 		},
 	}
+	// WhiteListsColumns holds the columns for the "white_lists" table.
+	WhiteListsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "url", Type: field.TypeString},
+		{Name: "project_whitelists", Type: field.TypeInt, Nullable: true},
+	}
+	// WhiteListsTable holds the schema information for the "white_lists" table.
+	WhiteListsTable = &schema.Table{
+		Name:       "white_lists",
+		Columns:    WhiteListsColumns,
+		PrimaryKey: []*schema.Column{WhiteListsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "white_lists_projects_whitelists",
+				Columns:    []*schema.Column{WhiteListsColumns[2]},
+				RefColumns: []*schema.Column{ProjectsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		PagesTable,
 		ProjectsTable,
+		WhiteListsTable,
 	}
 )
 
 func init() {
-	PagesTable.ForeignKeys[0].RefTable = ProjectsTable
+	WhiteListsTable.ForeignKeys[0].RefTable = ProjectsTable
 }

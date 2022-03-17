@@ -8,8 +8,6 @@ import (
 	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent"
 )
 
-
-
 type Database struct {
 	ctx    context.Context
 	client *ent.Client
@@ -40,29 +38,35 @@ func initDB() (*Database, error) {
 	return db, err
 }
 
-func createAndSavePage(db *Database, url string, skip bool) (*ent.Page, error) {
-	page, err := db.client.Page.
+func createWhiteList(db *Database, url string) *ent.WhiteListCreate {
+	wl := db.client.WhiteList.
 		Create().
-		SetURL(url).
-		SetSkip(skip).
-		Save(db.ctx)
+		SetURL(url)
 
-	return page, err
+	return wl
 }
 
-func createAndSaveProj(db *Database, lineId string, name string) (*ent.Project, error) {
-	page, err := db.client.Project.
+func createProject(db *Database, domain string, destination string, lineId string, name string) *ent.ProjectCreate {
+	proj := db.client.Project.
 		Create().
+		SetDomain(domain).
+		SetDestination(destination).
 		SetLineID(lineId).
-		SetName(name).
-		Save(db.ctx)
+		SetName(name)
 
-	return page, err
+	return proj
 }
 
-func addPageToProj(db *Database, proj *ent.Project, page *ent.Page) (*ent.Project, error) {
-	proj, err := proj.Update().
-		AddPages(page).
+func savePageOnProj(db *Database, projc *ent.Project, wlc *ent.WhiteListCreate) (*ent.Project, error) {
+	wl, err := wlc.Save(db.ctx)
+
+	if err != nil {
+		return projc, err
+	}
+
+	proj, err := projc.
+		Update().
+		AddWhitelists(wl).
 		Save(db.ctx)
 
 	return proj, err
