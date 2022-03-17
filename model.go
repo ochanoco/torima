@@ -17,7 +17,7 @@ type Database struct {
 	client *ent.Client
 }
 
-func init_db() (*Database, error) {
+func initDB() (*Database, error) {
 	err := errors.New("error")
 	db := new(Database)
 
@@ -40,4 +40,32 @@ func init_db() (*Database, error) {
 	db.client = client
 
 	return db, err
+}
+
+func createAndSavePage(db *Database, url string, skip bool) (*ent.Page, error) {
+	page, err := db.client.Page.
+		Create().
+		SetURL(url).
+		SetSkip(skip).
+		Save(db.ctx)
+
+	return page, err
+}
+
+func createAndSaveProj(db *Database, lineId string, name string) (*ent.Project, error) {
+	page, err := db.client.Project.
+		Create().
+		SetLineID(lineId).
+		SetName(name).
+		Save(db.ctx)
+
+	return page, err
+}
+
+func addPageToProj(db *Database, proj *ent.Project, page *ent.Page) (*ent.Project, error) {
+	proj, err := proj.Update().
+		AddPages(page).
+		Save(db.ctx)
+
+	return proj, err
 }
