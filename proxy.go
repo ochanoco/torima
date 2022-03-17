@@ -6,8 +6,6 @@ import (
 	"net/url"
 )
 
-var LOGIN_REDIRECT_PAGE_URL = "http://localhost:3000/redirect"
-var EXAMPLE_URL = "http://localhost:3000"
 
 func director(req *http.Request) {
 	exampleURL, err := url.Parse(EXAMPLE_URL)
