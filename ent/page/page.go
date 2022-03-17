@@ -11,8 +11,6 @@ const (
 	FieldURL = "url"
 	// FieldSkip holds the string denoting the skip field in the database.
 	FieldSkip = "skip"
-	// FieldProjectID holds the string denoting the project_id field in the database.
-	FieldProjectID = "project_id"
 	// Table holds the table name of the page in the database.
 	Table = "pages"
 )
@@ -22,13 +20,23 @@ var Columns = []string{
 	FieldID,
 	FieldURL,
 	FieldSkip,
-	FieldProjectID,
+}
+
+// ForeignKeys holds the SQL foreign-keys that are owned by the "pages"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"project_pages",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
+			return true
+		}
+	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
 			return true
 		}
 	}

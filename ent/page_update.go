@@ -39,19 +39,6 @@ func (pu *PageUpdate) SetSkip(b bool) *PageUpdate {
 	return pu
 }
 
-// SetProjectID sets the "project_id" field.
-func (pu *PageUpdate) SetProjectID(i int) *PageUpdate {
-	pu.mutation.ResetProjectID()
-	pu.mutation.SetProjectID(i)
-	return pu
-}
-
-// AddProjectID adds i to the "project_id" field.
-func (pu *PageUpdate) AddProjectID(i int) *PageUpdate {
-	pu.mutation.AddProjectID(i)
-	return pu
-}
-
 // Mutation returns the PageMutation object of the builder.
 func (pu *PageUpdate) Mutation() *PageMutation {
 	return pu.mutation
@@ -143,20 +130,6 @@ func (pu *PageUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: page.FieldSkip,
 		})
 	}
-	if value, ok := pu.mutation.ProjectID(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: page.FieldProjectID,
-		})
-	}
-	if value, ok := pu.mutation.AddedProjectID(); ok {
-		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: page.FieldProjectID,
-		})
-	}
 	if n, err = sqlgraph.UpdateNodes(ctx, pu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{page.Label}
@@ -185,19 +158,6 @@ func (puo *PageUpdateOne) SetURL(s string) *PageUpdateOne {
 // SetSkip sets the "skip" field.
 func (puo *PageUpdateOne) SetSkip(b bool) *PageUpdateOne {
 	puo.mutation.SetSkip(b)
-	return puo
-}
-
-// SetProjectID sets the "project_id" field.
-func (puo *PageUpdateOne) SetProjectID(i int) *PageUpdateOne {
-	puo.mutation.ResetProjectID()
-	puo.mutation.SetProjectID(i)
-	return puo
-}
-
-// AddProjectID adds i to the "project_id" field.
-func (puo *PageUpdateOne) AddProjectID(i int) *PageUpdateOne {
-	puo.mutation.AddProjectID(i)
 	return puo
 }
 
@@ -314,20 +274,6 @@ func (puo *PageUpdateOne) sqlSave(ctx context.Context) (_node *Page, err error) 
 			Type:   field.TypeBool,
 			Value:  value,
 			Column: page.FieldSkip,
-		})
-	}
-	if value, ok := puo.mutation.ProjectID(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: page.FieldProjectID,
-		})
-	}
-	if value, ok := puo.mutation.AddedProjectID(); ok {
-		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: page.FieldProjectID,
 		})
 	}
 	_node = &Page{config: puo.config}

@@ -18,9 +18,8 @@ type Page struct {
 	// URL holds the value of the "url" field.
 	URL string `json:"url,omitempty"`
 	// Skip holds the value of the "skip" field.
-	Skip bool `json:"skip,omitempty"`
-	// ProjectID holds the value of the "project_id" field.
-	ProjectID int `json:"project_id,omitempty"`
+	Skip          bool `json:"skip,omitempty"`
+	project_pages *int
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -30,10 +29,12 @@ func (*Page) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case page.FieldSkip:
 			values[i] = new(sql.NullBool)
-		case page.FieldID, page.FieldProjectID:
+		case page.FieldID:
 			values[i] = new(sql.NullInt64)
 		case page.FieldURL:
 			values[i] = new(sql.NullString)
+		case page.ForeignKeys[0]: // project_pages
+			values[i] = new(sql.NullInt64)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Page", columns[i])
 		}
@@ -67,11 +68,12 @@ func (pa *Page) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				pa.Skip = value.Bool
 			}
-		case page.FieldProjectID:
+		case page.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field project_id", values[i])
+				return fmt.Errorf("unexpected type %T for edge-field project_pages", value)
 			} else if value.Valid {
-				pa.ProjectID = int(value.Int64)
+				pa.project_pages = new(int)
+				*pa.project_pages = int(value.Int64)
 			}
 		}
 	}
@@ -105,8 +107,6 @@ func (pa *Page) String() string {
 	builder.WriteString(pa.URL)
 	builder.WriteString(", skip=")
 	builder.WriteString(fmt.Sprintf("%v", pa.Skip))
-	builder.WriteString(", project_id=")
-	builder.WriteString(fmt.Sprintf("%v", pa.ProjectID))
 	builder.WriteByte(')')
 	return builder.String()
 }

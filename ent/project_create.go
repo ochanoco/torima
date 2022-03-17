@@ -10,37 +10,53 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/page"
+	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/project"
 )
 
-// PageCreate is the builder for creating a Page entity.
-type PageCreate struct {
+// ProjectCreate is the builder for creating a Project entity.
+type ProjectCreate struct {
 	config
-	mutation *PageMutation
+	mutation *ProjectMutation
 	hooks    []Hook
 }
 
-// SetURL sets the "url" field.
-func (pc *PageCreate) SetURL(s string) *PageCreate {
-	pc.mutation.SetURL(s)
+// SetName sets the "name" field.
+func (pc *ProjectCreate) SetName(s string) *ProjectCreate {
+	pc.mutation.SetName(s)
 	return pc
 }
 
-// SetSkip sets the "skip" field.
-func (pc *PageCreate) SetSkip(b bool) *PageCreate {
-	pc.mutation.SetSkip(b)
+// SetLineID sets the "line_id" field.
+func (pc *ProjectCreate) SetLineID(s string) *ProjectCreate {
+	pc.mutation.SetLineID(s)
 	return pc
 }
 
-// Mutation returns the PageMutation object of the builder.
-func (pc *PageCreate) Mutation() *PageMutation {
+// AddPageIDs adds the "pages" edge to the Page entity by IDs.
+func (pc *ProjectCreate) AddPageIDs(ids ...int) *ProjectCreate {
+	pc.mutation.AddPageIDs(ids...)
+	return pc
+}
+
+// AddPages adds the "pages" edges to the Page entity.
+func (pc *ProjectCreate) AddPages(p ...*Page) *ProjectCreate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return pc.AddPageIDs(ids...)
+}
+
+// Mutation returns the ProjectMutation object of the builder.
+func (pc *ProjectCreate) Mutation() *ProjectMutation {
 	return pc.mutation
 }
 
-// Save creates the Page in the database.
-func (pc *PageCreate) Save(ctx context.Context) (*Page, error) {
+// Save creates the Project in the database.
+func (pc *ProjectCreate) Save(ctx context.Context) (*Project, error) {
 	var (
 		err  error
-		node *Page
+		node *Project
 	)
 	if len(pc.hooks) == 0 {
 		if err = pc.check(); err != nil {
@@ -49,7 +65,7 @@ func (pc *PageCreate) Save(ctx context.Context) (*Page, error) {
 		node, err = pc.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*PageMutation)
+			mutation, ok := m.(*ProjectMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
 			}
@@ -78,7 +94,7 @@ func (pc *PageCreate) Save(ctx context.Context) (*Page, error) {
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (pc *PageCreate) SaveX(ctx context.Context) *Page {
+func (pc *ProjectCreate) SaveX(ctx context.Context) *Project {
 	v, err := pc.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -87,30 +103,30 @@ func (pc *PageCreate) SaveX(ctx context.Context) *Page {
 }
 
 // Exec executes the query.
-func (pc *PageCreate) Exec(ctx context.Context) error {
+func (pc *ProjectCreate) Exec(ctx context.Context) error {
 	_, err := pc.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (pc *PageCreate) ExecX(ctx context.Context) {
+func (pc *ProjectCreate) ExecX(ctx context.Context) {
 	if err := pc.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (pc *PageCreate) check() error {
-	if _, ok := pc.mutation.URL(); !ok {
-		return &ValidationError{Name: "url", err: errors.New(`ent: missing required field "Page.url"`)}
+func (pc *ProjectCreate) check() error {
+	if _, ok := pc.mutation.Name(); !ok {
+		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Project.name"`)}
 	}
-	if _, ok := pc.mutation.Skip(); !ok {
-		return &ValidationError{Name: "skip", err: errors.New(`ent: missing required field "Page.skip"`)}
+	if _, ok := pc.mutation.LineID(); !ok {
+		return &ValidationError{Name: "line_id", err: errors.New(`ent: missing required field "Project.line_id"`)}
 	}
 	return nil
 }
 
-func (pc *PageCreate) sqlSave(ctx context.Context) (*Page, error) {
+func (pc *ProjectCreate) sqlSave(ctx context.Context) (*Project, error) {
 	_node, _spec := pc.createSpec()
 	if err := sqlgraph.CreateNode(ctx, pc.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
@@ -123,52 +139,71 @@ func (pc *PageCreate) sqlSave(ctx context.Context) (*Page, error) {
 	return _node, nil
 }
 
-func (pc *PageCreate) createSpec() (*Page, *sqlgraph.CreateSpec) {
+func (pc *ProjectCreate) createSpec() (*Project, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Page{config: pc.config}
+		_node = &Project{config: pc.config}
 		_spec = &sqlgraph.CreateSpec{
-			Table: page.Table,
+			Table: project.Table,
 			ID: &sqlgraph.FieldSpec{
 				Type:   field.TypeInt,
-				Column: page.FieldID,
+				Column: project.FieldID,
 			},
 		}
 	)
-	if value, ok := pc.mutation.URL(); ok {
+	if value, ok := pc.mutation.Name(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: page.FieldURL,
+			Column: project.FieldName,
 		})
-		_node.URL = value
+		_node.Name = value
 	}
-	if value, ok := pc.mutation.Skip(); ok {
+	if value, ok := pc.mutation.LineID(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeBool,
+			Type:   field.TypeString,
 			Value:  value,
-			Column: page.FieldSkip,
+			Column: project.FieldLineID,
 		})
-		_node.Skip = value
+		_node.LineID = value
+	}
+	if nodes := pc.mutation.PagesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   project.PagesTable,
+			Columns: []string{project.PagesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: page.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }
 
-// PageCreateBulk is the builder for creating many Page entities in bulk.
-type PageCreateBulk struct {
+// ProjectCreateBulk is the builder for creating many Project entities in bulk.
+type ProjectCreateBulk struct {
 	config
-	builders []*PageCreate
+	builders []*ProjectCreate
 }
 
-// Save creates the Page entities in the database.
-func (pcb *PageCreateBulk) Save(ctx context.Context) ([]*Page, error) {
+// Save creates the Project entities in the database.
+func (pcb *ProjectCreateBulk) Save(ctx context.Context) ([]*Project, error) {
 	specs := make([]*sqlgraph.CreateSpec, len(pcb.builders))
-	nodes := make([]*Page, len(pcb.builders))
+	nodes := make([]*Project, len(pcb.builders))
 	mutators := make([]Mutator, len(pcb.builders))
 	for i := range pcb.builders {
 		func(i int, root context.Context) {
 			builder := pcb.builders[i]
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-				mutation, ok := m.(*PageMutation)
+				mutation, ok := m.(*ProjectMutation)
 				if !ok {
 					return nil, fmt.Errorf("unexpected mutation type %T", m)
 				}
@@ -215,7 +250,7 @@ func (pcb *PageCreateBulk) Save(ctx context.Context) ([]*Page, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (pcb *PageCreateBulk) SaveX(ctx context.Context) []*Page {
+func (pcb *ProjectCreateBulk) SaveX(ctx context.Context) []*Project {
 	v, err := pcb.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -224,13 +259,13 @@ func (pcb *PageCreateBulk) SaveX(ctx context.Context) []*Page {
 }
 
 // Exec executes the query.
-func (pcb *PageCreateBulk) Exec(ctx context.Context) error {
+func (pcb *ProjectCreateBulk) Exec(ctx context.Context) error {
 	_, err := pcb.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (pcb *PageCreateBulk) ExecX(ctx context.Context) {
+func (pcb *ProjectCreateBulk) ExecX(ctx context.Context) {
 	if err := pcb.Exec(ctx); err != nil {
 		panic(err)
 	}
