@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/http/httputil"
+	"net/url"
 	"testing"
 )
 
@@ -21,17 +22,13 @@ func TestProxyAuthOK(t *testing.T) {
 			token := req.Header.Get("X-BULLET-Proxy-Token")
 
 			if userAgent != "bullet" {
-				msg := fmt.Sprintf("wrong user agent: %s", userAgent)
-				t.Error(msg)
+				t.Errorf("wrong user agent: %s", userAgent)
 			}
 
 			if token != "<proxy_token>" {
-				msg := fmt.Sprintf("wrong proxy token: %s", token)
-				t.Error(msg)
+				t.Errorf("wrong proxy token: %s", token)
 			}
 		}))
-
-		EXAMPLE_URL = testServ.URL
 
 		rp := httputil.ReverseProxy{
 			Director:       director,
@@ -41,6 +38,29 @@ func TestProxyAuthOK(t *testing.T) {
 		serv := httptest.NewServer(&rp)
 
 		defer serv.Close()
+
+		proxyDomain, err := url.Parse(serv.URL)
+
+		if err != nil {
+			t.Errorf("failed parse %v", serv.URL)
+			return
+		}
+
+		testServDomain, err := url.Parse(testServ.URL)
+
+		if err != nil {
+			t.Errorf("failed parse: %v (%v)", testServ.URL, err)
+			return
+		}
+
+		proj := createProject(db, proxyDomain.Host, testServDomain.Host, "<line_id_for_proxy_ok_test>", "<name>")
+
+		proj.Save(db.ctx)
+
+		if err != nil {
+			t.Errorf("failed creating white list: %v", err)
+			return
+		}
 
 		req, err := http.NewRequest(http.MethodGet, serv.URL, nil)
 		if err != nil {
@@ -67,6 +87,8 @@ func TestProxyAuthOK(t *testing.T) {
 }
 
 func TestProxyRedirectToLogin(t *testing.T) {
+	setupForTest()
+
 	loginBody := "<body>login</body>"
 
 	loginServ := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
@@ -84,6 +106,22 @@ func TestProxyRedirectToLogin(t *testing.T) {
 		serv := httptest.NewServer(&rp)
 
 		defer serv.Close()
+
+		proxyDomain, err := url.Parse(serv.URL)
+
+		if err != nil {
+			t.Errorf("failed parse %v", serv.URL)
+			return
+		}
+
+		proj := createProject(db, proxyDomain.Host, "test_for_proxy_ng1_test.example.com", "<line_id_for_proxy_ng1_test>", "<name>")
+
+		proj.Save(db.ctx)
+
+		if err != nil {
+			t.Errorf("failed creating white list: %v", err)
+			return
+		}
 
 		req, err := http.NewRequest(http.MethodPost, serv.URL, nil)
 		if err != nil {
