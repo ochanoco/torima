@@ -23,14 +23,12 @@ func initDB() (*Database, error) {
 
 	if err != nil {
 		log.Fatalf("failed opening connection to sqlite: %v", err)
-		return db, err
 	}
 
 	ctx := context.Background()
 
 	if err := client.Schema.Create(ctx); err != nil {
 		log.Fatalf("failed creating schema resources: %v", err)
-		return db, err
 	}
 
 	db = new(Database)
