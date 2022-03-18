@@ -6,6 +6,7 @@ import (
 )
 
 func setupForTest() {
+	DB_CONFIG = "file:ent?mode=memory&cache=shared&_fk=1"
 	dbl, err := initDB()
 
 	if err != nil {
@@ -17,10 +18,8 @@ func setupForTest() {
 
 func TestModel(t *testing.T) {
 	setupForTest()
-	
-	DB_CONFIG = "file:ent?mode=memory&cache=shared&_fk=1"
 
-	t.Run("test proxy", func(t *testing.T) {
+	t.Run("test model", func(t *testing.T) {
 		db, err := initDB()
 
 		if err != nil {
@@ -34,7 +33,7 @@ func TestModel(t *testing.T) {
 			return
 		}
 
-		projc := createProject(db, "<domain>", "<destination>", "<line_id>", "<name>")
+		projc := createProject(db, "<domain>", "<destination>", "<line_id_for_model_test>", "<name>")
 		proj, nil := projc.Save(db.ctx)
 
 		if err != nil {
@@ -50,7 +49,5 @@ func TestModel(t *testing.T) {
 		}
 
 		log.Print(proj, wl)
-
-		// log.Printf("project and white list created:\n    %v\n    %v", proj, wl)
 	})
 }
