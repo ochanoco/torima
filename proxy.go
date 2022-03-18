@@ -1,15 +1,17 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 
 	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/project"
 )
 
 func goToErrorPage(msg string, err error, req *http.Request) {
-	log.Fatalf(msg, err)
+	fmt.Fprintln(os.Stderr, msg, err)
 
 	errorPageURL, err := url.Parse(ERROR_PAGE_URL)
 
