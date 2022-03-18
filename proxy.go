@@ -32,7 +32,7 @@ func director(req *http.Request) {
 
 	project, err := db.client.Project.
 		Query().
-		Where(project.DomainEQ(req.URL.Host)).
+		Where(project.DomainEQ(req.Host)).
 		Only(db.ctx)
 
 	if err != nil {
