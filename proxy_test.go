@@ -28,7 +28,7 @@ func runTestProxyCommon(t *testing.T, tester ProxyTester, name string) {
 	}))
 
 	testServ := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
-		fmt.Fprintln(writer, servReturnBody)
+		tester.testServ(t, writer, req)
 	}))
 
 	rp := httputil.ReverseProxy{
@@ -122,7 +122,6 @@ func (tester *ProxyTestOKTester) testServ(t *testing.T, writer http.ResponseWrit
 }
 
 /// Proxy Test (Result : Fail Website Authentication)
-
 type ProxyTestFailBecauseWebNotValid struct {
 	testBody  string
 	errorBody string
@@ -153,7 +152,6 @@ func (tester *ProxyTestFailBecauseWebNotValid) check(t *testing.T, resp *http.Re
 	if err != nil {
 		t.Error(err)
 	}
-	t.Errorf("hello: %v", b)
 
 	bs := string(b[:len(b)-1])
 
@@ -260,57 +258,10 @@ func (tester *ProxyTestFailBecauseWebNotValid) testServ(t *testing.T, writer htt
 // 	})
 // }
 
-func TestProxyFailLogin(t *testing.T) {
-	setupForTest()
-
-	errorBody := "<body>error</body>"
-
-	errorServ := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
-		fmt.Fprintln(writer, errorBody)
-	}))
-
-	ERROR_PAGE_URL = errorServ.URL
-
-	t.Run("test proxy", func(t *testing.T) {
-		ERROR_PAGE_URL = errorServ.URL
-
-		rp := httputil.ReverseProxy{
-			Director:       director,
-			ModifyResponse: modifyResponse,
-		}
-
-		serv := httptest.NewServer(&rp)
-
-		defer serv.Close()
-
-		req, err := http.NewRequest(http.MethodPost, serv.URL, nil)
-		if err != nil {
-			t.Error(err)
-		}
-
-		resp, err := new(http.Client).Do(req)
-		if err != nil {
-			t.Error(err)
-		}
-
-		b, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			t.Error(err)
-		}
-
-		bs := string(b[:len(b)-1])
-
-		if bs != errorBody {
-			msg := fmt.Sprintf("wrong response: '%s'\nexpected: '%s'", bs, errorBody)
-			t.Error(msg)
-		}
-	})
-}
-
 func TestProxy(t *testing.T) {
-	// var tester_website_not_valid = NewProxyTestFailWebAuthTester()
-	// runTestProxyCommon(t, tester_website_not_valid, "test_website_not_valid")
+	var tester_website_not_valid = NewProxyTestFailWebAuthTester()
+	runTestProxyCommon(t, tester_website_not_valid, "test_website_not_valid")
 
-	// var tester_ok = NewProxyTestOKTester()
-	// runTestProxyCommon(t, tester_ok, "test_proxy_ok")
+	var tester_ok = NewProxyTestOKTester()
+	runTestProxyCommon(t, tester_ok, "test_proxy_ok")
 }
