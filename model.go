@@ -20,7 +20,7 @@ var db *Database
 
 func initDB() (*Database, error) {
 	err := errors.New("error")
-	db := new(Database)
+	dbl := new(Database)
 
 	client, err := ent.Open(DB_TYPE, DB_CONFIG)
 
@@ -34,11 +34,13 @@ func initDB() (*Database, error) {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
 
-	db = new(Database)
-	db.ctx = ctx
-	db.client = client
+	dbl = new(Database)
+	dbl.ctx = ctx
+	dbl.client = client
 
-	return db, err
+	db = dbl
+
+	return dbl, err
 }
 
 func migrateWhiteList() error {
