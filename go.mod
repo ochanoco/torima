@@ -1,4 +1,4 @@
-module github.com/tracer-silver-bullet/tracer-silver-bullet/proxy
+module github.com/ochanoco/ochano.co-auth/proxy
 
 go 1.17
 

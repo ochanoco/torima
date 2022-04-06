@@ -9,8 +9,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/predicate"
-	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/whitelist"
+	"github.com/ochanoco/ochano.co-auth/proxy/ent/predicate"
+	"github.com/ochanoco/ochano.co-auth/proxy/ent/whitelist"
 )
 
 // WhiteListDelete is the builder for deleting a WhiteList entity.

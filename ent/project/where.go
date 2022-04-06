@@ -5,7 +5,7 @@ package project
 import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/predicate"
+	"github.com/ochanoco/ochano.co-auth/proxy/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.

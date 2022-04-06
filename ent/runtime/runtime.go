@@ -2,7 +2,7 @@
 
 package runtime
 
-// The schema-stitching logic is generated in github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/runtime.go
+// The schema-stitching logic is generated in github.com/ochanoco/ochano.co-auth/proxy/ent/runtime.go
 
 const (
 	Version = "v0.10.1"                                         // Version of ent codegen.

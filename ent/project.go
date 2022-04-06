@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/project"
+	"github.com/ochanoco/ochano.co-auth/proxy/ent/project"
 )
 
 // Project is the model entity for the Project schema.

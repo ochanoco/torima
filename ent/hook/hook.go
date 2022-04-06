@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent"
+	"github.com/ochanoco/ochano.co-auth/proxy/ent"
 )
 
 // The ProjectFunc type is an adapter to allow the use of ordinary

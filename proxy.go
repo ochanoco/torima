@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/project"
+	"github.com/ochanoco/ochano.co-auth/proxy/ent/project"
 )
 
 func goToErrorPage(msg string, err error, req *http.Request) {

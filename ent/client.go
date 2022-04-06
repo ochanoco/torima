@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/migrate"
+	"github.com/ochanoco/ochano.co-auth/proxy/ent/migrate"
 
-	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/project"
-	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/whitelist"
+	"github.com/ochanoco/ochano.co-auth/proxy/ent/project"
+	"github.com/ochanoco/ochano.co-auth/proxy/ent/whitelist"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"

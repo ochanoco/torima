@@ -10,9 +10,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/predicate"
-	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/project"
-	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/whitelist"
+	"github.com/ochanoco/ochano.co-auth/proxy/ent/predicate"
+	"github.com/ochanoco/ochano.co-auth/proxy/ent/project"
+	"github.com/ochanoco/ochano.co-auth/proxy/ent/whitelist"
 )
 
 // ProjectUpdate is the builder for updating Project entities.
