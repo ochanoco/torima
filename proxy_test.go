@@ -116,7 +116,7 @@ func (tester *ProxyTestOKTester) testServ(t *testing.T, writer http.ResponseWrit
 	userAgent := req.Header.Get("User-Agent")
 	token := req.Header.Get("X-Ochanoco-Proxy-Token")
 
-	if userAgent != "bullet" {
+	if userAgent != "ochanoco" {
 		t.Errorf("wrong user agent: %s", userAgent)
 	}
 
