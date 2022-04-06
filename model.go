@@ -2,8 +2,11 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
+	"os"
 
 	"github.com/ochanoco/ochano.co-auth/proxy/ent"
 )
@@ -38,6 +41,38 @@ func initDB() (*Database, error) {
 	return db, err
 }
 
+func migrateWhiteList() error {
+	var urls []string
+
+	b, _ := os.ReadFile(WHITELIST_FILE)
+	err := json.Unmarshal(b, &urls)
+
+	if err != nil {
+		log.Fatalf("failed to load migrate.json: %v", err)
+		return err
+	}
+
+	projc := createProject(db, AUTH_PAGE_DOMAIN, AUTH_PAGE_DESTINATION, "root", "root")
+	proj, nil := projc.Save(db.ctx)
+
+	if err != nil {
+		fmt.Errorf("failed creating project: %v", err)
+		return err
+	}
+
+	for _, url := range urls {
+		wl := createWhiteList(db, url)
+		proj, err = saveWhiteListOnProj(db, proj, wl)
+
+		if err != nil {
+			fmt.Errorf("failed add white list to project: %v", err)
+			return err
+		}
+	}
+
+	return nil
+}
+
 func createWhiteList(db *Database, url string) *ent.WhiteListCreate {
 	wl := db.client.WhiteList.
 		Create().
@@ -57,7 +92,7 @@ func createProject(db *Database, domain string, destination string, lineId strin
 	return proj
 }
 
-func savePageOnProj(db *Database, projc *ent.Project, wlc *ent.WhiteListCreate) (*ent.Project, error) {
+func saveWhiteListOnProj(db *Database, projc *ent.Project, wlc *ent.WhiteListCreate) (*ent.Project, error) {
 	wl, err := wlc.Save(db.ctx)
 
 	if err != nil {

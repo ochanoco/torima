@@ -41,7 +41,7 @@ func TestModel(t *testing.T) {
 			return
 		}
 
-		proj, err = savePageOnProj(db, proj, wl)
+		proj, err = saveWhiteListOnProj(db, proj, wl)
 
 		if err != nil {
 			t.Errorf("failed add white list to project: %v", err)

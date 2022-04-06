@@ -17,6 +17,8 @@ func main() {
 
 	db = dbl
 
+	migrateWhiteList()
+
 	rp := httputil.ReverseProxy{
 		Director:       director,
 		ModifyResponse: modifyResponse,
