@@ -9,13 +9,11 @@ import (
 )
 
 func main() {
-	dbl, err := initDB()
+	_, err := initDB()
 
 	if err != nil {
 		log.Panicf("failed init db: %v", err)
 	}
-
-	db = dbl
 
 	migrateWhiteList()
 
