@@ -165,150 +165,60 @@ func (tester *ProxyTestFailBecauseWebNotValid) check(t *testing.T, resp *http.Re
 	}
 }
 
-// func (tester *ProxyTestFailBecauseWebNotValid) testServ(t *testing.T, writer http.ResponseWriter, req *http.Request) {
-// 	fmt.Fprintln(writer, tester.testBody)
-// }
+func (tester *ProxyTestFailBecauseWebNotValid) testServ(t *testing.T, writer http.ResponseWriter, req *http.Request) {
+	fmt.Fprintln(writer, tester.testBody)
+}
 
-// /// Proxy Test (Result : Redicrect To Login Page)
-// type ProxyTestRedirectLogin struct {
-// 	testBody  string
-// 	errorBody string
-// }
+/// Proxy Test (Result : Redicrect To Login Page)
+type ProxyTestRedirectLogin struct {
+	testBody  string
+	errorBody string
+}
 
-// func NewProxyTestRedirectLogin() ProxyTester {
-// 	return &ProxyTestFailBecauseWebNotValid{"", ""}
-// }
+func NewProxyTestRedirectLogin() ProxyTester {
+	return &ProxyTestFailBecauseWebNotValid{"", ""}
+}
 
-// func (tester *ProxyTestRedirectLogin) setup(t *testing.T, servReturnBody *string) {
-// 	tester.testBody = "<p>ok</p>"
-// 	tester.errorBody = "<p>login</p>"
+func (tester *ProxyTestRedirectLogin) setup(t *testing.T, servReturnBody *string) {
+	tester.testBody = "<p>ok</p>"
+	tester.errorBody = "<p>login</p>"
 
-// 	*servReturnBody = tester.testBody
+	*servReturnBody = tester.testBody
 
-// 	loginServ := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
-// 		fmt.Fprintln(writer, tester.errorBody)
-// 	}))
+	loginServ := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
+		fmt.Fprintln(writer, tester.errorBody)
+	}))
 
-// 	LOGIN_REDIRECT_PAGE_URL = loginServ.URL
-// }
+	LOGIN_REDIRECT_PAGE_URL = loginServ.URL
+}
 
-// func (tester *ProxyTestRedirectLogin) start(t *testing.T, proxyServ *httptest.Server, loginServ *httptest.Server, testServ *httptest.Server) {
-// }
+func (tester *ProxyTestRedirectLogin) start(t *testing.T, proxyServ *httptest.Server, loginServ *httptest.Server, testServ *httptest.Server) {
+}
 
-// func (tester *ProxyTestRedirectLogin) check(t *testing.T, resp *http.Response) {
-// 	b, err := ioutil.ReadAll(resp.Body)
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
+func (tester *ProxyTestRedirectLogin) check(t *testing.T, resp *http.Response) {
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		t.Error(err)
+	}
 
-// 	bs := string(b[:len(b)-1])
+	bs := string(b[:len(b)-1])
 
-// 	if bs != tester.errorBody {
-// 		msg := fmt.Sprintf("wrong response: '%s'\nexpected: '%s'", bs, tester.errorBody)
-// 		t.Error(msg)
-// 	}
-// }
+	if bs != tester.errorBody {
+		msg := fmt.Sprintf("wrong response: '%s'\nexpected: '%s'", bs, tester.errorBody)
+		t.Error(msg)
+	}
+}
 
-// func (tester *ProxyTestRedirectLogin) testServ(t *testing.T, writer http.ResponseWriter, req *http.Request) {
-// 	fmt.Fprintln(writer, tester.testBody)
-// }
-
-// proxyDomain, err := url.Parse(proxServ.URL)
-
-// if err != nil {
-// 	t.Errorf("failed parse %v", proxServ.URL)
-// 	return
-// }
-// 	proj := createProject(db, proxyDomain.Host, "test_for_proxy_ng1_test.example.com", "<line_id_for_proxy_ng1_test>", "<name>")
-
-// proj.Save(db.ctx)
-
-// if err != nil {
-// 	t.Errorf("failed creating white list: %v", err)
-// 	return
-// }
-
-// type ProxyTestOKTester struct{}
-
-// func (p *ProxyTestOKTester) setup(param ProxyTesterParam) {}
-// func (p *ProxyTestOKTester) check(param ProxyTesterParam, resp *http.Response) {
-// 	expectedBody := ""
-
-// 	b, err := ioutil.ReadAll(resp.Body)
-// 	if err != nil {
-// 		param.t.Error(err)
-// 	}
-// 	bs := string(b[:len(b)-1])
-
-// 	if bs != expectedBody {
-// 		param.t.Errorf("wrong response: '%s'\nexpected: '%s'", bs, expectedBody)
-// 	}
-// }
-
-// func TestProxyRedirectToLogin(t *testing.T) {
-// 	setupForTest()
-
-// 	loginBody := "<body>login</body>"
-
-// 	loginServ := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
-// 		fmt.Fprintln(writer, loginBody)
-// 	}))
-
-// 	t.Run("test proxy", func(t *testing.T) {
-// 		LOGIN_REDIRECT_PAGE_URL = loginServ.URL
-
-// 		rp := httputil.ReverseProxy{
-// 			Director:       director,
-// 			ModifyResponse: modifyResponse,
-// 		}
-
-// 		serv := httptest.NewServer(&rp)
-
-// 		defer serv.Close()
-
-// 		proxyDomain, err := url.Parse(serv.URL)
-
-// 		if err != nil {
-// 			t.Errorf("failed parse %v", serv.URL)
-// 			return
-// 		}
-
-// 		proj := createProject(db, proxyDomain.Host, "test_for_proxy_ng1_test.example.com", "<line_id_for_proxy_ng1_test>", "<name>")
-
-// 		proj.Save(db.ctx)
-
-// 		if err != nil {
-// 			t.Errorf("failed creating white list: %v", err)
-// 			return
-// 		}
-
-// 		req, err := http.NewRequest(http.MethodPost, serv.URL, nil)
-// 		if err != nil {
-// 			t.Error(err)
-// 		}
-
-// 		resp, err := new(http.Client).Do(req)
-// 		if err != nil {
-// 			t.Error(err)
-// 		}
-
-// 		b, err := ioutil.ReadAll(resp.Body)
-// 		if err != nil {
-// 			t.Error(err)
-// 		}
-
-// 		bs := string(b[:len(b)-1])
-
-// 		if bs != loginBody {
-// 			msg := fmt.Sprintf("wrong response: '%s'\nexpected: '%s'", bs, loginBody)
-// 			t.Error(msg)
-// 		}
-// 	})
-// }
+func (tester *ProxyTestRedirectLogin) testServ(t *testing.T, writer http.ResponseWriter, req *http.Request) {
+	fmt.Fprintln(writer, tester.testBody)
+}
 
 func TestProxy(t *testing.T) {
-	// var tester_website_not_valid = NewProxyTestFailWebAuthTester()
-	// runTestProxyCommon(t, tester_website_not_valid, "test_website_not_valid")
+	var tester_website_not_valid = NewProxyTestFailWebAuthTester()
+	runTestProxyCommon(t, tester_website_not_valid, "test_website_not_valid")
+
+	var tester_redirect_to_login = NewProxyTestFailWebAuthTester()
+	runTestProxyCommon(t, tester_redirect_to_login, "tester_redirect_to_login")
 
 	var tester_ok = NewProxyTestOKTester()
 	runTestProxyCommon(t, tester_ok, "test_proxy_ok")
