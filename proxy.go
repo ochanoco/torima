@@ -16,12 +16,12 @@ func goToErrorPage(msg string, err error, req *http.Request) {
 	errorPageURL, err := url.Parse(ERROR_PAGE_URL)
 
 	if err != nil {
-		log.Fatalf("parse error: %v", err)
+		log.Fatalf("%s: %v", msg, err)
 	}
 
 	req.URL.Scheme = errorPageURL.Scheme
 	req.URL.Host = errorPageURL.Host
-	req.URL.Path = "/404"
+	req.URL.Path = "/404?msg=" + msg
 }
 
 func director(req *http.Request) {
@@ -38,24 +38,26 @@ func director(req *http.Request) {
 		Only(db.ctx)
 
 	if err != nil {
-		goToErrorPage("failed find site", err, req)
+		msg := fmt.Sprintf("failed to get destination site (%s)", req.Host)
+		goToErrorPage(msg, err, req)
 		return
 	}
 
 	req.URL.Scheme = "http"
 	req.URL.Host = project.Destination
 
-	isValid := passIfCleanContent(req)
-	isValid = isValid || authenticateRequest(req)
+	isCleanContent := passIfCleanContent(req)
+	isAuthed := authenticateRequest(req)
 
-	if isValid {
+	if isCleanContent || isAuthed {
 		req.Header.Set("User-Agent", "bullet")
-		req.Header.Set("X-BULLET-Proxy-Token", "<proxy_token>")
+		req.Header.Set("X-Ochanoco-Proxy-Token", "<proxy_token>")
 	} else {
 		req.URL.Scheme = loginRedirectURL.Scheme
 		req.URL.Host = loginRedirectURL.Host
-		req.URL.Path = "/redirect"
+		req.URL.Path = fmt.Sprintf("/redirect?clean=%v&authed=%v", isCleanContent, isAuthed)
 	}
+
 }
 
 func modifyResponse(res *http.Response) error {
