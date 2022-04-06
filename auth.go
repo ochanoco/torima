@@ -24,7 +24,7 @@ func authenticateRequest(req *http.Request) bool {
 	// todo: valid cookie
 	rawCookie := req.Header.Get("Cookie")
 	cookies := parseCookies(rawCookie)
-	tokenCookie, err := getCookie("bullet-token", cookies)
+	tokenCookie, err := getCookie("ochanoco-token", cookies)
 
 	if err != nil {
 		return false
