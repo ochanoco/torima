@@ -5,9 +5,9 @@ package enttest
 import (
 	"context"
 
-	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent"
+	"github.com/ochanoco/ochano.co-auth/proxy/ent"
 	// required by schema hooks.
-	_ "github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent/runtime"
+	_ "github.com/ochanoco/ochano.co-auth/proxy/ent/runtime"
 
 	"entgo.io/ent/dialect/sql/schema"
 )

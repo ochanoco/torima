@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log"
 
-	"github.com/tracer-silver-bullet/tracer-silver-bullet/proxy/ent"
+	"github.com/ochanoco/ochano.co-auth/proxy/ent"
 )
 
 type Database struct {
