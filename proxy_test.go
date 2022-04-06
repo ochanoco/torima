@@ -11,8 +11,8 @@ import (
 )
 
 type ProxyTester interface {
-	setup(t *testing.T, servReturnBody *string)
-	start(t *testing.T, proxyServ *httptest.Server, loginServ *httptest.Server, testServ *httptest.Server)
+	setup(t *testing.T, servReturnBody *string, cookie *string)
+	start(t *testing.T, proxyServ *httptest.Server, testServ *httptest.Server)
 	check(t *testing.T, resp *http.Response)
 	testServ(t *testing.T, writer http.ResponseWriter, req *http.Request)
 }
@@ -20,12 +20,9 @@ type ProxyTester interface {
 func runTestProxyCommon(t *testing.T, tester ProxyTester, name string) {
 	setupForTest()
 
+	var cookie = "cookie"
 	var servReturnBody = "ok"
-	tester.setup(t, &servReturnBody)
-
-	loginServ := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
-		fmt.Fprintln(writer, servReturnBody)
-	}))
+	tester.setup(t, &servReturnBody, &cookie)
 
 	testServ := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
 		tester.testServ(t, writer, req)
@@ -39,15 +36,15 @@ func runTestProxyCommon(t *testing.T, tester ProxyTester, name string) {
 	proxServ := httptest.NewServer(&rp)
 	defer proxServ.Close()
 
-	tester.start(t, proxServ, loginServ, testServ)
-
-	LOGIN_REDIRECT_PAGE_URL = loginServ.URL
+	tester.start(t, proxServ, testServ)
 
 	t.Run(name, func(t *testing.T) {
 		req, err := http.NewRequest(http.MethodPost, proxServ.URL, nil)
 		if err != nil {
 			t.Error(err)
 		}
+
+		req.Header.Set("Cookie", cookie)
 
 		resp, err := new(http.Client).Do(req)
 		if err != nil {
@@ -61,19 +58,20 @@ func runTestProxyCommon(t *testing.T, tester ProxyTester, name string) {
 /// Proxy Test (Result : OK)
 type ProxyTestOKTester struct {
 	respBody string
+	lineId   string
+	name     string
 }
 
 func NewProxyTestOKTester() ProxyTester {
-	return &ProxyTestOKTester{""}
+	return &ProxyTestOKTester{"<p>ok</p>", "test_line_id_for_test_ok", "test_name_for_test_ok"}
 }
 
-func (tester *ProxyTestOKTester) setup(t *testing.T, servReturnBody *string) {
-	tester.respBody = "<p>ok</p>"
-
+func (tester *ProxyTestOKTester) setup(t *testing.T, servReturnBody *string, cookie *string) {
 	*servReturnBody = tester.respBody
+	*cookie = fmt.Sprintf("ochanoco-token=%s", tester.lineId)
 }
 
-func (tester *ProxyTestOKTester) start(t *testing.T, proxyServ *httptest.Server, loginServ *httptest.Server, testServ *httptest.Server) {
+func (tester *ProxyTestOKTester) start(t *testing.T, proxyServ *httptest.Server, testServ *httptest.Server) {
 	proxyDomain, err := url.Parse(proxyServ.URL)
 
 	if err != nil {
@@ -84,19 +82,24 @@ func (tester *ProxyTestOKTester) start(t *testing.T, proxyServ *httptest.Server,
 	testServDomain, err := url.Parse(testServ.URL)
 
 	if err != nil {
-		t.Errorf("failed parse %v", proxyServ.URL)
+		t.Errorf("failed parse %v", testServ.URL)
 		return
 	}
 
-	proj := createProject(db, proxyDomain.Host, testServDomain.Host, "<line_id_for_proxy_ok_test>", "<name>")
+	proj := createProject(db, proxyDomain.Host, testServDomain.Host, tester.lineId, tester.name)
 
-	proj.Save(db.ctx)
+	_, err = proj.Save(db.ctx)
+
+	if err != nil {
+		t.Errorf("failed save %v", err)
+		return
+	}
 }
 
 func (tester *ProxyTestOKTester) check(t *testing.T, resp *http.Response) {
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		t.Error(err)
+		t.Errorf("%v", err)
 	}
 
 	bs := string(b[:len(b)-1])
@@ -109,8 +112,9 @@ func (tester *ProxyTestOKTester) check(t *testing.T, resp *http.Response) {
 
 func (tester *ProxyTestOKTester) testServ(t *testing.T, writer http.ResponseWriter, req *http.Request) {
 	fmt.Fprintln(writer, tester.respBody)
+
 	userAgent := req.Header.Get("User-Agent")
-	token := req.Header.Get("X-BULLET-Proxy-Token")
+	token := req.Header.Get("X-Ochanoco-Proxy-Token")
 
 	if userAgent != "bullet" {
 		t.Errorf("wrong user agent: %s", userAgent)
@@ -131,7 +135,7 @@ func NewProxyTestFailWebAuthTester() ProxyTester {
 	return &ProxyTestFailBecauseWebNotValid{"", ""}
 }
 
-func (tester *ProxyTestFailBecauseWebNotValid) setup(t *testing.T, servReturnBody *string) {
+func (tester *ProxyTestFailBecauseWebNotValid) setup(t *testing.T, servReturnBody *string, cookie *string) {
 	tester.testBody = "<p>ok</p>"
 	tester.errorBody = "<p>error</p>"
 
@@ -144,7 +148,7 @@ func (tester *ProxyTestFailBecauseWebNotValid) setup(t *testing.T, servReturnBod
 	ERROR_PAGE_URL = errorServ.URL
 }
 
-func (tester *ProxyTestFailBecauseWebNotValid) start(t *testing.T, proxyServ *httptest.Server, loginServ *httptest.Server, testServ *httptest.Server) {
+func (tester *ProxyTestFailBecauseWebNotValid) start(t *testing.T, proxyServ *httptest.Server, testServ *httptest.Server) {
 }
 
 func (tester *ProxyTestFailBecauseWebNotValid) check(t *testing.T, resp *http.Response) {
@@ -161,9 +165,53 @@ func (tester *ProxyTestFailBecauseWebNotValid) check(t *testing.T, resp *http.Re
 	}
 }
 
-func (tester *ProxyTestFailBecauseWebNotValid) testServ(t *testing.T, writer http.ResponseWriter, req *http.Request) {
-	fmt.Fprintln(writer, tester.testBody)
-}
+// func (tester *ProxyTestFailBecauseWebNotValid) testServ(t *testing.T, writer http.ResponseWriter, req *http.Request) {
+// 	fmt.Fprintln(writer, tester.testBody)
+// }
+
+// /// Proxy Test (Result : Redicrect To Login Page)
+// type ProxyTestRedirectLogin struct {
+// 	testBody  string
+// 	errorBody string
+// }
+
+// func NewProxyTestRedirectLogin() ProxyTester {
+// 	return &ProxyTestFailBecauseWebNotValid{"", ""}
+// }
+
+// func (tester *ProxyTestRedirectLogin) setup(t *testing.T, servReturnBody *string) {
+// 	tester.testBody = "<p>ok</p>"
+// 	tester.errorBody = "<p>login</p>"
+
+// 	*servReturnBody = tester.testBody
+
+// 	loginServ := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
+// 		fmt.Fprintln(writer, tester.errorBody)
+// 	}))
+
+// 	LOGIN_REDIRECT_PAGE_URL = loginServ.URL
+// }
+
+// func (tester *ProxyTestRedirectLogin) start(t *testing.T, proxyServ *httptest.Server, loginServ *httptest.Server, testServ *httptest.Server) {
+// }
+
+// func (tester *ProxyTestRedirectLogin) check(t *testing.T, resp *http.Response) {
+// 	b, err := ioutil.ReadAll(resp.Body)
+// 	if err != nil {
+// 		t.Error(err)
+// 	}
+
+// 	bs := string(b[:len(b)-1])
+
+// 	if bs != tester.errorBody {
+// 		msg := fmt.Sprintf("wrong response: '%s'\nexpected: '%s'", bs, tester.errorBody)
+// 		t.Error(msg)
+// 	}
+// }
+
+// func (tester *ProxyTestRedirectLogin) testServ(t *testing.T, writer http.ResponseWriter, req *http.Request) {
+// 	fmt.Fprintln(writer, tester.testBody)
+// }
 
 // proxyDomain, err := url.Parse(proxServ.URL)
 
@@ -259,8 +307,8 @@ func (tester *ProxyTestFailBecauseWebNotValid) testServ(t *testing.T, writer htt
 // }
 
 func TestProxy(t *testing.T) {
-	var tester_website_not_valid = NewProxyTestFailWebAuthTester()
-	runTestProxyCommon(t, tester_website_not_valid, "test_website_not_valid")
+	// var tester_website_not_valid = NewProxyTestFailWebAuthTester()
+	// runTestProxyCommon(t, tester_website_not_valid, "test_website_not_valid")
 
 	var tester_ok = NewProxyTestOKTester()
 	runTestProxyCommon(t, tester_ok, "test_proxy_ok")
