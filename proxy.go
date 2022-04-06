@@ -10,6 +10,10 @@ import (
 	"github.com/ochanoco/ochano.co-auth/proxy/ent/project"
 )
 
+func logReq(req *http.Request) {
+	fmt.Printf("[%s] %s%s\n=> %s%s\n\n", req.Method, req.Host, req.RequestURI, req.URL.Host, req.URL.Path)
+}
+
 func goToErrorPage(msg string, err error, req *http.Request) {
 	fmt.Fprintln(os.Stderr, msg, err)
 
@@ -22,6 +26,8 @@ func goToErrorPage(msg string, err error, req *http.Request) {
 	req.URL.Scheme = errorPageURL.Scheme
 	req.URL.Host = errorPageURL.Host
 	req.URL.Path = "/404?msg=" + msg
+
+	logReq(req)
 }
 
 func director(req *http.Request) {
@@ -58,6 +64,7 @@ func director(req *http.Request) {
 		req.URL.Path = fmt.Sprintf("/redirect?clean=%v&authed=%v", isCleanContent, isAuthed)
 	}
 
+	logReq(req)
 }
 
 func modifyResponse(res *http.Response) error {
