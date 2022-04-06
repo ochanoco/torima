@@ -50,7 +50,7 @@ func director(req *http.Request) {
 	isAuthed := authenticateRequest(req)
 
 	if isCleanContent || isAuthed {
-		req.Header.Set("User-Agent", "bullet")
+		req.Header.Set("User-Agent", "ochanoco")
 		req.Header.Set("X-Ochanoco-Proxy-Token", "<proxy_token>")
 	} else {
 		req.URL.Scheme = loginRedirectURL.Scheme
