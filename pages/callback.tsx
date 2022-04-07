@@ -1,11 +1,12 @@
+import { NOTIMP } from 'dns'
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import Link from 'next/link'
-import React from 'react'
+import { useRouter } from 'next/router'
 import styles from '../styles/Home.module.css'
 
-const LoginPage: NextPage = () => {
-  const LINE_LOGIN_URL = process.env.LINE_LOGIN_URL as string
+const CallbackPage: NextPage = () => {
+  const router = useRouter();
+
 
   return (
     <div className={styles.container}>
@@ -14,12 +15,10 @@ const LoginPage: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <Link href={LINE_LOGIN_URL}>
-          <a> Login </a>
-        </Link>
+        <p>{router.query.code}</p>
       </main>
     </div>
   )
 }
 
-export default LoginPage
+export default CallbackPage
