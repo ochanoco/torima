@@ -2,10 +2,11 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import Link from 'next/link'
 import React from 'react'
+import { LineLoginUrl } from '../lib/param'
 import styles from '../styles/Home.module.css'
 
 const LoginPage: NextPage = () => {
-  const LINE_LOGIN_URL = process.env.NEXT_PUBLIC_LINE_LOGIN_URL as string
+  const lineLoginUrl = LineLoginUrl('10000', '10000')
 
   return (
     <div className={styles.container}>
@@ -14,7 +15,7 @@ const LoginPage: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <Link href={LINE_LOGIN_URL}>
+        <Link href={lineLoginUrl}>
           <a> Login </a>
         </Link>
       </main>
