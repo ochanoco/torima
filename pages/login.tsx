@@ -1,13 +1,22 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import Link from 'next/link'
 import React from 'react'
-import { LineLoginUrl } from '../lib/param'
 import styles from '../styles/Home.module.css'
+import { useSession, signIn, signOut } from "next-auth/react"
+
 
 const LoginPage: NextPage = () => {
-  const lineLoginUrl = LineLoginUrl('10000', '10000')
-  console.log(lineLoginUrl)
+  const { data: session } = useSession()
+
+  if (session) {
+    console.log("session", session)
+
+    return <div>
+        <div>Logged in</div>
+        <br />
+        <button onClick={() => signOut()}>Log out</button>
+      </div>
+  } 
 
   return (
     <div className={styles.container}>
@@ -16,9 +25,7 @@ const LoginPage: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <Link href={lineLoginUrl}>
-          <a> Login </a>
-        </Link>
+        <button onClick={() => signIn()}>Log in</button>
       </main>
     </div>
   )
