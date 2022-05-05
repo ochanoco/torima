@@ -7,6 +7,7 @@ import styles from '../styles/Home.module.css'
 
 const LoginPage: NextPage = () => {
   const lineLoginUrl = LineLoginUrl('10000', '10000')
+  console.log(lineLoginUrl)
 
   return (
     <div className={styles.container}>
