@@ -5,7 +5,7 @@ import React from 'react'
 import styles from '../styles/Home.module.css'
 
 const LoginPage: NextPage = () => {
-  const LINE_LOGIN_URL = process.env.LINE_LOGIN_URL as string
+  const LINE_LOGIN_URL = process.env.NEXT_PUBLIC_LINE_LOGIN_URL as string
 
   return (
     <div className={styles.container}>
