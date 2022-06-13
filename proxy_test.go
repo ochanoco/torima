@@ -1,16 +1,18 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/http/httputil"
 	"net/url"
+	"strconv"
 	"testing"
 )
 
-func TestProxyDirector(t *testing.T) {
+func TestProxyDirectorAndModifyResponse(t *testing.T) {
 	directors = []func(req *http.Request){}
 	modifyResponses = []func(req *http.Response){}
 
@@ -25,6 +27,12 @@ func TestProxyDirector(t *testing.T) {
 		req.URL.Scheme = url.Scheme
 		req.URL.Host = url.Host
 		req.URL.Path = "/"
+	}
+
+	simpleModifyResponse := func(res *http.Response) {
+		b := []byte(msg)
+		res.Body = ioutil.NopCloser(bytes.NewReader(b))
+		res.Header.Set("Content-Length", strconv.Itoa(len(b)))
 	}
 
 	rp := httputil.ReverseProxy{
@@ -52,6 +60,32 @@ func TestProxyDirector(t *testing.T) {
 		}
 
 		bs := string(b[:len(b)-1])
+
+		if bs != msg {
+			msg := fmt.Sprintf("wrong response: '%s'\nexpected: '%s'", bs, msg)
+			t.Error(msg)
+		}
+	})
+
+	modifyResponses = append(modifyResponses, simpleModifyResponse)
+
+	t.Run("modify response", func(t *testing.T) {
+		req, err := http.NewRequest(http.MethodGet, targetServ.URL, nil)
+		if err != nil {
+			t.Error(err)
+		}
+
+		resp, err := new(http.Client).Do(req)
+		if err != nil {
+			t.Error(err)
+		}
+
+		b, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			t.Error(err)
+		}
+
+		bs := string(b)
 
 		if bs != msg {
 			msg := fmt.Sprintf("wrong response: '%s'\nexpected: '%s'", bs, msg)
