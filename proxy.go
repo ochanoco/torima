@@ -4,17 +4,17 @@ import (
 	"net/http"
 )
 
-var directors []func(req *http.Request)
-var modifyResponses []func(req *http.Response)
+var Directors []func(req *http.Request)
+var ModifyResponses []func(req *http.Response)
 
 func director(req *http.Request) {
-	for _, d := range directors {
+	for _, d := range Directors {
 		d(req)
 	}
 }
 
 func modifyResponse(res *http.Response) error {
-	for _, mR := range modifyResponses {
+	for _, mR := range ModifyResponses {
 		mR(res)
 	}
 

@@ -8,11 +8,11 @@ import (
 	"os"
 )
 
-func logReq(req *http.Request) {
+func LogReq(req *http.Request) {
 	fmt.Printf("[%s] %s%s\n=> %s%s\n\n", req.Method, req.Host, req.RequestURI, req.URL.Host, req.URL.Path)
 }
 
-func goToErrorPage(msg string, err error, req *http.Request) {
+func GoToErrorPage(msg string, err error, req *http.Request) {
 	fmt.Fprintln(os.Stderr, msg, err)
 
 	errorPageURL, err := url.Parse(ERROR_PAGE_URL)
@@ -25,5 +25,5 @@ func goToErrorPage(msg string, err error, req *http.Request) {
 	req.URL.Host = errorPageURL.Host
 	req.URL.Path = "/404?msg=" + msg
 
-	logReq(req)
+	LogReq(req)
 }
