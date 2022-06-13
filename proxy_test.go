@@ -13,8 +13,8 @@ import (
 )
 
 func TestProxyDirectorAndModifyResponse(t *testing.T) {
-	directors = []func(req *http.Request){}
-	modifyResponses = []func(req *http.Response){}
+	Directors = []func(req *http.Request){}
+	ModifyResponses = []func(req *http.Response){}
 
 	msg := "hello"
 
@@ -40,7 +40,7 @@ func TestProxyDirectorAndModifyResponse(t *testing.T) {
 		ModifyResponse: modifyResponse,
 	}
 
-	directors = append(directors, simpleDirector)
+	Directors = append(Directors, simpleDirector)
 	targetServ := httptest.NewServer(&rp)
 
 	t.Run("simple director", func(t *testing.T) {
@@ -67,7 +67,7 @@ func TestProxyDirectorAndModifyResponse(t *testing.T) {
 		}
 	})
 
-	modifyResponses = append(modifyResponses, simpleModifyResponse)
+	ModifyResponses = append(ModifyResponses, simpleModifyResponse)
 
 	t.Run("modify response", func(t *testing.T) {
 		req, err := http.NewRequest(http.MethodGet, targetServ.URL, nil)
