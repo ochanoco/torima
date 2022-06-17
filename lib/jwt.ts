@@ -14,10 +14,7 @@ const generateToken = (userId: string): string => {
         issuer: process.env.JWT_ISS as string
     }
 
-    console.log('jwtSecret: ', jwtSecret)
-
     const token = jwt.sign(jwtPayload, jwtSecret, jwtOptions)
-    console.log('token: ', token)
 
     return token
 }
