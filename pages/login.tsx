@@ -3,8 +3,9 @@ import Head from 'next/head'
 import React from 'react'
 import styles from '../styles/Home.module.css'
 import { useSession, signIn, signOut } from "next-auth/react"
-import { redirect } from 'next/dist/server/api-utils'
 import { useRouter } from 'next/router'
+
+import { generateToken } from '../lib/jwt'
 
 
 const LoginPage: NextPage = () => {
@@ -13,8 +14,12 @@ const LoginPage: NextPage = () => {
 
   if (session) {
     console.log("session", session)
+    const token = generateToken('hello')
+
     const refererUrl = localStorage.getItem('referer')
-    localStorage.setItem('referer', refererUrl as string)
+    const redirectUrl = `${refererUrl}?token=${token}`
+
+    localStorage.setItem('referer', redirectUrl as string)
 
     if (!refererUrl) return (
       <div>
