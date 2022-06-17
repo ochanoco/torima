@@ -33,7 +33,8 @@ const LoginPage: NextPage = () => {
       </div>
     )
 
-    // router.push(refererUrl as string)
+    console.log("token: ", redirectUrl)
+    router.push(refererUrl as string)
   }
 
   return (
