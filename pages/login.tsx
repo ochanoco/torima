@@ -33,7 +33,7 @@ const LoginPage: NextPage = () => {
       </div>
     )
 
-    router.push(refererUrl as string)
+    // router.push(refererUrl as string)
   }
 
   return (
