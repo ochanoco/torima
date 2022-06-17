@@ -1,9 +1,10 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import React from 'react'
+import React, { useState } from 'react'
 import styles from '../styles/Home.module.css'
 import { useSession, signIn, signOut } from "next-auth/react"
 import { useRouter } from 'next/router'
+import axios from "axios"
 
 import { generateToken } from '../lib/jwt'
 
@@ -11,11 +12,14 @@ import { generateToken } from '../lib/jwt'
 const LoginPage: NextPage = () => {
   const { data: session } = useSession()
   const router = useRouter()
+  const [token, setToken] = useState()
+
+  useState(async () => {
+    const resp = await axios.get("/api/token")
+    setToken(resp.data.token)
+  })
 
   if (session) {
-    console.log("session", session)
-    const token = generateToken('hello')
-
     const refererUrl = localStorage.getItem('referer')
     const redirectUrl = `${refererUrl}?token=${token}`
 

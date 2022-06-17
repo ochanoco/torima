@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@types/jsonwebtoken": "^8.5.8",
-    "axios": "^0.26.1",
+    "axios": "^0.27.2",
     "jsonwebtoken": "^8.5.1",
     "next": "12.1.0",
     "next-auth": "^4.3.4",
