@@ -26,7 +26,7 @@ func modifyResponse(res *http.Response) error {
 func init() {
 	// Client sets the original URL in the Ochanoco-Forward-For header
 	simpleDirector := func(req *http.Request) {
-		url, _ := url.Parse(SERVWICE_BASE_URL)
+		url, _ := url.Parse(SERVWICE_BASE_URL + req.URL.Path)
 		req.URL = url
 		fmt.Printf("proxy to %v\n", url)
 	}
