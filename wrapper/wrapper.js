@@ -1,45 +1,51 @@
-const PROXY_ADDR = "http://localhost:9000";
+(function () {
+  const PROXY_ORIGIN = "http://localhost:9000";
 
-const __originadFetch = window.fetch;
-const __originalXhr = window.XMLHttpRequest;
+  const __originadFetch = window.fetch;
+  const __originalXhr = window.XMLHttpRequest;
 
-function customFetch(input, init = {}) {
-  console.log("fetch called");
+  function toProxiedUrl(input, currentPath, targetOrigin) {
+    let path = "";
 
-  let newAddr = "";
+    // input is type of either string or Request
+    path = typeof input === "string" ? input : input.url;
 
-  // input is type of either string or Request
-  newAddr = typeof input === "string" ? input : input.url;
+    if (!path.startsWith("http://") && !path.startsWith("/")) {
+      // if it is relative path, first make it absolute
 
-  if (!newAddr.startsWith("http://") && !newAddr.startsWith("/")) {
-    // if it is relative path, first make it absolute
+      // /path/to/hoge/foo.html
+      //              ^ Get this index
+      const slashIndex = currentPath.lastIndexOf("/");
+      // fuga/piyo -> /path/to/hoge/fuga/piyo
+      path = `${currentPath.slice(0, slashIndex + 1)}${path}`;
+    }
 
-    // hoge/fuga/piyo
-    //          ^ Get this index
-    const slashIndex = newAddr.lastIndexOf("/");
-    // hoge/fuga/piyo -> hoge/fuga/
-    location.pathname.slice(0, slashIndex + 1);
+    // if it is absolute path in the origin, convert it to URL
+    if (path.startsWith("/")) {
+      path = `${targetOrigin}${path}`;
+    }
+
+    return path;
   }
 
-  // if it is absolute path in the origin, convert it to URL
-  if (newAddr.startsWith("/")) {
-    newAddr = `${location.origin}${newAddr}`;
+  function customFetch(input, init = {}) {
+    console.log("fetch called");
+
+    init.mode = "cors";
+
+    const url = toProxiedUrl(input, location.pathname, PROXY_ORIGIN);
+
+    console.log(`proxy to ${url}`);
+
+    return __originadFetch(url, init);
   }
 
-  init.mode = "cors";
-
-  const url = PROXY_ADDR;
-
-  // TODO: maybe i need to add CORS-safelisted headers (https://fetch.spec.whatwg.org/#cors-safelisted-request-header)
-  return __originadFetch(url, init);
-}
-
-class customXhr extends __originalXhr {
-  constructor() {
-    console.log("xhr created");
-    super();
+  class customXhr extends __originalXhr {
+    constructor() {
+      console.log("xhr created");
+      super();
+    }
   }
-}
-
-window.fetch = customFetch;
-window.XMLHttpRequest = customXhr;
+  window.fetch = customFetch;
+  window.XMLHttpRequest = customXhr;
+})();
