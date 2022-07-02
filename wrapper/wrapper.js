@@ -45,6 +45,11 @@
       console.log("xhr created");
       super();
     }
+
+    open(method, url, ...args) {
+      const proxiedUrl = toProxiedUrl(url, location.pathname, PROXY_ORIGIN);
+      return super.open(method, proxiedUrl, ...args);
+    }
   }
   window.fetch = customFetch;
   window.XMLHttpRequest = customXhr;
