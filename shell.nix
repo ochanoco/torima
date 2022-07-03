@@ -9,5 +9,5 @@ with pkgs;
 mkShell {
   # Sets the build inputs, i.e. what will be available in our
   # local environment.
-  buildInputs = [ go yarn nodejs ];
+  buildInputs = [ go yarn nodejs git ];
 }
