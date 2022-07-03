@@ -8,7 +8,7 @@ An environment for developing ochano.co modules.
 
 ```sh
 # First time
-dockre-compose build
+docker-compose build
 
 # shell
 docker-compose run workspace bash -lc 'nix-shell'
