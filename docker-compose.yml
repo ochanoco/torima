@@ -1,0 +1,7 @@
+services:
+  workspace:
+    build:
+      context: "."
+    volumes:
+      - ".:/workspace"
+    # privileged: true
