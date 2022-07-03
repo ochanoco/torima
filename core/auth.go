@@ -21,16 +21,13 @@ func passIfCleanContent(req *http.Request) bool {
 }
 
 func authenticateRequest(req *http.Request) bool {
-	// todo: valid cookie
-	rawCookie := req.Header.Get("Cookie")
-	cookies := parseCookies(rawCookie)
-	tokenCookie, err := getCookie("ochanoco-token", cookies)
+	cookie, err := req.Cookie("ochanoco-token")
 
 	if err != nil {
 		return false
 	}
 
-	return validateToken(tokenCookie.Value)
+	return validateToken(cookie.Value)
 }
 
 func validateToken(_ string) bool {
