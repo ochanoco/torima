@@ -10,7 +10,7 @@
     // input is type of either string or Request
     path = typeof input === "string" ? input : input.url;
 
-    if (!path.startsWith("http://") && !path.startsWith("/")) {
+    if (/^https?:\/\//.exec(path).length <= 0 && !path.startsWith("/")) {
       // if it is relative path, first make it absolute
 
       // /path/to/hoge/foo.html
@@ -33,6 +33,7 @@
 
     init.mode = "cors";
 
+    console.log("original url: " + input);
     const url = toProxiedUrl(input, location.pathname, PROXY_ORIGIN);
 
     console.log(`proxy to ${url}`);
