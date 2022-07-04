@@ -1,3 +1,4 @@
+
 import type { NextPage } from 'next'
 import { useEffect } from 'react'
 import Head from 'next/head'
@@ -10,8 +11,10 @@ const RedirectPage: NextPage = () => {
   const router = useRouter();
 
   const { referer } = router.query;
-  if (referer)
+  if (referer) {
+    localStorage.clear()
     localStorage.setItem('referer', referer as string)
+  }
 
   useEffect(() => {
     setTimeout(() => {
