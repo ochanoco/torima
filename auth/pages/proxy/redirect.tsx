@@ -2,7 +2,7 @@
 import type { NextPage } from 'next'
 import { useEffect } from 'react'
 import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import styles from '../../styles/Home.module.css'
 import router, { useRouter } from 'next/router'
 
 const REDIRECT_URL = "http://localhost:3000/login"
