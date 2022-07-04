@@ -2,28 +2,19 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import React, { useState } from 'react'
 import styles from '../styles/Home.module.css'
-import { useSession, signIn, signOut } from "next-auth/react"
-import { useRouter } from 'next/router'
-import axios from "axios"
-
+import { useSession, signIn, signOut, getSession } from "next-auth/react"
 import { generateToken } from '../lib/jwt'
 
 
-const LoginPage: NextPage = () => {
+const LoginPage: NextPage = ({ token }) => {
   const { data: session } = useSession()
-  const router = useRouter()
-  const [token, setToken] = useState()
-
-  useState(async () => {
-    const resp = await axios.get("/api/token")
-    setToken(resp.data.token)
-  })
 
   if (session) {
+    console.log("data: ", token)
+
     const refererUrl = localStorage.getItem('referer')
     const redirectUrl = `${refererUrl}?token=${token}`
 
-    localStorage.setItem('referer', redirectUrl as string)
 
     if (!refererUrl) return (
       <div>
@@ -34,7 +25,7 @@ const LoginPage: NextPage = () => {
     )
 
     console.log("token: ", redirectUrl)
-    router.push(refererUrl as string)
+    location.href = redirectUrl
   }
 
   return (
@@ -49,5 +40,24 @@ const LoginPage: NextPage = () => {
     </div>
   )
 }
+
+
+export async function getServerSideProps(context) {
+  let token = ''
+  const session = await getSession(context)
+
+  if (session?.token) {
+    token = generateToken(session?.token.sub)
+  }
+
+  console.log(token)
+
+  return {
+    props: {
+      token
+    },
+  }
+}
+
 
 export default LoginPage
