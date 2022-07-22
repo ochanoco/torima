@@ -1,6 +1,7 @@
 const PROXY_ORIGIN = "http://localhost:9000";
 
-function toProxiedUrl(input, currentPath, targetOrigin) {
+function toProxiedUrl(input, currentOrigin, currentPath, targetOrigin) {
+  console.log({ currentPath, currentOrigin });
   let path = "";
 
   // input is type of either string or Request
@@ -8,7 +9,19 @@ function toProxiedUrl(input, currentPath, targetOrigin) {
 
   console.log("original url: " + path);
 
-  if (/^https?:\/\//.exec(path).length <= 0 && !path.startsWith("/")) {
+  if (!path.startsWith(currentOrigin)) {
+    console.log(
+      "proxying a request to an external origin is not supported yet"
+    );
+    return path;
+  }
+
+  if (/^https?:\/\//.exec(path).length > 0) {
+    const url = new URL(path);
+    path = url.pathname;
+  }
+
+  if (!path.startsWith("/")) {
     // if it is relative path, first make it absolute
 
     // /path/to/hoge/foo.html
@@ -33,11 +46,21 @@ async function customFetch(input, init = {}) {
 
   init.mode = "cors";
 
-  const url = toProxiedUrl(input, location.pathname, PROXY_ORIGIN);
+  const url = toProxiedUrl(
+    input,
+    location.origin,
+    location.pathname,
+    PROXY_ORIGIN
+  );
 
   if (input instanceof Request) {
-    input.url = url;
+    // a Request's properties are read-only, so we need to create new one
+    const req = new Request(url, { ...input });
+    input = req;
+    console.log("request");
+    console.log({ input });
   } else {
+    console.log("string");
     input = url;
   }
 
