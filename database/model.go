@@ -7,6 +7,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	_ "github.com/mattn/go-sqlite3"
+	"github.com/ochanoco/database/ent"
 )
 
 var DB_TYPE = "sqlite3"
@@ -24,9 +27,9 @@ type Database struct {
 	client *ent.Client
 }
 
-var db *Database
+var DB *Database
 
-func initDB() (*Database, error) {
+func InitDB() (*Database, error) {
 	err := errors.New("error")
 	dbl := new(Database)
 
@@ -46,12 +49,12 @@ func initDB() (*Database, error) {
 	dbl.ctx = ctx
 	dbl.client = client
 
-	db = dbl
+	DB = dbl
 
 	return dbl, err
 }
 
-func migrateWhiteList() error {
+func MigrateWhiteList() error {
 	var urls []string
 
 	b, _ := os.ReadFile(WHITELIST_FILE)
@@ -62,47 +65,43 @@ func migrateWhiteList() error {
 		return err
 	}
 
-	projc := createProject(db, AUTH_PAGE_DOMAIN, AUTH_PAGE_DESTINATION, "root", "root")
-	proj, nil := projc.Save(db.ctx)
+	projc := CreateServiceProvider(DB, AUTH_PAGE_DOMAIN, AUTH_PAGE_DESTINATION)
+	proj, nil := projc.Save(DB.ctx)
 
 	if err != nil {
-		fmt.Errorf("failed creating project: %v", err)
-		return err
+		return fmt.Errorf("failed creating project: %v", err)
 	}
 
 	for _, url := range urls {
-		wl := createWhiteList(db, url)
-		proj, err = saveWhiteListOnProj(db, proj, wl)
+		wl := CreateWhiteList(DB, url)
+		proj, err = SaveWhiteListOnProj(DB, proj, wl)
 
 		if err != nil {
-			fmt.Errorf("failed add white list to project: %v", err)
-			return err
+			return fmt.Errorf("failed add white list to project: %v", err)
 		}
 	}
 
 	return nil
 }
 
-func createWhiteList(db *Database, url string) *ent.WhiteListCreate {
+func CreateWhiteList(db *Database, path string) *ent.WhiteListCreate {
 	wl := db.client.WhiteList.
 		Create().
-		SetURL(url)
+		SetPath(path)
 
 	return wl
 }
 
-func createProject(db *Database, domain string, destination string, lineId string, name string) *ent.ProjectCreate {
-	proj := db.client.Project.
+func CreateServiceProvider(db *Database, host string, destinationIP string) *ent.ServiceProviderCreate {
+	proj := db.client.ServiceProvider.
 		Create().
-		SetDomain(domain).
-		SetDestination(destination).
-		SetLineID(lineId).
-		SetName(name)
+		SetHost(host).
+		SetDestinationIP(destinationIP)
 
 	return proj
 }
 
-func saveWhiteListOnProj(db *Database, projc *ent.Project, wlc *ent.WhiteListCreate) (*ent.Project, error) {
+func SaveWhiteListOnProj(db *Database, projc *ent.ServiceProvider, wlc *ent.WhiteListCreate) (*ent.ServiceProvider, error) {
 	wl, err := wlc.Save(db.ctx)
 
 	if err != nil {
