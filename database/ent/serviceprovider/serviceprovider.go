@@ -13,6 +13,8 @@ const (
 	FieldDestinationIP = "destination_ip"
 	// EdgeWhitelists holds the string denoting the whitelists edge name in mutations.
 	EdgeWhitelists = "whitelists"
+	// EdgeAuthorizationCodes holds the string denoting the authorization_codes edge name in mutations.
+	EdgeAuthorizationCodes = "authorization_codes"
 	// Table holds the table name of the serviceprovider in the database.
 	Table = "service_providers"
 	// WhitelistsTable is the table that holds the whitelists relation/edge.
@@ -22,6 +24,13 @@ const (
 	WhitelistsInverseTable = "white_lists"
 	// WhitelistsColumn is the table column denoting the whitelists relation/edge.
 	WhitelistsColumn = "service_provider_whitelists"
+	// AuthorizationCodesTable is the table that holds the authorization_codes relation/edge.
+	AuthorizationCodesTable = "authorization_codes"
+	// AuthorizationCodesInverseTable is the table name for the AuthorizationCode entity.
+	// It exists in this package in order to avoid circular dependency with the "authorizationcode" package.
+	AuthorizationCodesInverseTable = "authorization_codes"
+	// AuthorizationCodesColumn is the table column denoting the authorization_codes relation/edge.
+	AuthorizationCodesColumn = "service_provider_authorization_codes"
 )
 
 // Columns holds all SQL columns for serviceprovider fields.
