@@ -9,8 +9,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"example.com/m/v2/ent/predicate"
-	"example.com/m/v2/ent/whitelist"
+	"github.com/ochanoco/database/ent/predicate"
+	"github.com/ochanoco/database/ent/whitelist"
 )
 
 // WhiteListDelete is the builder for deleting a WhiteList entity.

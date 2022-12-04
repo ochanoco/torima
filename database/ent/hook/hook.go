@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"example.com/m/v2/ent"
+	"github.com/ochanoco/database/ent"
 )
 
 // The ServiceProviderFunc type is an adapter to allow the use of ordinary

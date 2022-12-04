@@ -9,8 +9,8 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"example.com/m/v2/ent/serviceprovider"
-	"example.com/m/v2/ent/whitelist"
+	"github.com/ochanoco/database/ent/serviceprovider"
+	"github.com/ochanoco/database/ent/whitelist"
 )
 
 // ServiceProviderCreate is the builder for creating a ServiceProvider entity.

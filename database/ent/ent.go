@@ -10,8 +10,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"example.com/m/v2/ent/serviceprovider"
-	"example.com/m/v2/ent/whitelist"
+	"github.com/ochanoco/database/ent/serviceprovider"
+	"github.com/ochanoco/database/ent/whitelist"
 )
 
 // ent aliases to avoid import conflicts in user's code.

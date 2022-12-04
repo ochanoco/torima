@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"entgo.io/ent/dialect/sql"
-	"example.com/m/v2/ent/serviceprovider"
-	"example.com/m/v2/ent/whitelist"
+	"github.com/ochanoco/database/ent/serviceprovider"
+	"github.com/ochanoco/database/ent/whitelist"
 )
 
 // WhiteList is the model entity for the WhiteList schema.

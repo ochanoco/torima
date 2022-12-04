@@ -8,10 +8,10 @@ import (
 	"fmt"
 	"log"
 
-	"example.com/m/v2/ent/migrate"
+	"github.com/ochanoco/database/ent/migrate"
 
-	"example.com/m/v2/ent/serviceprovider"
-	"example.com/m/v2/ent/whitelist"
+	"github.com/ochanoco/database/ent/serviceprovider"
+	"github.com/ochanoco/database/ent/whitelist"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
