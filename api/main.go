@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"gin_line_login"
 	"net/http"
 
@@ -10,13 +11,16 @@ import (
 )
 
 const BASE_NEXT_PATH = "../app/out/"
+const OCHANOCO_LOGIN_URL = "http://localhost:8080/login"
 
 func main() {
+	secret := []byte("secret")
+
 	r := gin.Default()
 	r.LoadHTMLGlob(BASE_NEXT_PATH + "/*.html")
 	r.Static("/_next/", BASE_NEXT_PATH+"_next/")
 
-	store := cookie.NewStore([]byte("secret"))
+	store := cookie.NewStore(secret)
 	r.Use(sessions.Sessions("mysession", store))
 
 	lineLogin, err := gin_line_login.NewLineLogin(r, "/login", "/auth/callback", "/redirect")
@@ -41,22 +45,35 @@ func main() {
 		c.HTML(http.StatusOK, "redirect.html", gin.H{})
 	})
 
+	r.GET("/ochanoco/_redirect", func(c *gin.Context) {
+		// todo: analyis risk of forge host
+		clientId := c.Request.Host
+
+		url := fmt.Sprintf("%v?clientId=%v", OCHANOCO_LOGIN_URL, clientId)
+		c.Redirect(http.StatusTemporaryRedirect, url)
+	})
+
 	r.GET("/ochanoco/callback", func(c *gin.Context) {
-		c.JSON(200, gin.H{"message": "redirect"})
+		c.JSON(200, gin.H{"message": "redirected from ochanoco"})
 	})
 
 	r.GET("/login", func(c *gin.Context) {
 		// todo: authenticate servicer
-		_, err := c.Get("client_id")
+		clientId, err := c.Get("client_id")
 		if err {
+			return
 		}
 
-		_, err = c.Get("client_secret")
-		if err {
-
-		}
+		session := sessions.Default(c)
+		session.Set("client_id", clientId)
+		session.Save()
 
 		c.HTML(http.StatusOK, "login.html", gin.H{})
+	})
+
+	r.GET("/redirect", func(c *gin.Context) {
+		const redirect_uri = "http://localhost:8080/ochanoco/callback"
+		c.Redirect(http.StatusTemporaryRedirect, redirect_uri)
 	})
 
 	r.Run()
