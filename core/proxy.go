@@ -4,7 +4,16 @@ import (
 	"net/http"
 )
 
+/**
+ * Directors is a list of functions that modify the
+ * request before it is sent to the target server.
+ **/
 var Directors []func(req *http.Request)
+
+/**
+  * ModifyResponses is a list of functions that modify the
+  * response before it is sent to the client.
+**/
 var ModifyResponses []func(req *http.Response)
 
 func director(req *http.Request) {

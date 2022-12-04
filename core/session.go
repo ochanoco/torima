@@ -4,6 +4,9 @@ import (
 	"net/http"
 )
 
+/**
+ * RemoveToken is a director that removes the token
+**/
 func RemoveToken(req *http.Request) {
 	queries := req.URL.Query()
 	queries.Del("token")
