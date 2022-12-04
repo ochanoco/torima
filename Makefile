@@ -12,8 +12,14 @@ init:
 	git remote add tee git@github.com:ochanoco/ochano.co-tee.git
 
 pull:
+	git subtree pull --prefix=core core ${BRANCH}
+	git subtree pull --prefix=auth auth ${BRANCH}
+	git subtree pull --prefix=cloud cloud ${BRANCH}
+	git subtree pull --prefix=tee tee ${BRANCH}
+
+
+push:
 	git subtree push --prefix=core core ${BRANCH}
 	git subtree push --prefix=auth auth ${BRANCH}
 	git subtree push --prefix=cloud cloud ${BRANCH}
 	git subtree push --prefix=tee tee ${BRANCH}
-
