@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/ochanoco/database/proxy/ent"
 )
 
 var DB_TYPE = "sqlite3"
