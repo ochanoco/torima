@@ -3,13 +3,13 @@ import { OCHANOCO_CONFIG } from '../config'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 
 const RedirectPage: NextPage = ({ }) => {
     useEffect(() => {
         setTimeout(() => {
-            location.href = OCHANOCO_CONFIG.LOGIN_PAGE_URL
+            location.href = "/ochanoco/_redirect"
         }, 3000)
     }, [])
 
@@ -21,8 +21,7 @@ const RedirectPage: NextPage = ({ }) => {
             </Head>
             <main>
                 <h1>{TEXT_ON_REDIRET_PAGE.HEADER}</h1>
-                <p>{TEXT_ON_REDIRET_PAGE.MESSAGE}</p >
-
+                <p>{TEXT_ON_REDIRET_PAGE.MESSAGE}</p>
             </main>
         </div>
     )
