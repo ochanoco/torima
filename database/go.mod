@@ -2,7 +2,10 @@ module github.com/ochanoco/database
 
 go 1.18
 
-require entgo.io/ent v0.11.4
+require (
+	entgo.io/ent v0.11.4
+	github.com/mattn/go-sqlite3 v1.14.16
+)
 
 require (
 	ariga.io/atlas v0.7.3-0.20221011160332-3ca609863edd // indirect
