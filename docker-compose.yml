@@ -1,6 +1,0 @@
-services:
-  workspace:
-    build:
-      context: "."
-    volumes:
-      - ".:/workspace"
