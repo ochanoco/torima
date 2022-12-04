@@ -28,9 +28,11 @@ type ServiceProvider struct {
 type ServiceProviderEdges struct {
 	// Whitelists holds the value of the whitelists edge.
 	Whitelists []*WhiteList `json:"whitelists,omitempty"`
+	// AuthorizationCodes holds the value of the authorization_codes edge.
+	AuthorizationCodes []*AuthorizationCode `json:"authorization_codes,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // WhitelistsOrErr returns the Whitelists value or an error if the edge
@@ -40,6 +42,15 @@ func (e ServiceProviderEdges) WhitelistsOrErr() ([]*WhiteList, error) {
 		return e.Whitelists, nil
 	}
 	return nil, &NotLoadedError{edge: "whitelists"}
+}
+
+// AuthorizationCodesOrErr returns the AuthorizationCodes value or an error if the edge
+// was not loaded in eager-loading.
+func (e ServiceProviderEdges) AuthorizationCodesOrErr() ([]*AuthorizationCode, error) {
+	if e.loadedTypes[1] {
+		return e.AuthorizationCodes, nil
+	}
+	return nil, &NotLoadedError{edge: "authorization_codes"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -92,6 +103,11 @@ func (sp *ServiceProvider) assignValues(columns []string, values []any) error {
 // QueryWhitelists queries the "whitelists" edge of the ServiceProvider entity.
 func (sp *ServiceProvider) QueryWhitelists() *WhiteListQuery {
 	return (&ServiceProviderClient{config: sp.config}).QueryWhitelists(sp)
+}
+
+// QueryAuthorizationCodes queries the "authorization_codes" edge of the ServiceProvider entity.
+func (sp *ServiceProvider) QueryAuthorizationCodes() *AuthorizationCodeQuery {
+	return (&ServiceProviderClient{config: sp.config}).QueryAuthorizationCodes(sp)
 }
 
 // Update returns a builder for updating this ServiceProvider.

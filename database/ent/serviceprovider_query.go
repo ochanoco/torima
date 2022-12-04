@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/ochanoco/database/ent/authorizationcode"
 	"github.com/ochanoco/database/ent/predicate"
 	"github.com/ochanoco/database/ent/serviceprovider"
 	"github.com/ochanoco/database/ent/whitelist"
@@ -19,13 +20,14 @@ import (
 // ServiceProviderQuery is the builder for querying ServiceProvider entities.
 type ServiceProviderQuery struct {
 	config
-	limit          *int
-	offset         *int
-	unique         *bool
-	order          []OrderFunc
-	fields         []string
-	predicates     []predicate.ServiceProvider
-	withWhitelists *WhiteListQuery
+	limit                  *int
+	offset                 *int
+	unique                 *bool
+	order                  []OrderFunc
+	fields                 []string
+	predicates             []predicate.ServiceProvider
+	withWhitelists         *WhiteListQuery
+	withAuthorizationCodes *AuthorizationCodeQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -77,6 +79,28 @@ func (spq *ServiceProviderQuery) QueryWhitelists() *WhiteListQuery {
 			sqlgraph.From(serviceprovider.Table, serviceprovider.FieldID, selector),
 			sqlgraph.To(whitelist.Table, whitelist.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, serviceprovider.WhitelistsTable, serviceprovider.WhitelistsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(spq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryAuthorizationCodes chains the current query on the "authorization_codes" edge.
+func (spq *ServiceProviderQuery) QueryAuthorizationCodes() *AuthorizationCodeQuery {
+	query := &AuthorizationCodeQuery{config: spq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := spq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := spq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(serviceprovider.Table, serviceprovider.FieldID, selector),
+			sqlgraph.To(authorizationcode.Table, authorizationcode.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, serviceprovider.AuthorizationCodesTable, serviceprovider.AuthorizationCodesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(spq.driver.Dialect(), step)
 		return fromU, nil
@@ -260,12 +284,13 @@ func (spq *ServiceProviderQuery) Clone() *ServiceProviderQuery {
 		return nil
 	}
 	return &ServiceProviderQuery{
-		config:         spq.config,
-		limit:          spq.limit,
-		offset:         spq.offset,
-		order:          append([]OrderFunc{}, spq.order...),
-		predicates:     append([]predicate.ServiceProvider{}, spq.predicates...),
-		withWhitelists: spq.withWhitelists.Clone(),
+		config:                 spq.config,
+		limit:                  spq.limit,
+		offset:                 spq.offset,
+		order:                  append([]OrderFunc{}, spq.order...),
+		predicates:             append([]predicate.ServiceProvider{}, spq.predicates...),
+		withWhitelists:         spq.withWhitelists.Clone(),
+		withAuthorizationCodes: spq.withAuthorizationCodes.Clone(),
 		// clone intermediate query.
 		sql:    spq.sql.Clone(),
 		path:   spq.path,
@@ -281,6 +306,17 @@ func (spq *ServiceProviderQuery) WithWhitelists(opts ...func(*WhiteListQuery)) *
 		opt(query)
 	}
 	spq.withWhitelists = query
+	return spq
+}
+
+// WithAuthorizationCodes tells the query-builder to eager-load the nodes that are connected to
+// the "authorization_codes" edge. The optional arguments are used to configure the query builder of the edge.
+func (spq *ServiceProviderQuery) WithAuthorizationCodes(opts ...func(*AuthorizationCodeQuery)) *ServiceProviderQuery {
+	query := &AuthorizationCodeQuery{config: spq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	spq.withAuthorizationCodes = query
 	return spq
 }
 
@@ -359,8 +395,9 @@ func (spq *ServiceProviderQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 	var (
 		nodes       = []*ServiceProvider{}
 		_spec       = spq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			spq.withWhitelists != nil,
+			spq.withAuthorizationCodes != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -385,6 +422,15 @@ func (spq *ServiceProviderQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 		if err := spq.loadWhitelists(ctx, query, nodes,
 			func(n *ServiceProvider) { n.Edges.Whitelists = []*WhiteList{} },
 			func(n *ServiceProvider, e *WhiteList) { n.Edges.Whitelists = append(n.Edges.Whitelists, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := spq.withAuthorizationCodes; query != nil {
+		if err := spq.loadAuthorizationCodes(ctx, query, nodes,
+			func(n *ServiceProvider) { n.Edges.AuthorizationCodes = []*AuthorizationCode{} },
+			func(n *ServiceProvider, e *AuthorizationCode) {
+				n.Edges.AuthorizationCodes = append(n.Edges.AuthorizationCodes, e)
+			}); err != nil {
 			return nil, err
 		}
 	}
@@ -417,6 +463,37 @@ func (spq *ServiceProviderQuery) loadWhitelists(ctx context.Context, query *Whit
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "service_provider_whitelists" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (spq *ServiceProviderQuery) loadAuthorizationCodes(ctx context.Context, query *AuthorizationCodeQuery, nodes []*ServiceProvider, init func(*ServiceProvider), assign func(*ServiceProvider, *AuthorizationCode)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*ServiceProvider)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.AuthorizationCode(func(s *sql.Selector) {
+		s.Where(sql.InValues(serviceprovider.AuthorizationCodesColumn, fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.service_provider_authorization_codes
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "service_provider_authorization_codes" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "service_provider_authorization_codes" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/ochanoco/database/ent/authorizationcode"
 	"github.com/ochanoco/database/ent/predicate"
 	"github.com/ochanoco/database/ent/serviceprovider"
 	"github.com/ochanoco/database/ent/whitelist"
@@ -55,6 +56,21 @@ func (spu *ServiceProviderUpdate) AddWhitelists(w ...*WhiteList) *ServiceProvide
 	return spu.AddWhitelistIDs(ids...)
 }
 
+// AddAuthorizationCodeIDs adds the "authorization_codes" edge to the AuthorizationCode entity by IDs.
+func (spu *ServiceProviderUpdate) AddAuthorizationCodeIDs(ids ...int) *ServiceProviderUpdate {
+	spu.mutation.AddAuthorizationCodeIDs(ids...)
+	return spu
+}
+
+// AddAuthorizationCodes adds the "authorization_codes" edges to the AuthorizationCode entity.
+func (spu *ServiceProviderUpdate) AddAuthorizationCodes(a ...*AuthorizationCode) *ServiceProviderUpdate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return spu.AddAuthorizationCodeIDs(ids...)
+}
+
 // Mutation returns the ServiceProviderMutation object of the builder.
 func (spu *ServiceProviderUpdate) Mutation() *ServiceProviderMutation {
 	return spu.mutation
@@ -79,6 +95,27 @@ func (spu *ServiceProviderUpdate) RemoveWhitelists(w ...*WhiteList) *ServiceProv
 		ids[i] = w[i].ID
 	}
 	return spu.RemoveWhitelistIDs(ids...)
+}
+
+// ClearAuthorizationCodes clears all "authorization_codes" edges to the AuthorizationCode entity.
+func (spu *ServiceProviderUpdate) ClearAuthorizationCodes() *ServiceProviderUpdate {
+	spu.mutation.ClearAuthorizationCodes()
+	return spu
+}
+
+// RemoveAuthorizationCodeIDs removes the "authorization_codes" edge to AuthorizationCode entities by IDs.
+func (spu *ServiceProviderUpdate) RemoveAuthorizationCodeIDs(ids ...int) *ServiceProviderUpdate {
+	spu.mutation.RemoveAuthorizationCodeIDs(ids...)
+	return spu
+}
+
+// RemoveAuthorizationCodes removes "authorization_codes" edges to AuthorizationCode entities.
+func (spu *ServiceProviderUpdate) RemoveAuthorizationCodes(a ...*AuthorizationCode) *ServiceProviderUpdate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return spu.RemoveAuthorizationCodeIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -213,6 +250,60 @@ func (spu *ServiceProviderUpdate) sqlSave(ctx context.Context) (n int, err error
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if spu.mutation.AuthorizationCodesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   serviceprovider.AuthorizationCodesTable,
+			Columns: []string{serviceprovider.AuthorizationCodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: authorizationcode.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := spu.mutation.RemovedAuthorizationCodesIDs(); len(nodes) > 0 && !spu.mutation.AuthorizationCodesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   serviceprovider.AuthorizationCodesTable,
+			Columns: []string{serviceprovider.AuthorizationCodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: authorizationcode.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := spu.mutation.AuthorizationCodesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   serviceprovider.AuthorizationCodesTable,
+			Columns: []string{serviceprovider.AuthorizationCodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: authorizationcode.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, spu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{serviceprovider.Label}
@@ -259,6 +350,21 @@ func (spuo *ServiceProviderUpdateOne) AddWhitelists(w ...*WhiteList) *ServicePro
 	return spuo.AddWhitelistIDs(ids...)
 }
 
+// AddAuthorizationCodeIDs adds the "authorization_codes" edge to the AuthorizationCode entity by IDs.
+func (spuo *ServiceProviderUpdateOne) AddAuthorizationCodeIDs(ids ...int) *ServiceProviderUpdateOne {
+	spuo.mutation.AddAuthorizationCodeIDs(ids...)
+	return spuo
+}
+
+// AddAuthorizationCodes adds the "authorization_codes" edges to the AuthorizationCode entity.
+func (spuo *ServiceProviderUpdateOne) AddAuthorizationCodes(a ...*AuthorizationCode) *ServiceProviderUpdateOne {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return spuo.AddAuthorizationCodeIDs(ids...)
+}
+
 // Mutation returns the ServiceProviderMutation object of the builder.
 func (spuo *ServiceProviderUpdateOne) Mutation() *ServiceProviderMutation {
 	return spuo.mutation
@@ -283,6 +389,27 @@ func (spuo *ServiceProviderUpdateOne) RemoveWhitelists(w ...*WhiteList) *Service
 		ids[i] = w[i].ID
 	}
 	return spuo.RemoveWhitelistIDs(ids...)
+}
+
+// ClearAuthorizationCodes clears all "authorization_codes" edges to the AuthorizationCode entity.
+func (spuo *ServiceProviderUpdateOne) ClearAuthorizationCodes() *ServiceProviderUpdateOne {
+	spuo.mutation.ClearAuthorizationCodes()
+	return spuo
+}
+
+// RemoveAuthorizationCodeIDs removes the "authorization_codes" edge to AuthorizationCode entities by IDs.
+func (spuo *ServiceProviderUpdateOne) RemoveAuthorizationCodeIDs(ids ...int) *ServiceProviderUpdateOne {
+	spuo.mutation.RemoveAuthorizationCodeIDs(ids...)
+	return spuo
+}
+
+// RemoveAuthorizationCodes removes "authorization_codes" edges to AuthorizationCode entities.
+func (spuo *ServiceProviderUpdateOne) RemoveAuthorizationCodes(a ...*AuthorizationCode) *ServiceProviderUpdateOne {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return spuo.RemoveAuthorizationCodeIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -439,6 +566,60 @@ func (spuo *ServiceProviderUpdateOne) sqlSave(ctx context.Context) (_node *Servi
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: whitelist.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if spuo.mutation.AuthorizationCodesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   serviceprovider.AuthorizationCodesTable,
+			Columns: []string{serviceprovider.AuthorizationCodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: authorizationcode.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := spuo.mutation.RemovedAuthorizationCodesIDs(); len(nodes) > 0 && !spuo.mutation.AuthorizationCodesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   serviceprovider.AuthorizationCodesTable,
+			Columns: []string{serviceprovider.AuthorizationCodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: authorizationcode.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := spuo.mutation.AuthorizationCodesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   serviceprovider.AuthorizationCodesTable,
+			Columns: []string{serviceprovider.AuthorizationCodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: authorizationcode.FieldID,
 				},
 			},
 		}

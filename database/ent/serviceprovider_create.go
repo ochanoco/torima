@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/ochanoco/database/ent/authorizationcode"
 	"github.com/ochanoco/database/ent/serviceprovider"
 	"github.com/ochanoco/database/ent/whitelist"
 )
@@ -45,6 +46,21 @@ func (spc *ServiceProviderCreate) AddWhitelists(w ...*WhiteList) *ServiceProvide
 		ids[i] = w[i].ID
 	}
 	return spc.AddWhitelistIDs(ids...)
+}
+
+// AddAuthorizationCodeIDs adds the "authorization_codes" edge to the AuthorizationCode entity by IDs.
+func (spc *ServiceProviderCreate) AddAuthorizationCodeIDs(ids ...int) *ServiceProviderCreate {
+	spc.mutation.AddAuthorizationCodeIDs(ids...)
+	return spc
+}
+
+// AddAuthorizationCodes adds the "authorization_codes" edges to the AuthorizationCode entity.
+func (spc *ServiceProviderCreate) AddAuthorizationCodes(a ...*AuthorizationCode) *ServiceProviderCreate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return spc.AddAuthorizationCodeIDs(ids...)
 }
 
 // Mutation returns the ServiceProviderMutation object of the builder.
@@ -175,6 +191,25 @@ func (spc *ServiceProviderCreate) createSpec() (*ServiceProvider, *sqlgraph.Crea
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: whitelist.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := spc.mutation.AuthorizationCodesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   serviceprovider.AuthorizationCodesTable,
+			Columns: []string{serviceprovider.AuthorizationCodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: authorizationcode.FieldID,
 				},
 			},
 		}

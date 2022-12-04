@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/ochanoco/database/ent/authorizationcode"
 	"github.com/ochanoco/database/ent/predicate"
 	"github.com/ochanoco/database/ent/serviceprovider"
 	"github.com/ochanoco/database/ent/whitelist"
@@ -24,25 +25,407 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeServiceProvider = "ServiceProvider"
-	TypeWhiteList       = "WhiteList"
+	TypeAuthorizationCode = "AuthorizationCode"
+	TypeServiceProvider   = "ServiceProvider"
+	TypeWhiteList         = "WhiteList"
 )
+
+// AuthorizationCodeMutation represents an operation that mutates the AuthorizationCode nodes in the graph.
+type AuthorizationCodeMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *int
+	token         *string
+	clearedFields map[string]struct{}
+	owner         *int
+	clearedowner  bool
+	done          bool
+	oldValue      func(context.Context) (*AuthorizationCode, error)
+	predicates    []predicate.AuthorizationCode
+}
+
+var _ ent.Mutation = (*AuthorizationCodeMutation)(nil)
+
+// authorizationcodeOption allows management of the mutation configuration using functional options.
+type authorizationcodeOption func(*AuthorizationCodeMutation)
+
+// newAuthorizationCodeMutation creates new mutation for the AuthorizationCode entity.
+func newAuthorizationCodeMutation(c config, op Op, opts ...authorizationcodeOption) *AuthorizationCodeMutation {
+	m := &AuthorizationCodeMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeAuthorizationCode,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withAuthorizationCodeID sets the ID field of the mutation.
+func withAuthorizationCodeID(id int) authorizationcodeOption {
+	return func(m *AuthorizationCodeMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *AuthorizationCode
+		)
+		m.oldValue = func(ctx context.Context) (*AuthorizationCode, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().AuthorizationCode.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withAuthorizationCode sets the old AuthorizationCode of the mutation.
+func withAuthorizationCode(node *AuthorizationCode) authorizationcodeOption {
+	return func(m *AuthorizationCodeMutation) {
+		m.oldValue = func(context.Context) (*AuthorizationCode, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m AuthorizationCodeMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m AuthorizationCodeMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *AuthorizationCodeMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *AuthorizationCodeMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().AuthorizationCode.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetToken sets the "token" field.
+func (m *AuthorizationCodeMutation) SetToken(s string) {
+	m.token = &s
+}
+
+// Token returns the value of the "token" field in the mutation.
+func (m *AuthorizationCodeMutation) Token() (r string, exists bool) {
+	v := m.token
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldToken returns the old "token" field's value of the AuthorizationCode entity.
+// If the AuthorizationCode object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AuthorizationCodeMutation) OldToken(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldToken is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldToken requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldToken: %w", err)
+	}
+	return oldValue.Token, nil
+}
+
+// ResetToken resets all changes to the "token" field.
+func (m *AuthorizationCodeMutation) ResetToken() {
+	m.token = nil
+}
+
+// SetOwnerID sets the "owner" edge to the ServiceProvider entity by id.
+func (m *AuthorizationCodeMutation) SetOwnerID(id int) {
+	m.owner = &id
+}
+
+// ClearOwner clears the "owner" edge to the ServiceProvider entity.
+func (m *AuthorizationCodeMutation) ClearOwner() {
+	m.clearedowner = true
+}
+
+// OwnerCleared reports if the "owner" edge to the ServiceProvider entity was cleared.
+func (m *AuthorizationCodeMutation) OwnerCleared() bool {
+	return m.clearedowner
+}
+
+// OwnerID returns the "owner" edge ID in the mutation.
+func (m *AuthorizationCodeMutation) OwnerID() (id int, exists bool) {
+	if m.owner != nil {
+		return *m.owner, true
+	}
+	return
+}
+
+// OwnerIDs returns the "owner" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// OwnerID instead. It exists only for internal usage by the builders.
+func (m *AuthorizationCodeMutation) OwnerIDs() (ids []int) {
+	if id := m.owner; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetOwner resets all changes to the "owner" edge.
+func (m *AuthorizationCodeMutation) ResetOwner() {
+	m.owner = nil
+	m.clearedowner = false
+}
+
+// Where appends a list predicates to the AuthorizationCodeMutation builder.
+func (m *AuthorizationCodeMutation) Where(ps ...predicate.AuthorizationCode) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// Op returns the operation name.
+func (m *AuthorizationCodeMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (AuthorizationCode).
+func (m *AuthorizationCodeMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *AuthorizationCodeMutation) Fields() []string {
+	fields := make([]string, 0, 1)
+	if m.token != nil {
+		fields = append(fields, authorizationcode.FieldToken)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *AuthorizationCodeMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case authorizationcode.FieldToken:
+		return m.Token()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *AuthorizationCodeMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case authorizationcode.FieldToken:
+		return m.OldToken(ctx)
+	}
+	return nil, fmt.Errorf("unknown AuthorizationCode field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *AuthorizationCodeMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case authorizationcode.FieldToken:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetToken(v)
+		return nil
+	}
+	return fmt.Errorf("unknown AuthorizationCode field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *AuthorizationCodeMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *AuthorizationCodeMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *AuthorizationCodeMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown AuthorizationCode numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *AuthorizationCodeMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *AuthorizationCodeMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *AuthorizationCodeMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown AuthorizationCode nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *AuthorizationCodeMutation) ResetField(name string) error {
+	switch name {
+	case authorizationcode.FieldToken:
+		m.ResetToken()
+		return nil
+	}
+	return fmt.Errorf("unknown AuthorizationCode field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *AuthorizationCodeMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.owner != nil {
+		edges = append(edges, authorizationcode.EdgeOwner)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *AuthorizationCodeMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case authorizationcode.EdgeOwner:
+		if id := m.owner; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *AuthorizationCodeMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *AuthorizationCodeMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *AuthorizationCodeMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedowner {
+		edges = append(edges, authorizationcode.EdgeOwner)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *AuthorizationCodeMutation) EdgeCleared(name string) bool {
+	switch name {
+	case authorizationcode.EdgeOwner:
+		return m.clearedowner
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *AuthorizationCodeMutation) ClearEdge(name string) error {
+	switch name {
+	case authorizationcode.EdgeOwner:
+		m.ClearOwner()
+		return nil
+	}
+	return fmt.Errorf("unknown AuthorizationCode unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *AuthorizationCodeMutation) ResetEdge(name string) error {
+	switch name {
+	case authorizationcode.EdgeOwner:
+		m.ResetOwner()
+		return nil
+	}
+	return fmt.Errorf("unknown AuthorizationCode edge %s", name)
+}
 
 // ServiceProviderMutation represents an operation that mutates the ServiceProvider nodes in the graph.
 type ServiceProviderMutation struct {
 	config
-	op                Op
-	typ               string
-	id                *int
-	host              *string
-	destination_ip    *string
-	clearedFields     map[string]struct{}
-	whitelists        map[int]struct{}
-	removedwhitelists map[int]struct{}
-	clearedwhitelists bool
-	done              bool
-	oldValue          func(context.Context) (*ServiceProvider, error)
-	predicates        []predicate.ServiceProvider
+	op                         Op
+	typ                        string
+	id                         *int
+	host                       *string
+	destination_ip             *string
+	clearedFields              map[string]struct{}
+	whitelists                 map[int]struct{}
+	removedwhitelists          map[int]struct{}
+	clearedwhitelists          bool
+	authorization_codes        map[int]struct{}
+	removedauthorization_codes map[int]struct{}
+	clearedauthorization_codes bool
+	done                       bool
+	oldValue                   func(context.Context) (*ServiceProvider, error)
+	predicates                 []predicate.ServiceProvider
 }
 
 var _ ent.Mutation = (*ServiceProviderMutation)(nil)
@@ -269,6 +652,60 @@ func (m *ServiceProviderMutation) ResetWhitelists() {
 	m.removedwhitelists = nil
 }
 
+// AddAuthorizationCodeIDs adds the "authorization_codes" edge to the AuthorizationCode entity by ids.
+func (m *ServiceProviderMutation) AddAuthorizationCodeIDs(ids ...int) {
+	if m.authorization_codes == nil {
+		m.authorization_codes = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.authorization_codes[ids[i]] = struct{}{}
+	}
+}
+
+// ClearAuthorizationCodes clears the "authorization_codes" edge to the AuthorizationCode entity.
+func (m *ServiceProviderMutation) ClearAuthorizationCodes() {
+	m.clearedauthorization_codes = true
+}
+
+// AuthorizationCodesCleared reports if the "authorization_codes" edge to the AuthorizationCode entity was cleared.
+func (m *ServiceProviderMutation) AuthorizationCodesCleared() bool {
+	return m.clearedauthorization_codes
+}
+
+// RemoveAuthorizationCodeIDs removes the "authorization_codes" edge to the AuthorizationCode entity by IDs.
+func (m *ServiceProviderMutation) RemoveAuthorizationCodeIDs(ids ...int) {
+	if m.removedauthorization_codes == nil {
+		m.removedauthorization_codes = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.authorization_codes, ids[i])
+		m.removedauthorization_codes[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedAuthorizationCodes returns the removed IDs of the "authorization_codes" edge to the AuthorizationCode entity.
+func (m *ServiceProviderMutation) RemovedAuthorizationCodesIDs() (ids []int) {
+	for id := range m.removedauthorization_codes {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// AuthorizationCodesIDs returns the "authorization_codes" edge IDs in the mutation.
+func (m *ServiceProviderMutation) AuthorizationCodesIDs() (ids []int) {
+	for id := range m.authorization_codes {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetAuthorizationCodes resets all changes to the "authorization_codes" edge.
+func (m *ServiceProviderMutation) ResetAuthorizationCodes() {
+	m.authorization_codes = nil
+	m.clearedauthorization_codes = false
+	m.removedauthorization_codes = nil
+}
+
 // Where appends a list predicates to the ServiceProviderMutation builder.
 func (m *ServiceProviderMutation) Where(ps ...predicate.ServiceProvider) {
 	m.predicates = append(m.predicates, ps...)
@@ -404,9 +841,12 @@ func (m *ServiceProviderMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ServiceProviderMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.whitelists != nil {
 		edges = append(edges, serviceprovider.EdgeWhitelists)
+	}
+	if m.authorization_codes != nil {
+		edges = append(edges, serviceprovider.EdgeAuthorizationCodes)
 	}
 	return edges
 }
@@ -421,15 +861,24 @@ func (m *ServiceProviderMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case serviceprovider.EdgeAuthorizationCodes:
+		ids := make([]ent.Value, 0, len(m.authorization_codes))
+		for id := range m.authorization_codes {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ServiceProviderMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.removedwhitelists != nil {
 		edges = append(edges, serviceprovider.EdgeWhitelists)
+	}
+	if m.removedauthorization_codes != nil {
+		edges = append(edges, serviceprovider.EdgeAuthorizationCodes)
 	}
 	return edges
 }
@@ -444,15 +893,24 @@ func (m *ServiceProviderMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case serviceprovider.EdgeAuthorizationCodes:
+		ids := make([]ent.Value, 0, len(m.removedauthorization_codes))
+		for id := range m.removedauthorization_codes {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ServiceProviderMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.clearedwhitelists {
 		edges = append(edges, serviceprovider.EdgeWhitelists)
+	}
+	if m.clearedauthorization_codes {
+		edges = append(edges, serviceprovider.EdgeAuthorizationCodes)
 	}
 	return edges
 }
@@ -463,6 +921,8 @@ func (m *ServiceProviderMutation) EdgeCleared(name string) bool {
 	switch name {
 	case serviceprovider.EdgeWhitelists:
 		return m.clearedwhitelists
+	case serviceprovider.EdgeAuthorizationCodes:
+		return m.clearedauthorization_codes
 	}
 	return false
 }
@@ -481,6 +941,9 @@ func (m *ServiceProviderMutation) ResetEdge(name string) error {
 	switch name {
 	case serviceprovider.EdgeWhitelists:
 		m.ResetWhitelists()
+		return nil
+	case serviceprovider.EdgeAuthorizationCodes:
+		m.ResetAuthorizationCodes()
 		return nil
 	}
 	return fmt.Errorf("unknown ServiceProvider edge %s", name)
