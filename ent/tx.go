@@ -12,6 +12,8 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// AuthorizationCode is the client for interacting with the AuthorizationCode builders.
+	AuthorizationCode *AuthorizationCodeClient
 	// ServiceProvider is the client for interacting with the ServiceProvider builders.
 	ServiceProvider *ServiceProviderClient
 	// WhiteList is the client for interacting with the WhiteList builders.
@@ -147,6 +149,7 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.AuthorizationCode = NewAuthorizationCodeClient(tx.config)
 	tx.ServiceProvider = NewServiceProviderClient(tx.config)
 	tx.WhiteList = NewWhiteListClient(tx.config)
 }
@@ -158,7 +161,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: ServiceProvider.QueryXXX(), the query will be executed
+// applies a query, for example: AuthorizationCode.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

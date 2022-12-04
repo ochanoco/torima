@@ -24,6 +24,7 @@ func (ServiceProvider) Fields() []ent.Field {
 func (ServiceProvider) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("whitelists", WhiteList.Type),
+		edge.To("authorization_codes", AuthorizationCode.Type),
 	}
 }
 

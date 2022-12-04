@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/ochanoco/database/ent/authorizationcode"
 	"github.com/ochanoco/database/ent/serviceprovider"
 	"github.com/ochanoco/database/ent/whitelist"
 )
@@ -32,8 +33,9 @@ type OrderFunc func(*sql.Selector)
 // columnChecker returns a function indicates if the column exists in the given column.
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
-		serviceprovider.Table: serviceprovider.ValidColumn,
-		whitelist.Table:       whitelist.ValidColumn,
+		authorizationcode.Table: authorizationcode.ValidColumn,
+		serviceprovider.Table:   serviceprovider.ValidColumn,
+		whitelist.Table:         whitelist.ValidColumn,
 	}
 	check, ok := checks[table]
 	if !ok {

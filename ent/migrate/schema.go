@@ -8,6 +8,26 @@ import (
 )
 
 var (
+	// AuthorizationCodesColumns holds the columns for the "authorization_codes" table.
+	AuthorizationCodesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "token", Type: field.TypeString},
+		{Name: "service_provider_authorization_codes", Type: field.TypeInt, Nullable: true},
+	}
+	// AuthorizationCodesTable holds the schema information for the "authorization_codes" table.
+	AuthorizationCodesTable = &schema.Table{
+		Name:       "authorization_codes",
+		Columns:    AuthorizationCodesColumns,
+		PrimaryKey: []*schema.Column{AuthorizationCodesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "authorization_codes_service_providers_authorization_codes",
+				Columns:    []*schema.Column{AuthorizationCodesColumns[2]},
+				RefColumns: []*schema.Column{ServiceProvidersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
 	// ServiceProvidersColumns holds the columns for the "service_providers" table.
 	ServiceProvidersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -49,11 +69,13 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		AuthorizationCodesTable,
 		ServiceProvidersTable,
 		WhiteListsTable,
 	}
 )
 
 func init() {
+	AuthorizationCodesTable.ForeignKeys[0].RefTable = ServiceProvidersTable
 	WhiteListsTable.ForeignKeys[0].RefTable = ServiceProvidersTable
 }

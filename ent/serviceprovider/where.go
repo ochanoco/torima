@@ -319,6 +319,34 @@ func HasWhitelistsWith(preds ...predicate.WhiteList) predicate.ServiceProvider {
 	})
 }
 
+// HasAuthorizationCodes applies the HasEdge predicate on the "authorization_codes" edge.
+func HasAuthorizationCodes() predicate.ServiceProvider {
+	return predicate.ServiceProvider(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(AuthorizationCodesTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, AuthorizationCodesTable, AuthorizationCodesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasAuthorizationCodesWith applies the HasEdge predicate on the "authorization_codes" edge with a given conditions (other predicates).
+func HasAuthorizationCodesWith(preds ...predicate.AuthorizationCode) predicate.ServiceProvider {
+	return predicate.ServiceProvider(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(AuthorizationCodesInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, AuthorizationCodesTable, AuthorizationCodesColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.ServiceProvider) predicate.ServiceProvider {
 	return predicate.ServiceProvider(func(s *sql.Selector) {
