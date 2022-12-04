@@ -2,7 +2,7 @@ import { TEXT_ON_REDIRET_PAGE } from '../languages/ja_jp'
 import { OCHANOCO_CONFIG } from '../config'
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import styles from '../../styles/Home.module.css'
+import styles from '../styles/Home.module.css'
 import { useEffect } from 'react'
 
 
