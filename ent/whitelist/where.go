@@ -5,7 +5,7 @@ package whitelist
 import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"example.com/m/v2/ent/predicate"
+	"github.com/ochanoco/database/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.

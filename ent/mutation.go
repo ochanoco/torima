@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"sync"
 
-	"example.com/m/v2/ent/predicate"
-	"example.com/m/v2/ent/serviceprovider"
-	"example.com/m/v2/ent/whitelist"
+	"github.com/ochanoco/database/ent/predicate"
+	"github.com/ochanoco/database/ent/serviceprovider"
+	"github.com/ochanoco/database/ent/whitelist"
 
 	"entgo.io/ent"
 )

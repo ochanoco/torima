@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"entgo.io/ent/dialect/sql"
-	"example.com/m/v2/ent/serviceprovider"
+	"github.com/ochanoco/database/ent/serviceprovider"
 )
 
 // ServiceProvider is the model entity for the ServiceProvider schema.
