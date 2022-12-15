@@ -2,20 +2,24 @@ package database
 
 import (
 	"encoding/json"
-	"log"
 	"os"
 	"testing"
 )
 
-func TestMigrateWhiteList(t *testing.T) {
+func testMigrateWhiteList(t *testing.T) {
 	var fwls []string
 
-	setupForTest()
+	db, err := setupForTest()
+	if err != nil {
+		t.Fatalf("failed to set up DB: %v", err)
+	}
 
-	err := MigrateWhiteList()
+	defer db.client.Close()
+
+	err = db.MigrateWhiteList()
 
 	if err != nil {
-		t.Errorf("failed to migrate white list: %v", err)
+		t.Fatalf("failed to migrate white list: %v", err)
 		return
 	}
 
@@ -23,24 +27,20 @@ func TestMigrateWhiteList(t *testing.T) {
 	err = json.Unmarshal(b, &fwls)
 
 	if err != nil {
-		log.Fatalf("failed to load migrate.json: %v", err)
+		t.Fatalf("failed to load migrate.json: %v", err)
 	}
 
-	t.Run("test model", func(t *testing.T) {
-		dbwls, err := DB.client.WhiteList.
-			Query().All(DB.ctx)
+	dbwls, err := db.client.WhiteList.
+		Query().All(db.ctx)
 
-		if err != nil {
-			t.Errorf("failed read white list: %v", err)
-			return
+	if err != nil {
+		t.Fatalf("failed read white list: %v", err)
+		return
+	}
+
+	for i := 0; i < len(dbwls); i++ {
+		if fwls[i] != dbwls[i].Path {
+			t.Fatalf("not match migration configuration and db data: %v", err)
 		}
-
-		for i := 0; i < len(dbwls); i++ {
-			if fwls[i] != dbwls[i].Path {
-				t.Errorf("not match migration configuration and db data: %v", err)
-
-			}
-		}
-	})
-
+	}
 }

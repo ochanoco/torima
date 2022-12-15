@@ -2,7 +2,6 @@ package database
 
 import (
 	"context"
-	"errors"
 	"log"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -24,12 +23,7 @@ type Database struct {
 	client *ent.Client
 }
 
-var DB *Database
-
-func InitDB() (*Database, error) {
-	err := errors.New("error")
-	dbl := new(Database)
-
+func InitDB(path string) (*Database, error) {
 	client, err := ent.Open(DB_TYPE, DB_CONFIG)
 
 	if err != nil {
@@ -42,11 +36,9 @@ func InitDB() (*Database, error) {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
 
-	dbl = new(Database)
+	dbl := new(Database)
 	dbl.ctx = ctx
 	dbl.client = client
-
-	DB = dbl
 
 	return dbl, err
 }

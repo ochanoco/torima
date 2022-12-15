@@ -5,7 +5,7 @@ import (
 	"github.com/ochanoco/database/ent"
 )
 
-func CreateWhiteList(db *Database, path string) *ent.WhiteListCreate {
+func (db *Database) CreateWhiteList(path string) *ent.WhiteListCreate {
 	wl := db.client.WhiteList.
 		Create().
 		SetPath(path)
@@ -13,7 +13,7 @@ func CreateWhiteList(db *Database, path string) *ent.WhiteListCreate {
 	return wl
 }
 
-func CreateServiceProvider(db *Database, host string, destinationIP string) *ent.ServiceProviderCreate {
+func (db *Database) CreateServiceProvider(host string, destinationIP string) *ent.ServiceProviderCreate {
 	proj := db.client.ServiceProvider.
 		Create().
 		SetHost(host).

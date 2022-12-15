@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func MigrateWhiteList() error {
+func (db *Database) MigrateWhiteList() error {
 	var urls []string
 
 	b, _ := os.ReadFile(WHITELIST_FILE)
@@ -18,16 +18,17 @@ func MigrateWhiteList() error {
 		return err
 	}
 
-	projc := CreateServiceProvider(DB, AUTH_PAGE_DOMAIN, AUTH_PAGE_DESTINATION)
-	proj, nil := projc.Save(DB.ctx)
+	projc := db.CreateServiceProvider(AUTH_PAGE_DOMAIN, AUTH_PAGE_DESTINATION)
+	_, err = projc.Save(db.ctx)
 
 	if err != nil {
 		return fmt.Errorf("failed creating project: %v", err)
 	}
 
 	for _, url := range urls {
-		wl := CreateWhiteList(DB, url)
-		proj, err = SaveWhiteListOnProj(DB, proj, wl)
+		wlc := db.CreateWhiteList(url)
+
+		_, err := wlc.Save(db.ctx)
 
 		if err != nil {
 			return fmt.Errorf("failed add white list to project: %v", err)
@@ -36,5 +37,3 @@ func MigrateWhiteList() error {
 
 	return nil
 }
-
-
