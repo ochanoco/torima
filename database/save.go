@@ -5,11 +5,11 @@ import (
 	"github.com/ochanoco/database/ent"
 )
 
-func SaveWhiteListOnProj(db *Database, projc *ent.ServiceProvider, wlc *ent.WhiteListCreate) (*ent.ServiceProvider, error) {
+func (db *Database) SaveWhiteList(projc *ent.ServiceProvider, wlc *ent.WhiteListCreate) (*ent.ServiceProvider, error) {
 	wl, err := wlc.Save(db.ctx)
 
 	if err != nil {
-		return projc, err
+		return nil, err
 	}
 
 	proj, err := projc.
