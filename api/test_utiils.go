@@ -15,8 +15,7 @@ const TEST_RESP_BODY1 = "hoge"
 const TEST_RESP_BODY2 = "piyo"
 
 type proxyTester interface {
-	setup(t *testing.T)
-	start(t *testing.T, proxyServ *httptest.Server, testServ *httptest.Server)
+	start(t *testing.T, proxy *OchanocoProxy, proxyServ *httptest.Server, testServ *httptest.Server)
 
 	director(t *testing.T, URL string) OchanocoDirector
 	modifyResp(t *testing.T) OchanocoModifyResponse
@@ -27,13 +26,11 @@ type proxyTester interface {
 }
 
 func runCommonTest(t *testing.T, tester proxyTester, name string) {
-	db, err := InitDB(TEST_DB_PATH)
+	db, err := InitDB(DB_CONFIG)
 
 	if err != nil {
 		t.Fatalf("%v", err)
 	}
-
-	tester.setup(t)
 
 	testServ := tester.testServ(t)
 	director := tester.director(t, testServ.URL)
@@ -44,10 +41,12 @@ func runCommonTest(t *testing.T, tester proxyTester, name string) {
 	modifyRespes := []OchanocoModifyResponse{modifyResp}
 
 	proxy := NewOchancoProxy(directors, modifyRespes, db)
+	proxyServ := httptest.NewServer(proxy.ReverseProxy)
+
+	tester.start(t, &proxy, proxyServ, testServ)
 
 	t.Run(name, func(t *testing.T) {
-		serv := httptest.NewServer(proxy.ReverseProxy)
-		resp := tester.request(t, serv.URL)
+		resp := tester.request(t, proxyServ.URL)
 
 		tester.check(t, resp)
 	})
@@ -108,11 +107,7 @@ func makeSimpleServer() *httptest.Server {
 
 func makesSimpleDirector(t *testing.T, URL string) OchanocoDirector {
 	test := func(proxy *OchanocoProxy, req *http.Request) {
-		url, err := url.Parse(URL)
-
-		if err != nil {
-			t.Fatalf("parse: %v", err)
-		}
+		url := parseURL(t, URL)
 
 		req.URL.Scheme = url.Scheme
 		req.URL.Host = url.Host
@@ -137,4 +132,14 @@ func makeEmptyModifyResp() OchanocoModifyResponse {
 	}
 
 	return simpleModifyResponse
+}
+
+func parseURL(t *testing.T, URL string) *url.URL {
+	url, err := url.Parse(URL)
+
+	if err != nil {
+		t.Fatalf("parse: %v", err)
+	}
+
+	return url
 }
