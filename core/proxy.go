@@ -6,11 +6,11 @@ import (
 )
 
 type OchanocoDirector = func(proxy *OchanocoProxy, req *http.Request)
-type OchanocoResponse = func(proxy *OchanocoProxy, req *http.Response)
+type OchanocoModifyResponse = func(proxy *OchanocoProxy, req *http.Response)
 
 type OchanocoProxy struct {
 	Directors       []OchanocoDirector
-	ModifyResponses []OchanocoResponse
+	ModifyResponses []OchanocoModifyResponse
 	ReverseProxy    *httputil.ReverseProxy
 	Database        *Database
 }
@@ -37,17 +37,9 @@ func (proxy *OchanocoProxy) ModifyResponse(res *http.Response) error {
 	return nil
 }
 
-func (proxy *OchanocoProxy) AddDirector(director OchanocoDirector) {
-	proxy.Directors = append(proxy.Directors, director)
-}
-
-func (proxy *OchanocoProxy) AddModifyResponse(modifyResponse OchanocoResponse) {
-	proxy.ModifyResponses = append(proxy.ModifyResponses, modifyResponse)
-}
-
 func NewOchancoProxy(
 	directors []OchanocoDirector,
-	modifyResponses []OchanocoResponse,
+	modifyResponses []OchanocoModifyResponse,
 	database *Database,
 ) OchanocoProxy {
 	proxy := OchanocoProxy{}
