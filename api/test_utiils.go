@@ -13,13 +13,15 @@ import (
 
 const TEST_RESP_BODY1 = "hoge"
 const TEST_RESP_BODY2 = "piyo"
+const TEST_RESP_ERROR_BODY = "error"
+const TEST_RESP_REDIRECT_BODY = "redirect"
 
 type proxyTester interface {
 	start(t *testing.T, proxy *OchanocoProxy, proxyServ *httptest.Server, testServ *httptest.Server)
 
 	director(t *testing.T, URL string) OchanocoDirector
 	modifyResp(t *testing.T) OchanocoModifyResponse
-	testServ(t *testing.T) *httptest.Server
+	testServers(t *testing.T) (*httptest.Server, *httptest.Server, *httptest.Server)
 
 	request(t *testing.T, url string) *http.Response
 	check(t *testing.T, resp *http.Response)
@@ -32,7 +34,10 @@ func runCommonTest(t *testing.T, tester proxyTester, name string) {
 		t.Fatalf("%v", err)
 	}
 
-	testServ := tester.testServ(t)
+	testServ, errorServ, redirectServ := tester.testServers(t)
+	ERROR_PAGE_URL = errorServ.URL
+	LOGIN_REDIRECT_PAGE_URL = redirectServ.URL
+
 	director := tester.director(t, testServ.URL)
 
 	modifyResp := tester.modifyResp(t)
@@ -98,11 +103,12 @@ func checkResponseWithBody(t *testing.T, resp *http.Response, expect string) {
 	}
 }
 
-func makeSimpleServer() *httptest.Server {
-	return httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
+func makeSimpleServers() (*httptest.Server, *httptest.Server, *httptest.Server) {
+	s := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
 		fmt.Fprint(writer, TEST_RESP_BODY1)
 	}))
 
+	return s, s, s
 }
 
 func makesSimpleDirector(t *testing.T, URL string) OchanocoDirector {
