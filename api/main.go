@@ -30,7 +30,7 @@ func ProxyServer() {
 	directors := []OchanocoDirector{}
 	modifyResponses := []OchanocoModifyResponse{}
 
-	db, err := InitDB("./sqlite3.db")
+	db, err := InitDB(DB_CONFIG)
 	if err != nil {
 		log.Fatalf("failed to init db: %v", err)
 	}
