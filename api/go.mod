@@ -6,14 +6,15 @@ require (
 	entgo.io/ent v0.11.0
 	github.com/gin-contrib/sessions v0.0.4
 	github.com/gin-gonic/gin v1.8.2
-	line_login_core v0.0.0 // indirect
 )
 
-// replace gin_line_login => ./thirdparty/line-login/gin
+replace gin_line_login => ./thirdparty/line-login/gin
 
 replace line_login_core => ./thirdparty/line-login/core
 
-// require gin_line_login v0.0.0-00010101000000-000000000000
+require gin_line_login v0.0.0-00010101000000-000000000000
+
+require github.com/mattn/go-sqlite3 v1.14.16
 
 require (
 	ariga.io/atlas v0.4.3-0.20220711120113-a190b01c6ef9 // indirect
@@ -34,7 +35,6 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
-	github.com/mattn/go-sqlite3 v1.14.16 // indirect
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
@@ -48,4 +48,5 @@ require (
 	golang.org/x/text v0.5.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
+	line_login_core v0.0.0 // indirect
 )

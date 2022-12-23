@@ -1,4 +1,4 @@
-package proxy
+package main
 
 var LOGIN_REDIRECT_PAGE_URL = "http://localhost:3000/redirect"
 var ERROR_PAGE_URL = "http://localhost:3000/error"
