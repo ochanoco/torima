@@ -9,7 +9,7 @@ import (
 
 func main() {
 	directors := []OchanocoDirector{}
-	modifyResponses := []OchanocoResponse{}
+	modifyResponses := []OchanocoModifyResponse{}
 
 	db, err := InitDB("./sqlite3.db")
 	if err != nil {
