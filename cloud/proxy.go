@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/ochanoco/ochano.co-auth/proxy/ent/project"
+	"github.com/ochanoco/database/ent/project"
 )
 
 func logReq(req *http.Request) {
