@@ -24,7 +24,7 @@ func GoToErrorPage(msg string, err error, req *http.Request) {
 	errorPageURL, err := url.Parse(ERROR_PAGE_URL)
 
 	if err != nil {
-		log.Fatalf("%s: %v", msg, err)
+		log.Fatalf("%s: %v\n\n", msg, err)
 	}
 
 	req.URL.Scheme = errorPageURL.Scheme
