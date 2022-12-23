@@ -9,8 +9,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-const TEST_DB_PATH = "file:ent?mode=memory&cache=shared&_fk=1"
-
 func TestDB(t *testing.T) {
 	testMigrateWhiteList(t)
 	testModel(t)
