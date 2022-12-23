@@ -5,11 +5,14 @@ import (
 	"net/http/httputil"
 )
 
+type OchanocoDirector = func(proxy *OchanocoProxy, req *http.Request)
+type OchanocoResponse = func(proxy *OchanocoProxy, req *http.Response)
+
 type OchanocoProxy struct {
-	Directors       []func(req *http.Request)
-	ModifyResponses []func(req *http.Response)
+	Directors       []OchanocoDirector
+	ModifyResponses []OchanocoResponse
 	ReverseProxy    *httputil.ReverseProxy
-	Server          *http.Server
+	Database        *Database
 }
 
 /**
@@ -18,7 +21,7 @@ type OchanocoProxy struct {
  **/
 func (proxy *OchanocoProxy) Director(req *http.Request) {
 	for _, d := range proxy.Directors {
-		d(req)
+		d(proxy, req)
 	}
 }
 
@@ -28,32 +31,30 @@ func (proxy *OchanocoProxy) Director(req *http.Request) {
 **/
 func (proxy *OchanocoProxy) ModifyResponse(res *http.Response) error {
 	for _, mR := range proxy.ModifyResponses {
-		mR(res)
+		mR(proxy, res)
 	}
 
 	return nil
 }
 
-func (proxy *OchanocoProxy) ListenAndServe() error {
-	return proxy.Server.ListenAndServe()
-}
-
-func (proxy *OchanocoProxy) AddDirector(director func(req *http.Request)) {
+func (proxy *OchanocoProxy) AddDirector(director OchanocoDirector) {
 	proxy.Directors = append(proxy.Directors, director)
 }
 
-func (proxy *OchanocoProxy) AddModifyResponse(modifyResponse func(req *http.Response)) {
+func (proxy *OchanocoProxy) AddModifyResponse(modifyResponse OchanocoResponse) {
 	proxy.ModifyResponses = append(proxy.ModifyResponses, modifyResponse)
 }
 
 func NewOchancoProxy(
-	Directors []func(req *http.Request),
-	ModifyResponses []func(req *http.Response),
+	directors []OchanocoDirector,
+	modifyResponses []OchanocoResponse,
+	database *Database,
 ) OchanocoProxy {
 	proxy := OchanocoProxy{}
 
-	proxy.Directors = Directors
-	proxy.ModifyResponses = ModifyResponses
+	proxy.Directors = directors
+	proxy.ModifyResponses = modifyResponses
+	proxy.Database = database
 
 	director := func(req *http.Request) {
 		proxy.Director(req)
@@ -66,11 +67,6 @@ func NewOchancoProxy(
 	proxy.ReverseProxy = &httputil.ReverseProxy{
 		Director:       director,
 		ModifyResponse: modifyResp,
-	}
-
-	proxy.Server = &http.Server{
-		Addr:    ":9000",
-		Handler: proxy.ReverseProxy,
 	}
 
 	return proxy
