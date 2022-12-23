@@ -10,8 +10,7 @@ import (
 
 type CoreDirectorTester struct{}
 
-func (tester *CoreDirectorTester) setup(t *testing.T) {}
-func (tester *CoreDirectorTester) start(t *testing.T, proxyServ *httptest.Server, testServ *httptest.Server) {
+func (tester *CoreDirectorTester) start(t *testing.T, proxy *OchanocoProxy, proxyServ *httptest.Server, testServ *httptest.Server) {
 }
 
 func (tester *CoreDirectorTester) director(t *testing.T, url string) OchanocoDirector {
@@ -39,8 +38,7 @@ func TestCoreDirector(t *testing.T) {
 // //////// CoreModifyResponseTester
 type CoreModifyResponseTester struct{}
 
-func (tester *CoreModifyResponseTester) setup(t *testing.T) {}
-func (tester *CoreModifyResponseTester) start(t *testing.T, proxyServ *httptest.Server, testServ *httptest.Server) {
+func (tester *CoreModifyResponseTester) start(t *testing.T, proxy *OchanocoProxy, proxyServ *httptest.Server, testServ *httptest.Server) {
 }
 
 func (tester *CoreModifyResponseTester) director(t *testing.T, url string) OchanocoDirector {
