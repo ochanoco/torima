@@ -13,3 +13,5 @@ var WHITELIST_FILE = "./whitelist.json"
 
 const BASE_NEXT_PATH = "../app/out/"
 const OCHANOCO_LOGIN_URL = "http://localhost:8080/login"
+
+const TEST_DB_PATH = "file:ent?mode=memory&cache=shared&_fk=1"
