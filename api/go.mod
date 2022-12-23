@@ -1,23 +1,22 @@
 module github.com/ochanoco/proxy
 
-go 1.17
-
-require gin_line_login v0.0.0
+go 1.19
 
 require (
-	entgo.io/ent v0.10.1
-	github.com/gin-contrib/sessions v0.0.5
+	entgo.io/ent v0.11.0
+	github.com/gin-contrib/sessions v0.0.4
 	github.com/gin-gonic/gin v1.8.2
-	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	line_login_core v0.0.0 // indirect
 )
 
-replace gin_line_login => ./thirdparty/line-login/gin
+// replace gin_line_login => ./thirdparty/line-login/gin
 
 replace line_login_core => ./thirdparty/line-login/core
 
+// require gin_line_login v0.0.0-00010101000000-000000000000
+
 require (
-	ariga.io/atlas v0.3.7-0.20220303204946-787354f533c3 // indirect
+	ariga.io/atlas v0.4.3-0.20220711120113-a190b01c6ef9 // indirect
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
@@ -35,6 +34,7 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
+	github.com/mattn/go-sqlite3 v1.14.16 // indirect
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
