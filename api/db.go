@@ -85,6 +85,16 @@ func (db *Database) MigrateWhiteList() error {
 	return nil
 }
 
+func (db *Database) SaveServiceProvider(spc *ent.ServiceProviderCreate) (*ent.ServiceProvider, error) {
+	sp, err := spc.Save(db.ctx)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to save service provider: %v", err)
+	}
+
+	return sp, nil
+}
+
 func (db *Database) SaveWhiteList(projc *ent.ServiceProvider, wlc *ent.WhiteListCreate) (*ent.ServiceProvider, error) {
 	wl, err := wlc.Save(db.ctx)
 
