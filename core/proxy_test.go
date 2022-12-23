@@ -6,15 +6,20 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"net/http/httputil"
 	"net/url"
 	"strconv"
 	"testing"
 )
 
 func TestProxyDirectorAndModifyResponse(t *testing.T) {
-	Directors = []func(req *http.Request){}
-	ModifyResponses = []func(req *http.Response){}
+	db, err := InitDB(TEST_DB_PATH)
+
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+
+	directors := []OchanocoDirector{}
+	modifyRespes := []OchanocoResponse{}
 
 	msg := "hello"
 
@@ -22,26 +27,23 @@ func TestProxyDirectorAndModifyResponse(t *testing.T) {
 		fmt.Fprintln(writer, msg)
 	}))
 
-	simpleDirector := func(req *http.Request) {
+	simpleDirector := func(proxy *OchanocoProxy, req *http.Request) {
 		url, _ := url.Parse(simpleServ.URL)
 		req.URL.Scheme = url.Scheme
 		req.URL.Host = url.Host
 		req.URL.Path = "/"
 	}
 
-	simpleModifyResponse := func(res *http.Response) {
+	simpleModifyResponse := func(proxy *OchanocoProxy, res *http.Response) {
 		b := []byte(msg)
 		res.Body = ioutil.NopCloser(bytes.NewReader(b))
 		res.Header.Set("Content-Length", strconv.Itoa(len(b)))
 	}
 
-	rp := httputil.ReverseProxy{
-		Director:       director,
-		ModifyResponse: modifyResponse,
-	}
+	proxy := NewOchancoProxy(directors, modifyRespes, db)
+	proxy.AddDirector(simpleDirector)
 
-	Directors = append(Directors, simpleDirector)
-	targetServ := httptest.NewServer(&rp)
+	targetServ := httptest.NewServer(proxy.ReverseProxy)
 
 	t.Run("simple director", func(t *testing.T) {
 		req, err := http.NewRequest(http.MethodGet, targetServ.URL, nil)
@@ -67,8 +69,7 @@ func TestProxyDirectorAndModifyResponse(t *testing.T) {
 		}
 	})
 
-	ModifyResponses = append(ModifyResponses, simpleModifyResponse)
-
+	proxy.AddModifyResponse(simpleModifyResponse)
 	t.Run("modify response", func(t *testing.T) {
 		req, err := http.NewRequest(http.MethodGet, targetServ.URL, nil)
 		if err != nil {
