@@ -1,44 +1,65 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
-	"net/url"
+	"net/http/httputil"
 )
+
+type OchanocoProxy struct {
+	Directors       []func(req *http.Request)
+	ModifyResponses []func(req *http.Response)
+	ReverseProxy    *httputil.ReverseProxy
+	Server          *http.Server
+}
 
 /**
  * Directors is a list of functions that modify the
  * request before it is sent to the target server.
  **/
-var Directors []func(req *http.Request)
+func (proxy *OchanocoProxy) Director(req *http.Request) {
+	for _, d := range proxy.Directors {
+		d(req)
+	}
+}
 
 /**
   * ModifyResponses is a list of functions that modify the
   * response before it is sent to the client.
 **/
-var ModifyResponses []func(req *http.Response)
-
-func director(req *http.Request) {
-	for _, d := range Directors {
-		d(req)
-	}
-}
-
-func modifyResponse(res *http.Response) error {
-	for _, mR := range ModifyResponses {
+func (proxy *OchanocoProxy) ModifyResponse(res *http.Response) error {
+	for _, mR := range proxy.ModifyResponses {
 		mR(res)
 	}
 
 	return nil
 }
 
-func init() {
-	// Client sets the original URL in the Ochanoco-Forward-For header
-	simpleDirector := func(req *http.Request) {
-		url, _ := url.Parse(TARGET_SERVICE_BASE_URL + req.URL.Path)
-		req.URL = url
-		fmt.Printf("proxy to %v\n", url)
+func NewOchancoProxy(
+	Directors []func(req *http.Request),
+	ModifyResponses []func(req *http.Response),
+) OchanocoProxy {
+	proxy := OchanocoProxy{}
+
+	proxy.Directors = Directors
+	proxy.ModifyResponses = ModifyResponses
+
+	director := func(req *http.Request) {
+		proxy.Director(req)
 	}
 
-	Directors = []func(req *http.Request){simpleDirector}
+	modifyResp := func(resp *http.Response) error {
+		return proxy.ModifyResponse(resp)
+	}
+
+	proxy.ReverseProxy = &httputil.ReverseProxy{
+		Director:       director,
+		ModifyResponse: modifyResp,
+	}
+
+	proxy.Server = &http.Server{
+		Addr:    ":9000",
+		Handler: proxy.ReverseProxy,
+	}
+
+	return proxy
 }
