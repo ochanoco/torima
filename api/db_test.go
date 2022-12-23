@@ -15,7 +15,7 @@ func TestDB(t *testing.T) {
 }
 
 func testModel(t *testing.T) {
-	db, err := InitDB(TEST_DB_PATH)
+	db, err := InitDB(DB_CONFIG)
 
 	if err != nil {
 		t.Fatalf("model_test: %v", err)
@@ -29,20 +29,20 @@ func testModel(t *testing.T) {
 		t.Fatalf("failed creating white list: %v", err)
 	}
 
-	projc := db.CreateServiceProvider("<domain>", "<destination>")
-	proj, err := projc.Save(db.ctx)
+	spc := db.CreateServiceProvider("<domain>", "<destination>")
+	sp, err := db.SaveServiceProvider(spc)
 
 	if err != nil {
 		t.Fatalf("failed creating project: %v", err)
 	}
 
-	proj, err = db.SaveWhiteList(proj, wl)
+	sp, err = db.SaveWhiteList(sp, wl)
 
 	if err != nil {
-		t.Fatalf("failed add white list to project: %v", err)
+		t.Fatalf("failed to add white list to project: %v", err)
 	}
 
-	log.Print(proj, wl)
+	log.Print(sp, wl)
 }
 
 func testMigrateWhiteList(t *testing.T) {
