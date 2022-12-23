@@ -34,6 +34,18 @@ func (proxy *OchanocoProxy) ModifyResponse(res *http.Response) error {
 	return nil
 }
 
+func (proxy *OchanocoProxy) ListenAndServe() error {
+	return proxy.Server.ListenAndServe()
+}
+
+func (proxy *OchanocoProxy) AddDirector(director func(req *http.Request)) {
+	proxy.Directors = append(proxy.Directors, director)
+}
+
+func (proxy *OchanocoProxy) AddModifyResponse(modifyResponse func(req *http.Response)) {
+	proxy.ModifyResponses = append(proxy.ModifyResponses, modifyResponse)
+}
+
 func NewOchancoProxy(
 	Directors []func(req *http.Request),
 	ModifyResponses []func(req *http.Response),
