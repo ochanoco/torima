@@ -10,3 +10,6 @@ var AUTH_PAGE_DESTINATION = "localhost:3000"
 var DB_TYPE = "sqlite3"
 var DB_CONFIG = "file:./db.sqlite3?_fk=1"
 var WHITELIST_FILE = "./whitelist.json"
+
+const BASE_NEXT_PATH = "../app/out/"
+const OCHANOCO_LOGIN_URL = "http://localhost:8080/login"

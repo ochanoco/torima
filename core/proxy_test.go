@@ -33,7 +33,7 @@ func runTestProxyCommon(t *testing.T, tester ProxyTester, name string) {
 	}))
 
 	ochanocoProxy := NewOchancoProxy(
-		[]OchanocoDirector{director},
+		[]OchanocoDirector{MainDirector},
 		[]OchanocoModifyResponse{},
 		db,
 	)

@@ -4,10 +4,29 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func main() {
+func AuthServer() {
+	secret := []byte("secret")
+
+	r := gin.Default()
+	r.LoadHTMLGlob(BASE_NEXT_PATH + "/*.html")
+	r.Static("/_next/", BASE_NEXT_PATH+"_next/")
+
+	store := cookie.NewStore(secret)
+	r.Use(sessions.Sessions("mysession", store))
+
+	InitProxyWeb(r)
+	InitIdPWeb(r)
+
+	r.Run()
+}
+
+func ProxyServer() {
 	directors := []OchanocoDirector{}
 	modifyResponses := []OchanocoModifyResponse{}
 
@@ -23,4 +42,9 @@ func main() {
 	}
 
 	server.ListenAndServe()
+}
+
+func main() {
+	go AuthServer()
+	ProxyServer()
 }
