@@ -70,21 +70,33 @@ func requestGetforTest(t *testing.T, url string) *http.Response {
 	return resp
 }
 
-func makeCheckResponseWithBody(t *testing.T, resp *http.Response, expect string) func(t *testing.T, resp *http.Response) {
-	f := func(t *testing.T, resp *http.Response) {
-		respBytes, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			t.Errorf("%v", err)
-		}
-
-		respStr := string(respBytes)
-
-		if respStr != expect {
-			t.Fatalf("wrong response: '%s'expected: '%s'", respStr, expect)
-		}
+func requestPostWithCookieForTest(t *testing.T, url, cookie string) *http.Response {
+	req, err := http.NewRequest(http.MethodPost, url, nil)
+	if err != nil {
+		t.Error(err)
 	}
 
-	return f
+	req.Header.Set("Cookie", cookie)
+
+	resp, err := new(http.Client).Do(req)
+	if err != nil {
+		t.Error(err)
+	}
+
+	return resp
+}
+
+func checkResponseWithBody(t *testing.T, resp *http.Response, expect string) {
+	respBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	respStr := string(respBytes)
+
+	if respStr != expect {
+		t.Fatalf("wrong response: '%s'expected: '%s'", respStr, expect)
+	}
 }
 
 func makeSimpleServer() *httptest.Server {

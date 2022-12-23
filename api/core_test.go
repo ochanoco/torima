@@ -18,7 +18,7 @@ func (tester *CoreDirectorTester) director(t *testing.T, url string) OchanocoDir
 	return makesSimpleDirector(t, url)
 }
 func (tester *CoreDirectorTester) modifyResp(t *testing.T) OchanocoModifyResponse {
-	return makesSimpleModifyResp()
+	return makeEmptyModifyResp()
 }
 func (tester *CoreDirectorTester) testServ(t *testing.T) *httptest.Server {
 	return makeSimpleServer()
@@ -28,7 +28,7 @@ func (tester *CoreDirectorTester) request(t *testing.T, url string) *http.Respon
 	return requestGetforTest(t, url)
 }
 func (tester *CoreDirectorTester) check(t *testing.T, resp *http.Response) {
-	makeCheckResponseWithBody(t, resp, TEST_RESP_BODY1)
+	checkResponseWithBody(t, resp, TEST_RESP_BODY1)
 }
 
 func TestCoreDirector(t *testing.T) {
@@ -47,7 +47,7 @@ func (tester *CoreModifyResponseTester) director(t *testing.T, url string) Ochan
 	return makesSimpleDirector(t, url)
 }
 func (tester *CoreModifyResponseTester) modifyResp(t *testing.T) OchanocoModifyResponse {
-	return makeEmptyModifyResp()
+	return makesSimpleModifyResp()
 }
 func (tester *CoreModifyResponseTester) testServ(t *testing.T) *httptest.Server {
 	return makeSimpleServer()
@@ -57,7 +57,7 @@ func (tester *CoreModifyResponseTester) request(t *testing.T, url string) *http.
 	return requestGetforTest(t, url)
 }
 func (tester *CoreModifyResponseTester) check(t *testing.T, resp *http.Response) {
-	makeCheckResponseWithBody(t, resp, TEST_RESP_BODY2)
+	checkResponseWithBody(t, resp, TEST_RESP_BODY2)
 }
 
 func TestCoreModifyResp(t *testing.T) {
