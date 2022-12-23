@@ -1,4 +1,4 @@
-module github.com/ochanoco/ochano.co-auth/proxy
+module github.com/ochanoco/proxy
 
 go 1.17
 
