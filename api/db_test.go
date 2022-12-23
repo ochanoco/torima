@@ -15,7 +15,7 @@ func TestDB(t *testing.T) {
 }
 
 func testModel(t *testing.T) {
-	db, err := InitDB(DB_CONFIG)
+	db, err := InitDB(TEST_DB_PATH)
 
 	if err != nil {
 		t.Fatalf("model_test: %v", err)
