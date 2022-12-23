@@ -9,6 +9,7 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/ochanoco/proxy/ent"
+	"github.com/ochanoco/proxy/ent/serviceprovider"
 )
 
 type Database struct {
@@ -97,4 +98,11 @@ func (db *Database) SaveWhiteList(projc *ent.ServiceProvider, wlc *ent.WhiteList
 		Save(db.ctx)
 
 	return proj, err
+}
+
+func (db *Database) FindServiceProviderByHost(host string) (*ent.ServiceProvider, error) {
+	return db.client.ServiceProvider.
+		Query().
+		Where(serviceprovider.HostEQ(host)).
+		Only(db.ctx)
 }
