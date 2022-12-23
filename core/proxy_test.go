@@ -11,86 +11,82 @@ import (
 	"testing"
 )
 
-func TestProxyDirectorAndModifyResponse(t *testing.T) {
+const TEST_RESP_BODY1 = "hoge"
+const TEST_RESP_BODY2 = "piyo"
+
+func testServer(name, msg string, proxy *OchanocoProxy, t *testing.T) {
+	t.Run(name, func(t *testing.T) {
+		serv := httptest.NewServer(proxy.ReverseProxy)
+
+		req, err := http.NewRequest(http.MethodGet, serv.URL, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		resp, err := new(http.Client).Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		respBytes, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		fmt.Printf("msg buf: %v", respBytes)
+
+		respStr := string(respBytes)
+
+		fmt.Printf("msg buf: %v", respStr)
+
+		if respStr != msg {
+			t.Fatalf("wrong response: '%s'\nexpected: '%s'", respStr, TEST_RESP_BODY1)
+		}
+	})
+}
+
+func TestProxy(t *testing.T) {
 	db, err := InitDB(TEST_DB_PATH)
 
 	if err != nil {
 		t.Fatalf("%v", err)
 	}
 
-	directors := []OchanocoDirector{}
-	modifyRespes := []OchanocoResponse{}
-
-	msg := "hello"
-
 	simpleServ := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
-		fmt.Fprintln(writer, msg)
+		fmt.Fprint(writer, TEST_RESP_BODY1)
 	}))
 
 	simpleDirector := func(proxy *OchanocoProxy, req *http.Request) {
-		url, _ := url.Parse(simpleServ.URL)
+		url, err := url.Parse(simpleServ.URL)
+
+		if err != nil {
+			t.Fatalf("parse: %v", err)
+		}
+
+		fmt.Printf("scheme: %v\n", url.Scheme)
+
 		req.URL.Scheme = url.Scheme
 		req.URL.Host = url.Host
 		req.URL.Path = "/"
 	}
 
 	simpleModifyResponse := func(proxy *OchanocoProxy, res *http.Response) {
-		b := []byte(msg)
+		b := []byte(TEST_RESP_BODY2)
 		res.Body = ioutil.NopCloser(bytes.NewReader(b))
 		res.Header.Set("Content-Length", strconv.Itoa(len(b)))
 	}
 
-	proxy := NewOchancoProxy(directors, modifyRespes, db)
-	proxy.AddDirector(simpleDirector)
+	directors := []OchanocoDirector{simpleDirector}
+	modifyRespes := []OchanocoModifyResponse{}
 
-	targetServ := httptest.NewServer(proxy.ReverseProxy)
+	directorProxy := NewOchancoProxy(directors, modifyRespes, db)
 
-	t.Run("simple director", func(t *testing.T) {
-		req, err := http.NewRequest(http.MethodGet, targetServ.URL, nil)
-		if err != nil {
-			t.Error(err)
-		}
+	testServer("simple director", TEST_RESP_BODY1, &directorProxy, t)
 
-		resp, err := new(http.Client).Do(req)
-		if err != nil {
-			t.Error(err)
-		}
+	directors = []OchanocoDirector{simpleDirector}
+	modifyRespes = []OchanocoModifyResponse{simpleModifyResponse}
 
-		b, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			t.Error(err)
-		}
+	modifyProxy := NewOchancoProxy(directors, modifyRespes, db)
 
-		bs := string(b[:len(b)-1])
-
-		if bs != msg {
-			msg := fmt.Sprintf("wrong response: '%s'\nexpected: '%s'", bs, msg)
-			t.Error(msg)
-		}
-	})
-
-	proxy.AddModifyResponse(simpleModifyResponse)
-	t.Run("modify response", func(t *testing.T) {
-		req, err := http.NewRequest(http.MethodGet, targetServ.URL, nil)
-		if err != nil {
-			t.Error(err)
-		}
-
-		resp, err := new(http.Client).Do(req)
-		if err != nil {
-			t.Error(err)
-		}
-
-		b, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			t.Error(err)
-		}
-
-		bs := string(b)
-
-		if bs != msg {
-			msg := fmt.Sprintf("wrong response: '%s'\nexpected: '%s'", bs, msg)
-			t.Error(msg)
-		}
-	})
+	testServer("simple director", TEST_RESP_BODY2, &modifyProxy, t)
 }
