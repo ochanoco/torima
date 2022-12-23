@@ -1,10 +1,9 @@
-package main
+package proxy
 
 import (
 	"fmt"
-	"net/http"
-
 	"gin_line_login"
+	"net/http"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"

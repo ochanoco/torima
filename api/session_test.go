@@ -1,4 +1,4 @@
-package main
+package proxy
 
 // func TestRemoveToken(t *testing.T) {
 // 	msg := "hello"
