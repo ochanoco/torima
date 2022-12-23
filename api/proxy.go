@@ -8,7 +8,6 @@ import (
 
 func MainDirector(proxy *OchanocoProxy, req *http.Request) {
 	loginRedirectURL, err := url.Parse(LOGIN_REDIRECT_PAGE_URL)
-
 	if err != nil {
 		GoToErrorPage("failed parse", err, req)
 		return
@@ -32,6 +31,8 @@ func MainDirector(proxy *OchanocoProxy, req *http.Request) {
 		req.Header.Set("User-Agent", "ochanoco")
 		req.Header.Set("X-Ochanoco-Proxy-Token", "<proxy_token>")
 	} else {
+		fmt.Printf("cleanContent: %v, authed %v\n", isCleanContent, isAuthed)
+
 		req.URL.Scheme = loginRedirectURL.Scheme
 		req.URL.Host = loginRedirectURL.Host
 		req.URL.Path = fmt.Sprintf("/redirect?clean=%v&authed=%v", isCleanContent, isAuthed)
