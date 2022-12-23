@@ -19,8 +19,8 @@ func (tester *CoreDirectorTester) director(t *testing.T, url string) OchanocoDir
 func (tester *CoreDirectorTester) modifyResp(t *testing.T) OchanocoModifyResponse {
 	return makeEmptyModifyResp()
 }
-func (tester *CoreDirectorTester) testServ(t *testing.T) *httptest.Server {
-	return makeSimpleServer()
+func (tester *CoreDirectorTester) testServers(t *testing.T) (*httptest.Server, *httptest.Server, *httptest.Server) {
+	return makeSimpleServers()
 }
 
 func (tester *CoreDirectorTester) request(t *testing.T, url string) *http.Response {
@@ -47,8 +47,8 @@ func (tester *CoreModifyResponseTester) director(t *testing.T, url string) Ochan
 func (tester *CoreModifyResponseTester) modifyResp(t *testing.T) OchanocoModifyResponse {
 	return makesSimpleModifyResp()
 }
-func (tester *CoreModifyResponseTester) testServ(t *testing.T) *httptest.Server {
-	return makeSimpleServer()
+func (tester *CoreModifyResponseTester) testServers(t *testing.T) (*httptest.Server, *httptest.Server, *httptest.Server) {
+	return makeSimpleServers()
 }
 
 func (tester *CoreModifyResponseTester) request(t *testing.T, url string) *http.Response {
