@@ -148,3 +148,4 @@ dist
 .pnp.*
 
 api/proxy
+api/sqlite3.db
