@@ -10,7 +10,7 @@ import (
 )
 
 func InitIdPWeb(r *gin.Engine) {
-	lineLogin, err := gin_line_login.NewLineLogin(r, "/login", "/auth/callback", "/redirect")
+	lineLogin, err := gin_line_login.NewLineLoginWithEnvironment(r, "/login", "/auth/callback", "/redirect")
 	if err != nil {
 		panic(err)
 	}
