@@ -1,6 +1,3 @@
-[submodule "auth/api/thirdparty/line-login"]
-	path = auth/api/thirdparty/line-login
-	url = git@github.com:ochanoco/line-login.git
 [submodule "api/thirdparty/line-login"]
 	path = api/thirdparty/line-login
-	url = git@github.com:ochanoco/line-login.git
+	url = https://github.com/ochanoco/line-login.git
