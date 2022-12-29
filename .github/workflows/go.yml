@@ -19,7 +19,7 @@ jobs:
         go-version: 1.18
 
     - name: Build
-      run: cd ./api && go build -v 
+      run: sh .github/workflows/run.sh build
 
     - name: Test
-      run: cd ./api && go test -v 
+      run: sh .github/workflows/run.sh test

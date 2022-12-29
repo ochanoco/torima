@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	entgo.io/ent v0.11.0
-	github.com/gin-contrib/sessions v0.0.4
+	github.com/gin-contrib/sessions v0.0.5
 	github.com/gin-gonic/gin v1.8.2
 )
 
@@ -14,7 +14,7 @@ replace line_login_core => ./thirdparty/line-login/core
 
 require gin_line_login v0.0.0-00010101000000-000000000000
 
-require github.com/mattn/go-sqlite3 v1.14.16
+require github.com/mattn/go-sqlite3 v2.0.3+incompatible
 
 require (
 	ariga.io/atlas v0.4.3-0.20220711120113-a190b01c6ef9 // indirect
