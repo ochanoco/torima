@@ -23,7 +23,9 @@ func AuthServer() {
 }
 
 func ProxyServer() {
-	directors := []OchanocoDirector{}
+	directors := []OchanocoDirector{
+		MainDirector,
+	}
 
 	modifyResponses := []OchanocoModifyResponse{}
 
