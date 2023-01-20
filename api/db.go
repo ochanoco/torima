@@ -8,6 +8,7 @@ import (
 	"os"
 
 	_ "sqlite3"
+
 	"github.com/ochanoco/proxy/ent"
 	"github.com/ochanoco/proxy/ent/serviceprovider"
 )
