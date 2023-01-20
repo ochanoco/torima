@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"regexp"
 )
 
 func MainDirector(proxy *OchanocoProxy, req *http.Request) {
@@ -24,10 +25,18 @@ func MainDirector(proxy *OchanocoProxy, req *http.Request) {
 	req.URL.Scheme = "http"
 	req.URL.Host = project.DestinationIP
 
+	reg := regexp.MustCompile(`^\/ochanoco\/`)
+	isOchanocoPath := reg.Match([]byte(req.URL.Path))
+
 	isCleanContent := passIfCleanContent(req)
 	isAuthed := authenticateRequest(req)
 
-	if isCleanContent || isAuthed {
+	if isOchanocoPath {
+		req.URL.Scheme = "http"
+		req.URL.Host = PROXYWEB_DOMAIN
+		fmt.Println("match: hogehoge")
+
+	} else if isCleanContent || isAuthed {
 		req.Header.Set("User-Agent", "ochanoco")
 		req.Header.Set("X-Ochanoco-Proxy-Token", "<proxy_token>")
 	} else {
@@ -35,8 +44,12 @@ func MainDirector(proxy *OchanocoProxy, req *http.Request) {
 
 		req.URL.Scheme = loginRedirectURL.Scheme
 		req.URL.Host = loginRedirectURL.Host
-		req.URL.Path = fmt.Sprintf("/redirect?clean=%v&authed=%v", isCleanContent, isAuthed)
+		req.URL.Path = "/ochanoco/redirect"
 	}
 
 	LogReq(req)
+}
+
+func MainModifyResponse(proxy *OchanocoProxy, resp *http.Response) {
+	fmt.Printf("=> %v\n", resp.Request.URL)
 }
