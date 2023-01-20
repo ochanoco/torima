@@ -13,13 +13,10 @@ func AuthServer() {
 	secret := []byte("secret")
 
 	r := gin.Default()
-	r.LoadHTMLGlob(BASE_NEXT_PATH + "/*.html")
-	r.Static("/_next/", BASE_NEXT_PATH+"_next/")
 
 	store := cookie.NewStore(secret)
 	r.Use(sessions.Sessions("mysession", store))
 
-	InitProxyWeb(r)
 	InitIdPWeb(r)
 
 	r.Run()
@@ -27,6 +24,7 @@ func AuthServer() {
 
 func ProxyServer() {
 	directors := []OchanocoDirector{}
+
 	modifyResponses := []OchanocoModifyResponse{}
 
 	db, err := InitDB(DB_CONFIG)
