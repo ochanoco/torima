@@ -5,7 +5,7 @@ import (
 	"regexp"
 )
 
-var re = regexp.MustCompile(".+\\.(html|css|js|jpg|png|gif)")
+var cleanContentPattern = regexp.MustCompile(`.+\.(html|css|js|jpg|png|gif)`)
 
 /**
  * passIfCleanContent is function that is it checked authenticated needed.
@@ -18,9 +18,9 @@ func passIfCleanContent(req *http.Request) bool {
 		return false
 	}
 
-	if req.RequestURI == "/" || re.MatchString(req.URL.Path) {
+	if req.RequestURI == "/" || cleanContentPattern.MatchString(req.URL.Path) {
 		// If the request is for static content, the request is passed.
-		req.URL.Path = re.FindString(req.URL.Path)
+		req.URL.Path = cleanContentPattern.FindString(req.URL.Path)
 		return true
 	}
 
