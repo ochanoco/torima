@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 	"net/http/httputil"
+
+	"github.com/gin-gonic/gin"
 )
 
 type OchanocoDirector = func(proxy *OchanocoProxy, req *http.Request)
@@ -11,7 +13,7 @@ type OchanocoModifyResponse = func(proxy *OchanocoProxy, req *http.Response)
 type OchanocoProxy struct {
 	Directors       []OchanocoDirector
 	ModifyResponses []OchanocoModifyResponse
-	ReverseProxy    *httputil.ReverseProxy
+	Engine          *gin.Engine
 	Database        *Database
 }
 
@@ -38,6 +40,7 @@ func (proxy *OchanocoProxy) ModifyResponse(res *http.Response) error {
 }
 
 func NewOchancoProxy(
+	r *gin.Engine,
 	directors []OchanocoDirector,
 	modifyResponses []OchanocoModifyResponse,
 	database *Database,
@@ -56,10 +59,16 @@ func NewOchancoProxy(
 		return proxy.ModifyResponse(resp)
 	}
 
-	proxy.ReverseProxy = &httputil.ReverseProxy{
-		Director:       director,
-		ModifyResponse: modifyResp,
-	}
+	proxy.Engine = r
+
+	r.NoRoute(func(c *gin.Context) {
+		proxy := httputil.ReverseProxy{
+			Director:       director,
+			ModifyResponse: modifyResp,
+		}
+
+		proxy.ServeHTTP(c.Writer, c.Request)
+	})
 
 	return proxy
 }

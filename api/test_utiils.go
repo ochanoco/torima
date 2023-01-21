@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"strconv"
 	"testing"
+
+	"github.com/gin-gonic/gin"
 )
 
 const TEST_RESP_BODY1 = "hoge"
@@ -45,8 +47,10 @@ func runCommonTest(t *testing.T, tester proxyTester, name string) {
 	directors := []OchanocoDirector{director}
 	modifyRespes := []OchanocoModifyResponse{modifyResp}
 
-	proxy := NewOchancoProxy(directors, modifyRespes, db)
-	proxyServ := httptest.NewServer(proxy.ReverseProxy)
+	r := gin.Default()
+
+	proxy := NewOchancoProxy(r, directors, modifyRespes, db)
+	proxyServ := httptest.NewServer(proxy.Engine)
 
 	tester.start(t, &proxy, proxyServ, testServ)
 
