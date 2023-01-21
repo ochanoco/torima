@@ -17,9 +17,10 @@ func AuthServer() {
 	store := cookie.NewStore(secret)
 	r.Use(sessions.Sessions("mysession", store))
 
-	InitIdPWeb(r)
+	LineLoginFunctionalPoints(r)
+	LineLoginFrontPoints(r)
 
-	r.Run()
+	r.Run(":8080")
 }
 
 func ProxyServer() {
