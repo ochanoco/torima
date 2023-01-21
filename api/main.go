@@ -23,11 +23,8 @@ func AuthServer(secret string) *gin.Engine {
 func ProxyServer() *gin.Engine {
 	r := gin.Default()
 
-	directors := []OchanocoDirector{
-		MainDirector,
-	}
-
-	modifyResponses := []OchanocoModifyResponse{}
+	directors := DEFAULT_DIRECTORS
+	modifyResponses := DEFAULT_MODIFY_RESPONSES
 
 	db, err := InitDB(DB_CONFIG)
 	if err != nil {
