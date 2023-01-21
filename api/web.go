@@ -58,7 +58,7 @@ func LineLoginFrontPoints(r *gin.Engine) {
 
 	proxyToPageFunc := func(c *gin.Context) {
 		// todo: authenticate servicer
-		clientId, isExists := c.Get("client_id")
+		clientId, isExists := c.GetQuery("client_id")
 		if !isExists {
 			panic("client_id is not found")
 		}
