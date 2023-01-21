@@ -2,28 +2,27 @@ package main
 
 import (
 	"log"
-	"net/http"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 )
 
-func AuthServer() {
-	secret := []byte("secret")
-
+func AuthServer(secret string) *gin.Engine {
 	r := gin.Default()
 
-	store := cookie.NewStore(secret)
-	r.Use(sessions.Sessions("mysession", store))
+	store := cookie.NewStore([]byte(secret))
+	r.Use(sessions.Sessions(string(secret), store))
 
 	LineLoginFunctionalPoints(r)
 	LineLoginFrontPoints(r)
 
-	r.Run(":8080")
+	return r
 }
 
-func ProxyServer() {
+func ProxyServer() *gin.Engine {
+	r := gin.Default()
+
 	directors := []OchanocoDirector{
 		MainDirector,
 	}
@@ -35,16 +34,19 @@ func ProxyServer() {
 		log.Fatalf("failed to init db: %v", err)
 	}
 
-	proxy := NewOchancoProxy(directors, modifyResponses, db)
-	server := http.Server{
-		Addr:    ":9000",
-		Handler: proxy.ReverseProxy,
-	}
+	proxy := NewOchancoProxy(r, directors, modifyResponses, db)
 
-	server.ListenAndServe()
+	return proxy.Engine
+
 }
 
 func main() {
-	go AuthServer()
-	ProxyServer()
+	secret := "secret"
+
+	authServ := AuthServer(secret)
+	proxyServ := ProxyServer()
+
+	go authServ.Run(":8080")
+	proxyServ.Run(":9000")
+
 }
