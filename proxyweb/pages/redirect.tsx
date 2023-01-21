@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 const RedirectPage: NextPage = ({ }) => {
     useEffect(() => {
         setTimeout(() => {
-            location.href = "http://localhost:3001"
+            location.href = "http://localhost:8080/login"
         }, 3000)
     }, [])
 
