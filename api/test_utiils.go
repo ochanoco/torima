@@ -21,8 +21,8 @@ const TEST_RESP_REDIRECT_BODY = "redirect"
 type proxyTester interface {
 	start(t *testing.T, proxy *OchanocoProxy, proxyServ *httptest.Server, testServ *httptest.Server)
 
-	director(t *testing.T, URL string) OchanocoDirector
-	modifyResp(t *testing.T) OchanocoModifyResponse
+	directors(t *testing.T, URL string) []OchanocoDirector
+	modifyResps(t *testing.T) []OchanocoModifyResponse
 	testServers(t *testing.T) (*httptest.Server, *httptest.Server, *httptest.Server)
 
 	request(t *testing.T, url string) *http.Response
@@ -40,16 +40,13 @@ func runCommonTest(t *testing.T, tester proxyTester, name string) {
 	ERROR_PAGE_URL = errorServ.URL
 	LOGIN_REDIRECT_PAGE_URL = redirectServ.URL
 
-	director := tester.director(t, testServ.URL)
+	directors := tester.directors(t, testServ.URL)
 
-	modifyResp := tester.modifyResp(t)
-
-	directors := []OchanocoDirector{director}
-	modifyRespes := []OchanocoModifyResponse{modifyResp}
+	modifyResps := tester.modifyResps(t)
 
 	r := gin.Default()
 
-	proxy := NewOchancoProxy(r, directors, modifyRespes, db)
+	proxy := NewOchancoProxy(r, directors, modifyResps, db)
 	proxyServ := httptest.NewServer(proxy.Engine)
 
 	tester.start(t, &proxy, proxyServ, testServ)
@@ -115,33 +112,38 @@ func makeSimpleServers() (*httptest.Server, *httptest.Server, *httptest.Server) 
 	return s, s, s
 }
 
-func makesSimpleDirector(t *testing.T, URL string) OchanocoDirector {
-	test := func(proxy *OchanocoProxy, req *http.Request) {
+func makesSimpleDirectors(t *testing.T, URL string) []OchanocoDirector {
+	test := func(proxy *OchanocoProxy, req *http.Request) bool {
 		url := parseURL(t, URL)
 
 		req.URL.Scheme = url.Scheme
 		req.URL.Host = url.Host
 		req.URL.Path = "/"
+
+		return FINISHED
 	}
 
-	return test
+	return []OchanocoDirector{test}
 }
 
-func makesSimpleModifyResp() OchanocoModifyResponse {
-	simpleModifyResponse := func(proxy *OchanocoProxy, res *http.Response) {
+func makesSimpleModifyResps() []OchanocoModifyResponse {
+	simpleModifyResponse := func(proxy *OchanocoProxy, res *http.Response) bool {
 		b := []byte(TEST_RESP_BODY2)
 		res.Body = ioutil.NopCloser(bytes.NewReader(b))
 		res.Header.Set("Content-Length", strconv.Itoa(len(b)))
+
+		return FINISHED
 	}
 
-	return simpleModifyResponse
+	return []OchanocoModifyResponse{simpleModifyResponse}
 }
 
-func makeEmptyModifyResp() OchanocoModifyResponse {
-	simpleModifyResponse := func(proxy *OchanocoProxy, res *http.Response) {
+func makeEmptyModifyResps() []OchanocoModifyResponse {
+	simpleModifyResponse := func(proxy *OchanocoProxy, res *http.Response) bool {
+		return FINISHED
 	}
 
-	return simpleModifyResponse
+	return []OchanocoModifyResponse{simpleModifyResponse}
 }
 
 func parseURL(t *testing.T, URL string) *url.URL {
