@@ -24,7 +24,9 @@ var DEFAULT_MODIFY_RESPONSES = []OchanocoModifyResponse{}
  **/
 func (proxy *OchanocoProxy) Director(req *http.Request) {
 	for _, d := range proxy.Directors {
-		d(proxy, req)
+		if !d(proxy, req) {
+			break
+		}
 	}
 }
 
@@ -34,7 +36,9 @@ func (proxy *OchanocoProxy) Director(req *http.Request) {
 **/
 func (proxy *OchanocoProxy) ModifyResponse(res *http.Response) error {
 	for _, mR := range proxy.ModifyResponses {
-		mR(proxy, res)
+		if !mR(proxy, res) {
+			break
+		}
 	}
 
 	return nil
@@ -64,10 +68,11 @@ func AuthDirector(proxy *OchanocoProxy, req *http.Request) bool {
 
 	isCleanContent := passIfCleanContent(req)
 	isAuthed := authenticateRequest(req)
+	mustRedirect := !isCleanContent && !isAuthed
 
-	fmt.Printf("cleanContent: %v, authed %v\n", isCleanContent, isAuthed)
+	fmt.Printf("must auth redirect: %v\ncleanContent: %v, authed %v\n\n", mustRedirect, isCleanContent, isAuthed)
 
-	if !isCleanContent && !isAuthed {
+	if mustRedirect {
 		req.URL.Scheme = loginRedirectURL.Scheme
 		req.URL.Host = loginRedirectURL.Host
 		req.URL.Path = "/ochanoco/redirect"
