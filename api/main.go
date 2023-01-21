@@ -12,7 +12,7 @@ func AuthServer(secret string) *gin.Engine {
 	r := gin.Default()
 
 	store := cookie.NewStore([]byte(secret))
-	r.Use(sessions.Sessions(string(secret), store))
+	r.Use(sessions.Sessions("session", store))
 
 	LineLoginFunctionalPoints(r)
 	LineLoginFrontPoints(r)
@@ -38,7 +38,7 @@ func ProxyServer() *gin.Engine {
 }
 
 func main() {
-	secret := "secret"
+	secret := "testest"
 
 	authServ := AuthServer(secret)
 	proxyServ := ProxyServer()
