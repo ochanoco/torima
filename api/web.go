@@ -37,22 +37,11 @@ func LineLoginFunctionalPoints(r *gin.Engine) {
 }
 
 func LineLoginFrontPoints(r *gin.Engine) {
-	url, err := url.Parse(OCHANOCO_FRONT_LOGIN_DOMAIN)
-	if err != nil {
-		panic(err)
-	}
-
 	proxyFunc := func(c *gin.Context) {
-		// todo: authenticate servicer
-		clientId, hasExist := c.Get("client_id")
-		if hasExist {
-			panic(hasExist)
+		url, err := url.Parse(OCHANOCO_FRONT_LOGIN_DOMAIN)
+		if err != nil {
+			panic(err)
 		}
-
-		session := sessions.Default(c)
-		session.Set("client_id", clientId)
-		session.Save()
-
 		proxy := httputil.NewSingleHostReverseProxy(url)
 
 		proxy.Director = func(req *http.Request) {
@@ -67,8 +56,21 @@ func LineLoginFrontPoints(r *gin.Engine) {
 		proxy.ServeHTTP(c.Writer, c.Request)
 	}
 
+	proxyToPageFunc := func(c *gin.Context) {
+		// todo: authenticate servicer
+		clientId, isExists := c.Get("client_id")
+		if !isExists {
+			panic("client_id is not found")
+		}
+
+		session := sessions.Default(c)
+		session.Set("client_id", clientId)
+		session.Save()
+
+		proxyFunc(c)
+	}
+
 	paths := []string{
-		"/login",
 		"/_next/webpack-hmr",
 		"/_next/static/chunks/:file",
 		"/_next/static/chunks/pages/:file",
@@ -78,4 +80,6 @@ func LineLoginFrontPoints(r *gin.Engine) {
 	for _, value := range paths {
 		r.GET(value, proxyFunc)
 	}
+
+	r.GET("/login", proxyToPageFunc)
 }
