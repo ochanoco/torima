@@ -7,36 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type OchanocoDirector = func(proxy *OchanocoProxy, req *http.Request)
-type OchanocoModifyResponse = func(proxy *OchanocoProxy, req *http.Response)
+type OchanocoDirector = func(proxy *OchanocoProxy, req *http.Request) bool
+type OchanocoModifyResponse = func(proxy *OchanocoProxy, req *http.Response) bool
 
 type OchanocoProxy struct {
 	Directors       []OchanocoDirector
 	ModifyResponses []OchanocoModifyResponse
 	Engine          *gin.Engine
 	Database        *Database
-}
-
-/**
- * Directors is a list of functions that modify the
- * request before it is sent to the target server.
- **/
-func (proxy *OchanocoProxy) Director(req *http.Request) {
-	for _, d := range proxy.Directors {
-		d(proxy, req)
-	}
-}
-
-/**
-  * ModifyResponses is a list of functions that modify the
-  * response before it is sent to the client.
-**/
-func (proxy *OchanocoProxy) ModifyResponse(res *http.Response) error {
-	for _, mR := range proxy.ModifyResponses {
-		mR(proxy, res)
-	}
-
-	return nil
 }
 
 func NewOchancoProxy(
