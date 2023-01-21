@@ -25,11 +25,11 @@ func (tester *MainDirectorTester) start(t *testing.T, proxy *OchanocoProxy, prox
 	}
 
 }
-func (tester *MainDirectorTester) director(t *testing.T, url string) OchanocoDirector {
-	return MainDirector
+func (tester *MainDirectorTester) directors(t *testing.T, url string) []OchanocoDirector {
+	return DEFAULT_DIRECTORS
 }
-func (tester *MainDirectorTester) modifyResp(t *testing.T) OchanocoModifyResponse {
-	return makeEmptyModifyResp()
+func (tester *MainDirectorTester) modifyResps(t *testing.T) []OchanocoModifyResponse {
+	return makeEmptyModifyResps()
 }
 func (tester *MainDirectorTester) testServers(t *testing.T) (*httptest.Server, *httptest.Server, *httptest.Server) {
 	testServ := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
