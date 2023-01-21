@@ -31,12 +31,15 @@ func LineLoginFunctionalPoints(r *gin.Engine) {
 	})
 
 	r.GET("/redirect", func(c *gin.Context) {
-		const redirect_uri = "http://localhost:8080/ochanoco/callback"
+		session := sessions.Default(c)
+		host := session.Get("host")
+
+		redirect_uri := fmt.Sprintf("http://%v/ochanoco/callback", host)
 		c.Redirect(http.StatusTemporaryRedirect, redirect_uri)
 	})
 }
 
-func LineLoginFrontPoints(r *gin.Engine) {
+func LineLoginFrontPoints(r *gin.Engine, proxy *OchanocoProxy) {
 	proxyFunc := func(c *gin.Context) {
 		url, err := url.Parse(OCHANOCO_FRONT_LOGIN_DOMAIN)
 		if err != nil {
@@ -60,11 +63,16 @@ func LineLoginFrontPoints(r *gin.Engine) {
 		// todo: authenticate servicer
 		clientId, isExists := c.GetQuery("client_id")
 		if !isExists {
-			panic("client_id is not found")
+			panic("client_id is not found on query params")
+		}
+
+		project, err := proxy.Database.FindServiceProviderByHost(clientId)
+		if err != nil || project == nil {
+			panic("client_id is not found on DB")
 		}
 
 		session := sessions.Default(c)
-		session.Set("client_id", clientId)
+		session.Set("host", project.Host)
 		session.Save()
 
 		proxyFunc(c)

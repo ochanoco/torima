@@ -8,19 +8,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AuthServer(secret string) *gin.Engine {
+func AuthServer(secret string, proxy *OchanocoProxy) *gin.Engine {
 	r := gin.Default()
 
 	store := cookie.NewStore([]byte(secret))
 	r.Use(sessions.Sessions("session", store))
 
 	LineLoginFunctionalPoints(r)
-	LineLoginFrontPoints(r)
+	LineLoginFrontPoints(r, proxy)
 
 	return r
 }
 
-func ProxyServer() *gin.Engine {
+func ProxyServer() *OchanocoProxy {
 	r := gin.Default()
 
 	// store := cookie.NewStore([]byte(secret))
@@ -36,17 +36,17 @@ func ProxyServer() *gin.Engine {
 
 	proxy := NewOchancoProxy(r, directors, modifyResponses, db)
 
-	return proxy.Engine
+	return &proxy
 
 }
 
 func main() {
 	secret := "testest"
 
-	authServ := AuthServer(secret)
 	proxyServ := ProxyServer()
+	authServ := AuthServer(secret, proxyServ)
 
 	go authServ.Run(":8080")
-	proxyServ.Run(":9000")
+	proxyServ.Engine.Run(":9000")
 
 }
