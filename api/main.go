@@ -23,6 +23,9 @@ func AuthServer(secret string) *gin.Engine {
 func ProxyServer() *gin.Engine {
 	r := gin.Default()
 
+	// store := cookie.NewStore([]byte(secret))
+	// r.Use(sessions.Sessions("ochanoco-session", store))
+
 	directors := DEFAULT_DIRECTORS
 	modifyResponses := DEFAULT_MODIFY_RESPONSES
 
