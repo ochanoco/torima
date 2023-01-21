@@ -7,6 +7,8 @@ import (
 	"regexp"
 )
 
+var patternSpecialPath = regexp.MustCompile(`^\/ochanoco\/`)
+
 const CONTINUE = true
 const FINISHED = false
 
@@ -45,8 +47,7 @@ func (proxy *OchanocoProxy) ModifyResponse(res *http.Response) error {
 }
 
 func SpecialPathDirector(proxy *OchanocoProxy, req *http.Request) bool {
-	reg := regexp.MustCompile(`^\/ochanoco\/`)
-	isOchanocoPath := reg.Match([]byte(req.URL.Path))
+	isOchanocoPath := patternSpecialPath.Match([]byte(req.URL.Path))
 
 	if isOchanocoPath {
 		req.URL.Scheme = "http"
