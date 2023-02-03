@@ -55,6 +55,27 @@ func (db *Database) CreateServiceProvider(host string, destinationIP string) *en
 	return proj
 }
 
+func (db *Database) CreateAuthorizationCode(token string) *ent.AuthorizationCodeCreate {
+	code := db.client.AuthorizationCode.
+		Create().
+		SetToken(token)
+
+	return code
+}
+
+func (db *Database) CreateRandomAuthorizationCode() (*ent.AuthorizationCodeCreate, error) {
+	token, err := randomString(32)
+	if err != nil {
+		return nil, err
+	}
+
+	code := db.client.AuthorizationCode.
+		Create().
+		SetToken(token)
+
+	return code, nil
+}
+
 func (db *Database) MigrateWhiteList() error {
 	var urls []string
 
@@ -109,6 +130,16 @@ func (db *Database) SaveWhiteList(projc *ent.ServiceProvider, wlc *ent.WhiteList
 		Save(db.ctx)
 
 	return proj, err
+}
+
+func (db *Database) SaveAuthorizationCode(codeC *ent.AuthorizationCodeCreate) (*ent.AuthorizationCode, error) {
+	code, err := codeC.Save(db.ctx)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to save authorization code: %v", err)
+	}
+
+	return code, err
 }
 
 func (db *Database) FindServiceProviderByHost(host string) (*ent.ServiceProvider, error) {

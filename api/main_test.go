@@ -16,7 +16,7 @@ func TestIntegration(t *testing.T) {
 	}
 
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "<a href='%v'>link</a>", "/ochanoco/redirect")
+		fmt.Fprintf(w, "<a href='%v'>link</a>", "/ochanoco/redirect?callback_path=/hello		")
 	})
 
 	server := httptest.NewServer(h)

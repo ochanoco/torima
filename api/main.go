@@ -14,17 +14,17 @@ func AuthServer(secret string, proxy *OchanocoProxy) *gin.Engine {
 	store := cookie.NewStore([]byte(secret))
 	r.Use(sessions.Sessions("session", store))
 
-	LineLoginFunctionalPoints(r)
+	LineLoginFunctionalPoints(r, proxy)
 	LineLoginFrontPoints(r, proxy)
 
 	return r
 }
 
-func ProxyServer() *OchanocoProxy {
+func ProxyServer(secret string) *OchanocoProxy {
 	r := gin.Default()
 
-	// store := cookie.NewStore([]byte(secret))
-	// r.Use(sessions.Sessions("ochanoco-session", store))
+	store := cookie.NewStore([]byte(secret))
+	r.Use(sessions.Sessions("ochanoco-session", store))
 
 	directors := DEFAULT_DIRECTORS
 	modifyResponses := DEFAULT_MODIFY_RESPONSES
@@ -37,13 +37,12 @@ func ProxyServer() *OchanocoProxy {
 	proxy := NewOchancoProxy(r, directors, modifyResponses, db)
 
 	return &proxy
-
 }
 
 func main() {
 	secret := "testest"
 
-	proxyServ := ProxyServer()
+	proxyServ := ProxyServer(secret)
 	authServ := AuthServer(secret, proxyServ)
 
 	go authServ.Run(":8080")
