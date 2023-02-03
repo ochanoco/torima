@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func LineLoginFunctionalPoints(r *gin.Engine) {
+func LineLoginFunctionalPoints(r *gin.Engine, proxy *OchanocoProxy) {
 	lineLogin, err := gin_line_login.NewLineLoginWithEnvironment(r, "/login", "/auth/callback", "/redirect")
 	if err != nil {
 		panic(err)
@@ -34,7 +34,19 @@ func LineLoginFunctionalPoints(r *gin.Engine) {
 		session := sessions.Default(c)
 		host := session.Get("host")
 
-		redirect_uri := fmt.Sprintf("http://%v/ochanoco/callback", host)
+		codeCreate, err := proxy.Database.CreateRandomAuthorizationCode()
+
+		if err != nil {
+			panic("failed to generate authorization code")
+		}
+
+		code, err := proxy.Database.SaveAuthorizationCode(codeCreate)
+
+		if err != nil {
+			panic("failed to save authorization code")
+		}
+
+		redirect_uri := fmt.Sprintf("http://%v/ochanoco/callback?authorization_code=%v", host, code.Token)
 		c.Redirect(http.StatusTemporaryRedirect, redirect_uri)
 	})
 }
