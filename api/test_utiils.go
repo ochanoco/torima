@@ -113,7 +113,7 @@ func makeSimpleServers() (*httptest.Server, *httptest.Server, *httptest.Server) 
 }
 
 func makesSimpleDirectors(t *testing.T, URL string) []OchanocoDirector {
-	test := func(proxy *OchanocoProxy, req *http.Request) bool {
+	test := func(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
 		url := parseURL(t, URL)
 
 		req.URL.Scheme = url.Scheme
@@ -127,7 +127,7 @@ func makesSimpleDirectors(t *testing.T, URL string) []OchanocoDirector {
 }
 
 func makesSimpleModifyResps() []OchanocoModifyResponse {
-	simpleModifyResponse := func(proxy *OchanocoProxy, res *http.Response) bool {
+	simpleModifyResponse := func(proxy *OchanocoProxy, res *http.Response, c *gin.Context) bool {
 		b := []byte(TEST_RESP_BODY2)
 		res.Body = ioutil.NopCloser(bytes.NewReader(b))
 		res.Header.Set("Content-Length", strconv.Itoa(len(b)))
@@ -139,7 +139,7 @@ func makesSimpleModifyResps() []OchanocoModifyResponse {
 }
 
 func makeEmptyModifyResps() []OchanocoModifyResponse {
-	simpleModifyResponse := func(proxy *OchanocoProxy, res *http.Response) bool {
+	simpleModifyResponse := func(proxy *OchanocoProxy, res *http.Response, c *gin.Context) bool {
 		return FINISHED
 	}
 
