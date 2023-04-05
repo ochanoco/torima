@@ -149,3 +149,4 @@ dist
 
 api/proxy
 api/sqlite3.db
+api/test.sqlite3
