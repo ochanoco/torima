@@ -46,7 +46,7 @@ services:
     ports:
       - 8000:8000
       - 9000:9000
-      # env_file:
-      # - ./api/basic.env
-      # - ./api/secret.env
+    env_file:
+      - ./api/basic.env
+      - ./api/secret.env
     network_mode: "host"
