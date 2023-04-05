@@ -15,8 +15,10 @@ func TestIntegration(t *testing.T) {
 		t.Skip("Skipping testing in All test")
 	}
 
+	DB_CONFIG = TEST_DB_PATH
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "<a href='%v'>link</a>", "/ochanoco/redirect?callback_path=/hello		")
+		fmt.Fprintf(w, "<a href='%v'>link</a>", "/ochanoco/redirect?callback_path=/hello")
 	})
 
 	server := httptest.NewServer(h)
