@@ -151,3 +151,4 @@ api/proxy
 api/sqlite3.db
 api/test.sqlite3
 api/secret.env
+data/db.sqlite3
