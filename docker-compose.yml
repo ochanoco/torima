@@ -2,21 +2,22 @@ version: '3'
 services:
   proxyweb:
     build:
-      context: ../
+      context: ./
       dockerfile: ./docker/Dockerfile
       args:
         HOST_FOLDER: "./proxyweb"
-        BUILD_CMD: "yarn build"
+        BUILD_CMD: "echo hello"
         NIX_FILE: "./docker/node.nix"
     environment:
       COMMAND: yarn dev
       # COMMAND: yarn run
     ports:
       - 3000:3000
+    network_mode: "host"
 
   auth:
     build:
-      context: ../
+      context: ./
       dockerfile: ./docker/Dockerfile
       args:
         HOST_FOLDER: "./auth"
@@ -27,17 +28,25 @@ services:
       # COMMAND: yarn run
     ports:
       - 3001:3000
+    network_mode: "host"
 
   api:
     build:
-      context: ../
+      context: ./
       dockerfile: ./docker/Dockerfile
       args:
         HOST_FOLDER: "./api"
         BUILD_CMD: "go build"
         NIX_FILE: "./docker/go.nix"
+    volumes:
+      - "./data:/workspace/serv/data"
     environment:
-      COMMAND: ./proxy
+      COMMAND: go test -run TestIntegration
       # COMMAND: yarn run
     ports:
       - 8000:8000
+      - 9000:9000
+      # env_file:
+      # - ./api/basic.env
+      # - ./api/secret.env
+    network_mode: "host"
