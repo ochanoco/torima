@@ -79,7 +79,7 @@ func (db *Database) CreateRandomAuthorizationCode() (*ent.AuthorizationCodeCreat
 func (db *Database) MigrateWhiteList() error {
 	var urls []string
 
-	b, _ := os.ReadFile(WHITELIST_FILE)
+	b, _ := os.ReadFile(WHITELIST_PATH)
 	err := json.Unmarshal(b, &urls)
 
 	if err != nil {
@@ -87,7 +87,7 @@ func (db *Database) MigrateWhiteList() error {
 		return err
 	}
 
-	projc := db.CreateServiceProvider(AUTH_PAGE_DOMAIN, AUTH_PAGE_DESTINATION)
+	projc := db.CreateServiceProvider(AUTH_HOST, PROXY_CALLBACK_URL)
 	_, err = projc.Save(db.ctx)
 
 	if err != nil {
