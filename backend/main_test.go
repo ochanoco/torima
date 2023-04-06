@@ -10,6 +10,8 @@ import (
 )
 
 func TestIntegration(t *testing.T) {
+	DB_CONFIG := "file::memory:?cache=shared&_fk=1"
+
 	if os.Getenv("TEST_INTEGRATION") != "1" {
 		t.Skip("Skipping testing in All test")
 	}
