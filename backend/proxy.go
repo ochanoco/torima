@@ -1,12 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
-	"net/url"
-	"regexp"
 
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -25,6 +21,29 @@ var DEFAULT_DIRECTORS = []OchanocoDirector{
 
 var DEFAULT_MODIFY_RESPONSES = []OchanocoModifyResponse{}
 
+
+
+type OchanocoPackageArgument interface{ *http.Request | *http.Response }
+
+func runAllPackage[T OchanocoPackageArgument](
+	pkgs []func(*OchanocoProxy, T, *gin.Context) bool,
+	args T, proxy *OchanocoProxy, c *gin.Context) {
+
+	flogLogs := NewFlowLogs()
+
+	for _, pkg := range pkgs {
+		isContinuing := pkg(proxy, args, c)
+
+		flogLogs.Add(pkg, isContinuing)
+
+		if !isContinuing {
+			break
+		}
+	}
+
+	flogLogs.Show()
+}
+
 /**
  * Directors is a list of functions that modify the
  * request before it is sent to the target server.
@@ -32,13 +51,7 @@ var DEFAULT_MODIFY_RESPONSES = []OchanocoModifyResponse{}
 func (proxy *OchanocoProxy) Director(req *http.Request, c *gin.Context) {
 	req.URL.Scheme = "http"
 
-	for _, d := range proxy.Directors {
-		isContinuing := d(proxy, req, c)
-		if !isContinuing {
-			break
-		}
-	}
-
+	runAllPackage(proxy.Directors, req, proxy, c)
 	LogReq(req)
 }
 
@@ -47,13 +60,7 @@ func (proxy *OchanocoProxy) Director(req *http.Request, c *gin.Context) {
   * response before it is sent to the client.
 **/
 func (proxy *OchanocoProxy) ModifyResponse(res *http.Response, c *gin.Context) error {
-	for _, mR := range proxy.ModifyResponses {
-		isContinuing := mR(proxy, res, c)
-		if !isContinuing {
-			break
-		}
-	}
-
+	runAllPackage(proxy.ModifyResponses, res, proxy, c)
 	return nil
 }
 
