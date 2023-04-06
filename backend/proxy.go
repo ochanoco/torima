@@ -11,16 +11,6 @@ var patternSpecialPath = regexp.MustCompile(`^\/ochanoco\/`)
 const CONTINUE = true
 const FINISHED = false
 
-var DEFAULT_DIRECTORS = []OchanocoDirector{
-	LoginPathDirector,
-	CallbackPathDirector,
-	NextStaticFileDirector,
-	AuthDirector,
-	DefaultDirector,
-}
-
-var DEFAULT_MODIFY_RESPONSES = []OchanocoModifyResponse{}
-
 
 
 type OchanocoPackageArgument interface{ *http.Request | *http.Response }
