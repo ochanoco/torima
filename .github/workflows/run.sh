@@ -1,6 +1,6 @@
 git submodule update --init --recursive
 
-cd api/thirdparty/go-sqlite3
+cd backend/thirdparty/go-sqlite3
 git checkout v1.14.16
 
 cd ../../
