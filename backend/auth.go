@@ -2,30 +2,7 @@ package main
 
 import (
 	"net/http"
-	"regexp"
 )
-
-var cleanContentPattern = regexp.MustCompile(`.+\.(html|css|js|jpg|png|gif)`)
-
-/**
- * passIfCleanContent is function that is it checked authenticated needed.
- * If the request is not GET or the request is not for static content, the request is passed.
-**/
-
-func passIfCleanContent(req *http.Request) bool {
-	if req.Method != "GET" {
-		// If the request is not GET, the request is passed.
-		return false
-	}
-
-	if req.RequestURI == "/" || cleanContentPattern.MatchString(req.URL.Path) {
-		// If the request is for static content, the request is passed.
-		req.URL.Path = cleanContentPattern.FindString(req.URL.Path)
-		return true
-	}
-
-	return false
-}
 
 /**
  * authenticateRequest is a function for user authentication.

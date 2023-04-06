@@ -12,6 +12,40 @@ import (
 
 var patternSpecialPath = regexp.MustCompile(`^\/ochanoco\/`)
 
+var cleanContentPattern = regexp.MustCompile(`.+\.(html|css|js|jpg|png|gif)`)
+
+func MainDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
+	project, err := proxy.Database.FindServiceProviderByHost(req.Host)
+
+	if err != nil {
+		msg := fmt.Sprintf("failed to get destination site (%s)", req.Host)
+		GoToErrorPage(msg, err, req)
+		return FINISHED
+	}
+
+	req.URL.Host = project.DestinationIP
+
+	req.Header.Set("User-Agent", "ochanoco")
+	req.Header.Set("X-Ochanoco-Proxy-Token", "<proxy_token>")
+
+	return CONTINUE
+}
+
+func CleanContentDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
+	if req.Method != "GET" {
+		// If the request is not GET, the request is passed.
+		return CONTINUE
+	}
+
+	if req.RequestURI == "/" || cleanContentPattern.MatchString(req.URL.Path) {
+		// If the request is for static content, the request is passed.
+		req.URL.Path = cleanContentPattern.FindString(req.URL.Path)
+		return FINISHED
+	}
+
+	return CONTINUE
+}
+
 func LoginPathDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
 	fmt.Printf("Path: %v\n", req.URL.Path)
 
@@ -62,7 +96,7 @@ func CallbackPathDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Contex
 	return FINISHED
 }
 
-func NextStaticFileDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
+func ProxyPageDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
 	isOchanocoPath := patternSpecialPath.Match([]byte(req.URL.Path))
 
 	if isOchanocoPath {
@@ -82,36 +116,15 @@ func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool 
 		return FINISHED
 	}
 
-	isCleanContent := passIfCleanContent(req)
 	isAuthed := authenticateRequest(req)
-	mustRedirect := !isCleanContent && !isAuthed
 
-	fmt.Printf("must auth redirect: %v\ncleanContent: %v, authed %v\n\n", mustRedirect, isCleanContent, isAuthed)
-
-	if mustRedirect {
+	if isAuthed {
 		req.URL.Scheme = loginRedirectURL.Scheme
 		req.URL.Host = loginRedirectURL.Host
 		req.URL.Path = "/ochanoco/redirect"
 
 		return FINISHED
 	}
-
-	return CONTINUE
-}
-
-func DefaultDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
-	project, err := proxy.Database.FindServiceProviderByHost(req.Host)
-
-	if err != nil {
-		msg := fmt.Sprintf("failed to get destination site (%s)", req.Host)
-		GoToErrorPage(msg, err, req)
-		return FINISHED
-	}
-
-	req.URL.Host = project.DestinationIP
-
-	req.Header.Set("User-Agent", "ochanoco")
-	req.Header.Set("X-Ochanoco-Proxy-Token", "<proxy_token>")
 
 	return CONTINUE
 }
