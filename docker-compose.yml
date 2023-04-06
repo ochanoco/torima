@@ -15,12 +15,12 @@ services:
       - 3000:3000
     network_mode: "host"
 
-  auth:
+  authweb:
     build:
       context: ./
       dockerfile: ./docker/Dockerfile
       args:
-        HOST_FOLDER: "./auth"
+        HOST_FOLDER: "./authweb"
         BUILD_CMD: "yarn build"
         NIX_FILE: "./docker/node.nix"
     environment:
@@ -30,12 +30,12 @@ services:
       - 3001:3000
     network_mode: "host"
 
-  api:
+  backend:
     build:
       context: ./
       dockerfile: ./docker/Dockerfile
       args:
-        HOST_FOLDER: "./api"
+        HOST_FOLDER: "./backend"
         BUILD_CMD: "go build"
         NIX_FILE: "./docker/go.nix"
     volumes:
@@ -47,6 +47,6 @@ services:
       - 8000:8000
       - 9000:9000
     env_file:
-      - ./api/basic.env
-      - ./api/secret.env
+      - ./backend/basic.env
+      - ./backend/secret.env
     network_mode: "host"
