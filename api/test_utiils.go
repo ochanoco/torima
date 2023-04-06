@@ -37,8 +37,8 @@ func runCommonTest(t *testing.T, tester proxyTester, name string) {
 	}
 
 	testServ, errorServ, redirectServ := tester.testServers(t)
-	ERROR_PAGE_URL = errorServ.URL
-	LOGIN_REDIRECT_PAGE_URL = redirectServ.URL
+	ERROR_URL = errorServ.URL
+	PROXY_REDIRECT_URL = redirectServ.URL
 
 	directors := tester.directors(t, testServ.URL)
 
