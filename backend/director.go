@@ -49,66 +49,6 @@ func CleanContentDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Contex
 	return CONTINUE
 }
 
-func LoginPathDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
-	if req.URL.Path != "/ochanoco/redirect" {
-		return CONTINUE
-	}
-
-	req.URL.Host = PROXYWEB_HOST
-
-	callback_path := req.URL.Query().Get("callback_path")
-
-	if callback_path == "" {
-		callback_path = "/"
-	}
-
-	session := sessions.Default(c)
-	session.Set("callback_path", callback_path)
-
-	return FINISHED
-}
-
-func CallbackPathDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
-	if req.URL.Path != "/ochanoco/callback" {
-		return CONTINUE
-	}
-
-	token := req.URL.Query().Get("authorization_code")
-	if token == "" {
-		panic("failed to get authorization_code")
-	}
-
-	session := sessions.Default(c)
-	// session.Set("authorization_code", token)
-
-	// if session.Save() != nil {
-	// 	panic("failed to save authorization_code")
-	// }
-
-	callbackPath := session.Get("callback_path")
-	if callbackPath == nil {
-		callbackPath = "/"
-	}
-
-	req.URL.Path = callbackPath.(string)
-	req.URL.Host = req.Host
-	req.URL.RawQuery = ""
-
-	return FINISHED
-}
-
-func ProxyPageDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
-	isOchanocoPath := patternSpecialPath.Match([]byte(req.URL.Path))
-
-	if isOchanocoPath {
-		req.URL.Host = PROXYWEB_HOST
-
-		return FINISHED
-	}
-
-	return CONTINUE
-}
-
 func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
 	session := sessions.Default(c)
 	userId := session.Get("user_id")
@@ -117,7 +57,7 @@ func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool 
 	case int:
 		req.URL.Scheme = ProxyRedirectUrl.Scheme
 		req.URL.Host = ProxyRedirectUrl.Host
-		req.URL.Path = "/ochanoco/redirect"
+		req.URL.Path = "/ochanoco/login"
 
 		return FINISHED
 	default:
