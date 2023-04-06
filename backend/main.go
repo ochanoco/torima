@@ -39,14 +39,10 @@ func ProxyServer(secret string) *OchanocoProxy {
 	return &proxy
 }
 
-func setup() {
-	setupParsingUrl()
-}
-
 func main() {
 	secret := "testest"
 
-	setup()
+	setupParsingUrl()
 
 	proxyServ := ProxyServer(secret)
 	authServ := AuthServer(secret, proxyServ)

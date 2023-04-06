@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -10,7 +9,12 @@ import (
 )
 
 func TestIntegration(t *testing.T) {
-	DB_CONFIG := "file::memory:?cache=shared&_fk=1"
+	DB_CONFIG = "file::memory:?cache=shared&_fk=1"
+	secret := "testest"
+	setupParsingUrl()
+
+	proxyServ := ProxyServer(secret)
+	authServ := AuthServer(secret, proxyServ)
 
 	if os.Getenv("TEST_INTEGRATION") != "1" {
 		t.Skip("Skipping testing in All test")
@@ -24,19 +28,15 @@ func TestIntegration(t *testing.T) {
 	server := httptest.NewServer(h)
 	defer server.Close()
 
-	db, err := InitDB(DB_CONFIG)
-	if err != nil {
-		log.Fatalf("failed to init db: %v", err)
-	}
-
 	servUrl := parseURL(t, server.URL)
 
-	sp := db.client.ServiceProvider.
+	sp := proxyServ.Database.client.ServiceProvider.
 		Create().
 		SetHost("127.0.0.1:8080").
 		SetDestinationIP(servUrl.Host)
 
-	sp.SaveX(db.ctx)
+	sp.SaveX(proxyServ.Database.ctx)
 
-	main()
+	go authServ.Run(AUTH_PORT)
+	proxyServ.Engine.Run(PROXY_PORT)
 }
