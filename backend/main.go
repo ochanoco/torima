@@ -26,15 +26,12 @@ func ProxyServer(secret string) *OchanocoProxy {
 	store := cookie.NewStore([]byte(secret))
 	r.Use(sessions.Sessions("ochanoco-session", store))
 
-	directors := DEFAULT_DIRECTORS
-	modifyResponses := DEFAULT_MODIFY_RESPONSES
-
 	db, err := InitDB(DB_CONFIG)
 	if err != nil {
 		log.Fatalf("failed to init db: %v", err)
 	}
 
-	proxy := NewOchancoProxy(r, directors, modifyResponses, db)
+	proxy := NewOchancoProxy(r, DEFAULT_DIRECTORS, DEFAULT_MODIFY_RESPONSES, DEFAULT_PROXYWEB_PAGES, db)
 
 	return &proxy
 }
