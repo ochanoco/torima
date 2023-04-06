@@ -29,10 +29,22 @@ var AUTHWEB_PORT = os.Getenv("OCHANOCO_AUTHWEB_PORT")
 var AUTHWEB_HOST = os.Getenv("OCHANOCO_AUTHWEB_HOST")
 var AUTHWEB_BASE = PROTOCOL + AUTHWEB_HOST
 
-
 /* configuration of DB */
 var DB_TYPE = os.Getenv("OCHANOCO_DB_TYPE")
 var DB_CONFIG = os.Getenv("OCHANOCO_DB_CONFIG")
 
 /* other */
 var WHITELIST_PATH = os.Getenv("OCHANOCO_WHITE_LIST")
+
+var DEFAULT_DIRECTORS = []OchanocoDirector{
+	ProxyPageDirector,
+	MainDirector,
+	CleanContentDirector,
+	LoginPathDirector,
+	CallbackPathDirector,
+	AuthDirector,
+}
+
+var DEFAULT_MODIFY_RESPONSES = []OchanocoModifyResponse{}
+
+var ADD_USER_ID = true

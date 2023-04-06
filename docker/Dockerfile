@@ -1,7 +1,7 @@
 FROM nixos/nix
 
 # set up argument
-ARG HOST_FOLDER="../api"
+ARG HOST_FOLDER="../backend"
 # ARG HOST_FOLDER="../../app"
 ARG BUILD_CMD="go build"
 # ARG BUILD_CMD="yarn build"
