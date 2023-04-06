@@ -45,8 +45,8 @@ var DEFAULT_DIRECTORS = []OchanocoDirector{
 var DEFAULT_MODIFY_RESPONSES = []OchanocoModifyResponse{}
 
 var DEFAULT_PROXYWEB_PAGES = []OchanocoProxyWebPage{
-	// ProxyWebAuthPages,
-	// ProxyLoginRedirectPage,
+	ProxyWebAuthPages,
+	ProxyLoginRedirectPage,
 }
 
 var ADD_USER_ID = true
