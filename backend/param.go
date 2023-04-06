@@ -46,3 +46,5 @@ var DEFAULT_DIRECTORS = []OchanocoDirector{
 }
 
 var DEFAULT_MODIFY_RESPONSES = []OchanocoModifyResponse{}
+
+var ADD_USER_ID = true

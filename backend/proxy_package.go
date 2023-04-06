@@ -27,6 +27,10 @@ func MainDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool 
 	req.Header.Set("User-Agent", "ochanoco")
 	req.Header.Set("X-Ochanoco-Proxy-Token", "<proxy_token>")
 
+	if ADD_USER_ID {
+		req.Header.Set("X-Ochanoco-UserID", "1")
+	}
+
 	return CONTINUE
 }
 
