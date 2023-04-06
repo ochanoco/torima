@@ -112,17 +112,19 @@ func ProxyPageDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) 
 }
 
 func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
-	isAuthed := authenticateRequest(req)
+	session := sessions.Default(c)
+	userId := session.Get("user_id")
 
-	if isAuthed {
+	switch userId.(type) {
+	case int:
 		req.URL.Scheme = ProxyRedirectUrl.Scheme
 		req.URL.Host = ProxyRedirectUrl.Host
 		req.URL.Path = "/ochanoco/redirect"
 
 		return FINISHED
+	default:
+		return CONTINUE
 	}
-
-	return CONTINUE
 }
 
 func MainModifyResponse(proxy *OchanocoProxy, resp *http.Response) {
