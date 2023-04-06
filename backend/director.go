@@ -50,8 +50,6 @@ func CleanContentDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Contex
 }
 
 func LoginPathDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
-	fmt.Printf("Path: %v\n", req.URL.Path)
-
 	if req.URL.Path != "/ochanoco/redirect" {
 		return CONTINUE
 	}
@@ -81,11 +79,11 @@ func CallbackPathDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Contex
 	}
 
 	session := sessions.Default(c)
-	session.Set("authorization_code", token)
+	// session.Set("authorization_code", token)
 
-	if session.Save() != nil {
-		panic("failed to save authorization_code")
-	}
+	// if session.Save() != nil {
+	// 	panic("failed to save authorization_code")
+	// }
 
 	callbackPath := session.Get("callback_path")
 	if callbackPath == nil {
@@ -125,8 +123,4 @@ func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool 
 	default:
 		return CONTINUE
 	}
-}
-
-func MainModifyResponse(proxy *OchanocoProxy, resp *http.Response) {
-	fmt.Printf("=> %v\n", resp.Request.URL)
 }
