@@ -8,12 +8,6 @@ import (
 	"os"
 )
 
-/**
- * LogReq is the function that logs the request.
-**/
-func LogReq(req *http.Request) {
-	fmt.Printf("[%s] %s%s\n=> %s%s\n\n", req.Method, req.Host, req.RequestURI, req.URL.Host, req.URL.Path)
-}
 
 /**
  * GoToErrorPage is the function that redirects to the error page.
