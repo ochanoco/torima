@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"net/url"
 	"regexp"
 
 	"github.com/gin-contrib/sessions"
@@ -109,18 +108,11 @@ func ProxyPageDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) 
 }
 
 func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
-	loginRedirectURL, err := url.Parse(PROXY_REDIRECT_URL)
-
-	if err != nil {
-		GoToErrorPage("failed parse", err, req)
-		return FINISHED
-	}
-
 	isAuthed := authenticateRequest(req)
 
 	if isAuthed {
-		req.URL.Scheme = loginRedirectURL.Scheme
-		req.URL.Host = loginRedirectURL.Host
+		req.URL.Scheme = ProxyRedirectUrl.Scheme
+		req.URL.Host = ProxyRedirectUrl.Host
 		req.URL.Path = "/ochanoco/redirect"
 
 		return FINISHED
