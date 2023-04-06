@@ -21,7 +21,7 @@ func LogReq(req *http.Request) {
 func GoToErrorPage(msg string, err error, req *http.Request) {
 	fmt.Fprintln(os.Stderr, msg, err)
 
-	errorPageURL, err := url.Parse(ERROR_PAGE_URL)
+	errorPageURL, err := url.Parse(ERROR_URL)
 
 	if err != nil {
 		log.Fatalf("%s: %v\n\n", msg, err)

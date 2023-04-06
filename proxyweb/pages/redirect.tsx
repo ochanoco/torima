@@ -9,8 +9,8 @@ import { useEffect, useState } from 'react'
 const RedirectPage: NextPage = ({ }) => {
     useEffect(() => {
         setTimeout(() => {
-            location.href = `http://127.0.0.1:8080/login?client_id=${document.location.host}`
-        }, 3000)
+        }, 6000)
+        location.href = `http://127.0.0.1:8081/login?client_id=${document.location.host}`
     }, [])
 
     return (

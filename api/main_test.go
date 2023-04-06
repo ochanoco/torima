@@ -16,7 +16,7 @@ func TestIntegration(t *testing.T) {
 	}
 
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "<a href='%v'>link</a>", "/ochanoco/redirect?callback_path=/hello		")
+		fmt.Fprintf(w, "<a href='%v'>link</a>", "/ochanoco/redirect?callback_path=/hello")
 	})
 
 	server := httptest.NewServer(h)
@@ -34,7 +34,7 @@ func TestIntegration(t *testing.T) {
 
 	sp := db.client.ServiceProvider.
 		Create().
-		SetHost("127.0.0.1:9000").
+		SetHost("127.0.0.1:8080").
 		SetDestinationIP(servUrl.Host)
 
 	sp.SaveX(db.ctx)

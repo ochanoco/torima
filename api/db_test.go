@@ -15,7 +15,7 @@ func TestDB(t *testing.T) {
 }
 
 func testModel(t *testing.T) {
-	db, err := InitDB(TEST_DB_PATH)
+	db, err := InitDB(DB_CONFIG)
 
 	if err != nil {
 		t.Fatalf("model_test: %v", err)
@@ -48,7 +48,7 @@ func testModel(t *testing.T) {
 func testMigrateWhiteList(t *testing.T) {
 	var fwls []string
 
-	db, err := InitDB(TEST_DB_PATH)
+	db, err := InitDB(DB_CONFIG)
 	if err != nil {
 		t.Fatalf("failed to set up DB: %v", err)
 	}
@@ -61,7 +61,7 @@ func testMigrateWhiteList(t *testing.T) {
 		t.Fatalf("failed to migrate white list: %v", err)
 	}
 
-	b, _ := os.ReadFile(WHITELIST_FILE)
+	b, _ := os.ReadFile(WHITELIST_PATH)
 	err = json.Unmarshal(b, &fwls)
 
 	if err != nil {
