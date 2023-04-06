@@ -45,7 +45,7 @@ func main() {
 	proxyServ := ProxyServer(secret)
 	authServ := AuthServer(secret, proxyServ)
 
-	go authServ.Run(":8080")
-	proxyServ.Engine.Run(":9000")
+	go authServ.Run(AUTH_PORT)
+	proxyServ.Engine.Run(PROXY_PORT)
 
 }
