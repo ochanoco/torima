@@ -33,7 +33,8 @@ func (proxy *OchanocoProxy) Director(req *http.Request, c *gin.Context) {
 	req.URL.Scheme = "http"
 
 	for _, d := range proxy.Directors {
-		if !d(proxy, req, c) {
+		isContinuing := d(proxy, req, c)
+		if !isContinuing {
 			break
 		}
 	}
@@ -47,7 +48,8 @@ func (proxy *OchanocoProxy) Director(req *http.Request, c *gin.Context) {
 **/
 func (proxy *OchanocoProxy) ModifyResponse(res *http.Response, c *gin.Context) error {
 	for _, mR := range proxy.ModifyResponses {
-		if !mR(proxy, res, c) {
+		isContinuing := mR(proxy, res, c)
+		if !isContinuing {
 			break
 		}
 	}
@@ -62,7 +64,7 @@ func LoginPathDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) 
 		return CONTINUE
 	}
 
-	req.URL.Host = PROXYWEB_DOMAIN
+	req.URL.Host = PROXYWEB_HOST
 
 	callback_path := req.URL.Query().Get("callback_path")
 
@@ -100,6 +102,7 @@ func CallbackPathDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Contex
 
 	req.URL.Path = callbackPath.(string)
 	req.URL.Host = req.Host
+	req.URL.RawQuery = ""
 
 	return FINISHED
 }
@@ -108,7 +111,7 @@ func NextStaticFileDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Cont
 	isOchanocoPath := patternSpecialPath.Match([]byte(req.URL.Path))
 
 	if isOchanocoPath {
-		req.URL.Host = PROXYWEB_DOMAIN
+		req.URL.Host = PROXYWEB_HOST
 
 		return FINISHED
 	}
@@ -117,7 +120,7 @@ func NextStaticFileDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Cont
 }
 
 func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
-	loginRedirectURL, err := url.Parse(LOGIN_REDIRECT_PAGE_URL)
+	loginRedirectURL, err := url.Parse(PROXY_REDIRECT_URL)
 
 	if err != nil {
 		GoToErrorPage("failed parse", err, req)

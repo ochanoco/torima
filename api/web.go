@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"gin_line_login"
+	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -53,7 +54,7 @@ func LineLoginFunctionalPoints(r *gin.Engine, proxy *OchanocoProxy) {
 
 func LineLoginFrontPoints(r *gin.Engine, proxy *OchanocoProxy) {
 	proxyFunc := func(c *gin.Context) {
-		url, err := url.Parse(OCHANOCO_FRONT_LOGIN_DOMAIN)
+		url, err := url.Parse(AUTHWEB_BASE)
 		if err != nil {
 			panic(err)
 		}
@@ -64,8 +65,6 @@ func LineLoginFrontPoints(r *gin.Engine, proxy *OchanocoProxy) {
 			req.Host = url.Host
 			req.URL.Scheme = url.Scheme
 			req.URL.Host = url.Host
-
-			fmt.Printf("host: %v\n", url.Host)
 		}
 
 		proxy.ServeHTTP(c.Writer, c.Request)
@@ -80,7 +79,7 @@ func LineLoginFrontPoints(r *gin.Engine, proxy *OchanocoProxy) {
 
 		project, err := proxy.Database.FindServiceProviderByHost(clientId)
 		if err != nil || project == nil {
-			panic("client_id is not found on DB")
+			log.Fatalf("client_id is not found on DB(%v)", clientId)
 		}
 
 		session := sessions.Default(c)

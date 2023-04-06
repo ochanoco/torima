@@ -1,19 +1,38 @@
 package main
 
-var LOGIN_REDIRECT_PAGE_URL = "http://localhost:8080/redirect"
-var ERROR_PAGE_URL = "http://localhost:8080/error"
-var PROXY_REDIRECT_URL = "http://localhost:8080/"
+import "os"
 
-var AUTH_PAGE_DOMAIN = "localhost:8080"
-var AUTH_PAGE_DESTINATION = "localhost:8080/ochanoco/callback"
+/* configuration of URLs */
+var PROTOCOL = os.Getenv("OCHANOCO_PROTOCOL")
 
-var PROXYWEB_DOMAIN = "localhost:3000"
+// http://localhost:8080/
+var PROXY_PORT = os.Getenv("OCHANOCO_PROXY_PORT")
+var PROXY_HOST = os.Getenv("OCHANOCO_PROXY_HOST")
+var PROXY_BASE = PROTOCOL + PROXY_HOST
+var PROXY_CALLBACK_URL = PROXY_BASE + "/ochanoco/callback"
+var PROXY_LOGIN_URL = PROXY_BASE + "/ochanoco/login"
+var PROXY_REDIRECT_URL = PROXY_BASE + "/ochanoco/redirect"
 
-var DB_TYPE = "sqlite3"
-var DB_CONFIG = "file:./db.sqlite3?_fk=1"
-var WHITELIST_FILE = "./whitelist.json"
+// https://localhost:8081
+var AUTH_PORT = os.Getenv("OCHANOCO_AUTH_PORT")
+var AUTH_HOST = os.Getenv("OCHANOCO_AUTH_HOST")
+var AUTH_BASE = PROTOCOL + AUTH_HOST
 
-const BASE_NEXT_PATH = "../app/out/"
-const OCHANOCO_LOGIN_URL = "http://localhost:8080/login"
-const OCHANOCO_FRONT_LOGIN_DOMAIN = "http://localhost:3001/"
-const TEST_DB_PATH = "file:ent?mode=memory&cache=shared&_fk=1"
+// https://localhost:3000
+var PROXYWEB_PORT = os.Getenv("OCHANOCO_PROXYWEB_PORT")
+var PROXYWEB_HOST = os.Getenv("OCHANOCO_PROXYWEB_HOST")
+var PROXYWEB_BASE = PROTOCOL + PROXYWEB_HOST
+var ERROR_URL = PROXYWEB_BASE + "/error"
+
+// https://localhost:3000
+var AUTHWEB_PORT = os.Getenv("OCHANOCO_AUTHWEB_PORT")
+var AUTHWEB_HOST = os.Getenv("OCHANOCO_AUTHWEB_HOST")
+var AUTHWEB_BASE = PROTOCOL + AUTHWEB_HOST
+
+
+/* configuration of DB */
+var DB_TYPE = os.Getenv("OCHANOCO_DB_TYPE")
+var DB_CONFIG = os.Getenv("OCHANOCO_DB_CONFIG")
+
+/* other */
+var WHITELIST_PATH = os.Getenv("OCHANOCO_WHITE_LIST")
