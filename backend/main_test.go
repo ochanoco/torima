@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"os"
 	"testing"
 )
@@ -27,10 +26,7 @@ func TestIntegration(t *testing.T) {
 		log.Fatalf("failed to init db: %v", err)
 	}
 
-	servUrl, err := url.Parse(server.URL)
-	if err != nil {
-		log.Fatal(err)
-	}
+	servUrl := parseURL(t, server.URL)
 
 	sp := db.client.ServiceProvider.
 		Create().

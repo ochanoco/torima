@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"net/http/httputil"
-	"net/url"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -54,17 +53,13 @@ func LineLoginFunctionalPoints(r *gin.Engine, proxy *OchanocoProxy) {
 
 func LineLoginFrontPoints(r *gin.Engine, proxy *OchanocoProxy) {
 	proxyFunc := func(c *gin.Context) {
-		url, err := url.Parse(AUTHWEB_BASE)
-		if err != nil {
-			panic(err)
-		}
-		proxy := httputil.NewSingleHostReverseProxy(url)
+		proxy := httputil.NewSingleHostReverseProxy(AuthWebBaseUrl)
 
 		proxy.Director = func(req *http.Request) {
 			req.Header = c.Request.Header
-			req.Host = url.Host
-			req.URL.Scheme = url.Scheme
-			req.URL.Host = url.Host
+			req.Host = AuthWebBaseUrl.Host
+			req.URL.Scheme = AuthWebBaseUrl.Scheme
+			req.URL.Host = AuthWebBaseUrl.Host
 		}
 
 		proxy.ServeHTTP(c.Writer, c.Request)
