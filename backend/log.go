@@ -37,14 +37,14 @@ func (flowLogs *FlowLogs) Add(f any, result bool) {
 }
 
 func (flowLogs *FlowLogs) Show() {
-	log.Printf("--- start ----")
+	log.Println("\n--- start ----")
 
 	for _, v := range flowLogs.logs {
 		log.Printf("name: %v\n", v.name)
 		log.Printf("result: %v\n", v.result)
 	}
 
-	fmt.Printf("---  end  ----")
+	fmt.Println("---  end  ----")
 }
 
 /**
