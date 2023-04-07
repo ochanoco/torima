@@ -1,4 +1,4 @@
-package main
+package cloud
 
 import (
 	"fmt"
@@ -8,9 +8,10 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/ochanoco/proxy/core"
 )
 
-func LineLoginFunctionalPoints(proxy *OchanocoProxy, r *gin.RouterGroup) {
+func CloudLoginFunctionalPoints(proxy *core.OchanocoProxy, r *gin.RouterGroup) {
 	lineLogin, err := gin_line_login.NewLineLoginWithEnvironment(r, "/login", "/auth/callback", "/redirect")
 	if err != nil {
 		panic(err)
@@ -50,7 +51,7 @@ func LineLoginFunctionalPoints(proxy *OchanocoProxy, r *gin.RouterGroup) {
 	})
 }
 
-func LineLoginFrontPoints(r *gin.Engine, proxy *OchanocoProxy) {
+func CloudLoginFrontPoints(r *gin.Engine, proxy *core.OchanocoProxy) {
 	proxyToPageFunc := func(c *gin.Context) {
 		// todo: authenticate servicer
 		clientId, isExists := c.GetQuery("client_id")
@@ -67,9 +68,9 @@ func LineLoginFrontPoints(r *gin.Engine, proxy *OchanocoProxy) {
 		session.Set("host", project.Host)
 		session.Save()
 
-		deriveSimpelProxyFunc(AuthWebBaseUrl)(c)
+		core.DeriveSimpelProxyFunc(core.AuthWebBaseUrl)(c)
 	}
 
 	r.GET("/login", proxyToPageFunc)
-	NextJSProxyPage(AuthWebBaseUrl, &r.RouterGroup)
+	core.NextJSProxyPage(core.AuthWebBaseUrl, &r.RouterGroup)
 }

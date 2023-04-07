@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"fmt"
@@ -8,8 +8,6 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
-
-var patternSpecialPath = regexp.MustCompile(`^\/ochanoco\/`)
 
 var cleanContentPattern = regexp.MustCompile(`.+\.(html|css|js|jpg|png|gif)`)
 
