@@ -1,4 +1,4 @@
-package main
+package core
 
 import "os"
 
@@ -44,10 +44,6 @@ var DEFAULT_DIRECTORS = []OchanocoDirector{
 
 var DEFAULT_MODIFY_RESPONSES = []OchanocoModifyResponse{}
 
-var DEFAULT_PROXYWEB_PAGES = []OchanocoProxyWebPage{
-	// ProxyWebAuthPages,
-	ProxyLoginRedirectPage,
-	ProxyDirectLineLogin,
-}
+var DEFAULT_PROXYWEB_PAGES = []OchanocoProxyWebPage{}
 
 var ADD_USER_ID = true
