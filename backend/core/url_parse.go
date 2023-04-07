@@ -31,7 +31,7 @@ func SetupParsingUrl() {
 
 	ProxyWebBaseUrl, err = url.Parse(PROXYWEB_BASE)
 	if err != nil {
-		log.Fatalf(errorTemplate, AUTHWEB_BASE, err)
+		log.Fatalf(errorTemplate, PROXYWEB_BASE, err)
 	}
 
 	ProxyRedirectUrl, err = url.Parse(PROXY_REDIRECT_URL)
