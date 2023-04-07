@@ -16,6 +16,10 @@ func TestIntegration(t *testing.T) {
 	proxyServ := Run()
 
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/" {
+			fmt.Fprintf(w, "<p>404</p>")
+			return
+		}
 		userId := r.Header.Get("X-Ochanoco-UserID")
 		fmt.Fprintf(w, "<p>Hello! %v</p><br><a href='%v'>link</a>", userId, "/ochanoco/login?callback_path=/hello")
 	})
