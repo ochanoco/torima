@@ -5,13 +5,12 @@ import (
 	"gin_line_login"
 	"log"
 	"net/http"
-	"net/http/httputil"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
-func LineLoginFunctionalPoints(r *gin.Engine, proxy *OchanocoProxy) {
+func LineLoginFunctionalPoints(proxy *OchanocoProxy, r *gin.RouterGroup) {
 	lineLogin, err := gin_line_login.NewLineLoginWithEnvironment(r, "/login", "/auth/callback", "/redirect")
 	if err != nil {
 		panic(err)
@@ -52,19 +51,6 @@ func LineLoginFunctionalPoints(r *gin.Engine, proxy *OchanocoProxy) {
 }
 
 func LineLoginFrontPoints(r *gin.Engine, proxy *OchanocoProxy) {
-	proxyFunc := func(c *gin.Context) {
-		proxy := httputil.NewSingleHostReverseProxy(AuthWebBaseUrl)
-
-		proxy.Director = func(req *http.Request) {
-			req.Header = c.Request.Header
-			req.Host = AuthWebBaseUrl.Host
-			req.URL.Scheme = AuthWebBaseUrl.Scheme
-			req.URL.Host = AuthWebBaseUrl.Host
-		}
-
-		proxy.ServeHTTP(c.Writer, c.Request)
-	}
-
 	proxyToPageFunc := func(c *gin.Context) {
 		// todo: authenticate servicer
 		clientId, isExists := c.GetQuery("client_id")
@@ -81,19 +67,9 @@ func LineLoginFrontPoints(r *gin.Engine, proxy *OchanocoProxy) {
 		session.Set("host", project.Host)
 		session.Save()
 
-		proxyFunc(c)
-	}
-
-	paths := []string{
-		"/_next/webpack-hmr",
-		"/_next/static/chunks/:file",
-		"/_next/static/chunks/pages/:file",
-		"/_next/static/development/:file",
-	}
-
-	for _, value := range paths {
-		r.GET(value, proxyFunc)
+		deriveSimpelProxyFunc(AuthWebBaseUrl)(c)
 	}
 
 	r.GET("/login", proxyToPageFunc)
+	NextJSProxyPage(AuthWebBaseUrl, &r.RouterGroup)
 }

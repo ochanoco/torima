@@ -8,10 +8,10 @@ import (
 var ProxyRedirectUrl *url.URL
 var ErrorUrl *url.URL
 var AuthWebBaseUrl *url.URL
+var ProxyWebBaseUrl *url.URL
 
 func setupParsingUrl() {
 	var err error
-	ProxyRedirectUrl, err = url.Parse(PROXY_REDIRECT_URL)
 	errorTemplate := "failed to parse url (%v)\n%v"
 
 	if err != nil {
@@ -28,4 +28,15 @@ func setupParsingUrl() {
 	if err != nil {
 		log.Fatalf(errorTemplate, AUTHWEB_BASE, err)
 	}
+
+	ProxyWebBaseUrl, err = url.Parse(PROXYWEB_BASE)
+	if err != nil {
+		log.Fatalf(errorTemplate, AUTHWEB_BASE, err)
+	}
+
+	ProxyRedirectUrl, err = url.Parse(PROXY_REDIRECT_URL)
+	if err != nil {
+		log.Fatalf(errorTemplate, AUTHWEB_BASE, err)
+	}
+
 }
