@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"bytes"
@@ -114,7 +114,7 @@ func makeSimpleServers() (*httptest.Server, *httptest.Server, *httptest.Server) 
 
 func makesSimpleDirectors(t *testing.T, URL string) []OchanocoDirector {
 	test := func(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
-		url := parseURL(t, URL)
+		url := ParseURL(t, URL)
 
 		req.URL.Scheme = url.Scheme
 		req.URL.Host = url.Host
@@ -146,7 +146,7 @@ func makeEmptyModifyResps() []OchanocoModifyResponse {
 	return []OchanocoModifyResponse{simpleModifyResponse}
 }
 
-func parseURL(t *testing.T, URL string) *url.URL {
+func ParseURL(t *testing.T, URL string) *url.URL {
 	url, err := url.Parse(URL)
 
 	if err != nil {

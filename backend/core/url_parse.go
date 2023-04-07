@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"log"
@@ -10,7 +10,7 @@ var ErrorUrl *url.URL
 var AuthWebBaseUrl *url.URL
 var ProxyWebBaseUrl *url.URL
 
-func setupParsingUrl() {
+func SetupParsingUrl() {
 	var err error
 	errorTemplate := "failed to parse url (%v)\n%v"
 

@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ type MainDirectorTester struct {
 }
 
 func (tester *MainDirectorTester) start(t *testing.T, proxy *OchanocoProxy, proxyServ *httptest.Server, testServ *httptest.Server) {
-	testServUrl := parseURL(t, testServ.URL)
+	testServUrl := ParseURL(t, testServ.URL)
 
 	crp := proxy.Database.CreateServiceProvider(testServUrl.Host, testServUrl.Host)
 	proxy.Database.SaveServiceProvider(crp)

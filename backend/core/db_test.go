@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"encoding/json"
@@ -21,7 +21,7 @@ func testModel(t *testing.T) {
 		t.Fatalf("model_test: %v", err)
 	}
 
-	defer db.client.Close()
+	defer db.Client.Close()
 
 	wl := db.CreateWhiteList("https://example.com")
 
@@ -53,7 +53,7 @@ func testMigrateWhiteList(t *testing.T) {
 		t.Fatalf("failed to set up DB: %v", err)
 	}
 
-	defer db.client.Close()
+	defer db.Client.Close()
 
 	err = db.MigrateWhiteList()
 
@@ -68,8 +68,8 @@ func testMigrateWhiteList(t *testing.T) {
 		t.Fatalf("failed to load migrate.json: %v", err)
 	}
 
-	dbwls, err := db.client.WhiteList.
-		Query().All(db.ctx)
+	dbwls, err := db.Client.WhiteList.
+		Query().All(db.Ctx)
 
 	if err != nil {
 		t.Fatalf("failed read white list: %v", err)

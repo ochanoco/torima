@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"context"
@@ -14,8 +14,8 @@ import (
 )
 
 type Database struct {
-	ctx    context.Context
-	client *ent.Client
+	Ctx    context.Context
+	Client *ent.Client
 }
 
 func InitDB(path string) (*Database, error) {
@@ -32,14 +32,14 @@ func InitDB(path string) (*Database, error) {
 	}
 
 	dbl := new(Database)
-	dbl.ctx = ctx
-	dbl.client = client
+	dbl.Ctx = ctx
+	dbl.Client = client
 
 	return dbl, err
 }
 
 func (db *Database) CreateWhiteList(path string) *ent.WhiteListCreate {
-	wl := db.client.WhiteList.
+	wl := db.Client.WhiteList.
 		Create().
 		SetPath(path)
 
@@ -47,7 +47,7 @@ func (db *Database) CreateWhiteList(path string) *ent.WhiteListCreate {
 }
 
 func (db *Database) CreateServiceProvider(host string, destinationIP string) *ent.ServiceProviderCreate {
-	proj := db.client.ServiceProvider.
+	proj := db.Client.ServiceProvider.
 		Create().
 		SetHost(host).
 		SetDestinationIP(destinationIP)
@@ -56,7 +56,7 @@ func (db *Database) CreateServiceProvider(host string, destinationIP string) *en
 }
 
 func (db *Database) CreateAuthorizationCode(token string) *ent.AuthorizationCodeCreate {
-	code := db.client.AuthorizationCode.
+	code := db.Client.AuthorizationCode.
 		Create().
 		SetToken(token)
 
@@ -69,7 +69,7 @@ func (db *Database) CreateRandomAuthorizationCode() (*ent.AuthorizationCodeCreat
 		return nil, err
 	}
 
-	code := db.client.AuthorizationCode.
+	code := db.Client.AuthorizationCode.
 		Create().
 		SetToken(token)
 
@@ -88,7 +88,7 @@ func (db *Database) MigrateWhiteList() error {
 	}
 
 	projc := db.CreateServiceProvider(AUTH_HOST, PROXY_CALLBACK_URL)
-	_, err = projc.Save(db.ctx)
+	_, err = projc.Save(db.Ctx)
 
 	if err != nil {
 		return fmt.Errorf("failed creating project: %v", err)
@@ -97,7 +97,7 @@ func (db *Database) MigrateWhiteList() error {
 	for _, url := range urls {
 		wlc := db.CreateWhiteList(url)
 
-		_, err := wlc.Save(db.ctx)
+		_, err := wlc.Save(db.Ctx)
 
 		if err != nil {
 			return fmt.Errorf("failed add white list to project: %v", err)
@@ -108,7 +108,7 @@ func (db *Database) MigrateWhiteList() error {
 }
 
 func (db *Database) SaveServiceProvider(spc *ent.ServiceProviderCreate) (*ent.ServiceProvider, error) {
-	sp, err := spc.Save(db.ctx)
+	sp, err := spc.Save(db.Ctx)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to save service provider: %v", err)
@@ -118,7 +118,7 @@ func (db *Database) SaveServiceProvider(spc *ent.ServiceProviderCreate) (*ent.Se
 }
 
 func (db *Database) SaveWhiteList(projc *ent.ServiceProvider, wlc *ent.WhiteListCreate) (*ent.ServiceProvider, error) {
-	wl, err := wlc.Save(db.ctx)
+	wl, err := wlc.Save(db.Ctx)
 
 	if err != nil {
 		return nil, err
@@ -127,13 +127,13 @@ func (db *Database) SaveWhiteList(projc *ent.ServiceProvider, wlc *ent.WhiteList
 	proj, err := projc.
 		Update().
 		AddWhitelists(wl).
-		Save(db.ctx)
+		Save(db.Ctx)
 
 	return proj, err
 }
 
 func (db *Database) SaveAuthorizationCode(codeC *ent.AuthorizationCodeCreate) (*ent.AuthorizationCode, error) {
-	code, err := codeC.Save(db.ctx)
+	code, err := codeC.Save(db.Ctx)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to save authorization code: %v", err)
@@ -143,8 +143,8 @@ func (db *Database) SaveAuthorizationCode(codeC *ent.AuthorizationCodeCreate) (*
 }
 
 func (db *Database) FindServiceProviderByHost(host string) (*ent.ServiceProvider, error) {
-	return db.client.ServiceProvider.
+	return db.Client.ServiceProvider.
 		Query().
 		Where(serviceprovider.HostEQ(host)).
-		Only(db.ctx)
+		Only(db.Ctx)
 }

@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"net/http/httputil"
@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func deriveSimpelProxyFunc(baseUrl *url.URL) func(c *gin.Context) {
+func DeriveSimpelProxyFunc(baseUrl *url.URL) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		proxy := httputil.NewSingleHostReverseProxy(baseUrl)
 		proxy.ServeHTTP(c.Writer, c.Request)
@@ -17,7 +17,7 @@ func deriveSimpelProxyFunc(baseUrl *url.URL) func(c *gin.Context) {
 
 func SimpleProxyPage(pageList []string, baseUrl *url.URL, r *gin.RouterGroup) {
 	for _, value := range pageList {
-		r.GET(value, deriveSimpelProxyFunc(baseUrl))
+		r.GET(value, DeriveSimpelProxyFunc(baseUrl))
 	}
 }
 
