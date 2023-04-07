@@ -29,6 +29,8 @@ services:
     ports:
       - 3001:3000
     network_mode: "host"
+    profiles:
+      - cloud
 
   backend:
     build:
@@ -36,12 +38,12 @@ services:
       dockerfile: ./docker/Dockerfile
       args:
         HOST_FOLDER: "./backend"
-        BUILD_CMD: "go build"
+        BUILD_CMD: "go build -tags line_example"
         NIX_FILE: "./docker/go.nix"
     volumes:
       - "./data:/workspace/serv/data"
     environment:
-      COMMAND: go test -run TestIntegration
+      COMMAND: ./proxy
       # COMMAND: yarn run
     ports:
       - 8000:8000
