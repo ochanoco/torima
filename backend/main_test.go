@@ -14,7 +14,7 @@ func TestIntegration(t *testing.T) {
 	setupParsingUrl()
 
 	proxyServ := ProxyServer(secret)
-	authServ := AuthServer(secret, proxyServ)
+	// authServ := AuthServer(secret, proxyServ)
 
 	if os.Getenv("TEST_INTEGRATION") != "1" {
 		t.Skip("Skipping testing in All test")
@@ -22,7 +22,7 @@ func TestIntegration(t *testing.T) {
 
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userId := r.Header.Get("X-Ochanoco-UserID")
-		fmt.Fprintf(w, "<p>Hello! %v</p><br><a href='%v'>link</a>", userId, "/ochanoco/redirect?callback_path=/hello")
+		fmt.Fprintf(w, "<p>Hello! %v</p><br><a href='%v'>link</a>", userId, "/ochanoco/login?callback_path=/hello")
 	})
 
 	server := httptest.NewServer(h)
@@ -37,6 +37,6 @@ func TestIntegration(t *testing.T) {
 
 	sp.SaveX(proxyServ.Database.ctx)
 
-	go authServ.Run(AUTH_PORT)
+	// go authServ.Run(AUTH_PORT)
 	proxyServ.Engine.Run(PROXY_PORT)
 }

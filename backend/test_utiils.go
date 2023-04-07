@@ -46,7 +46,7 @@ func runCommonTest(t *testing.T, tester proxyTester, name string) {
 
 	r := gin.Default()
 
-	proxy := NewOchancoProxy(r, directors, modifyResps, db)
+	proxy := NewOchancoProxy(r, directors, modifyResps, DEFAULT_PROXYWEB_PAGES, db)
 	proxyServ := httptest.NewServer(proxy.Engine)
 
 	tester.start(t, &proxy, proxyServ, testServ)
