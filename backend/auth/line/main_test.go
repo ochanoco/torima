@@ -1,24 +1,19 @@
-package main
+package line
 
 import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
+
+	"github.com/ochanoco/proxy/core"
 )
 
 func TestIntegration(t *testing.T) {
-	DB_CONFIG = "file::memory:?cache=shared&_fk=1"
-	secret := "testest"
-	setupParsingUrl()
+	core.DB_CONFIG = "file::memory:?cache=shared&_fk=1"
+	core.SetupParsingUrl()
 
-	proxyServ := ProxyServer(secret)
-	// authServ := AuthServer(secret, proxyServ)
-
-	if os.Getenv("TEST_INTEGRATION") != "1" {
-		t.Skip("Skipping testing in All test")
-	}
+	proxyServ := Run()
 
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userId := r.Header.Get("X-Ochanoco-UserID")
@@ -28,15 +23,14 @@ func TestIntegration(t *testing.T) {
 	server := httptest.NewServer(h)
 	defer server.Close()
 
-	servUrl := parseURL(t, server.URL)
+	servUrl := core.ParseURL(t, server.URL)
 
-	sp := proxyServ.Database.client.ServiceProvider.
+	sp := proxyServ.Database.Client.ServiceProvider.
 		Create().
 		SetHost("127.0.0.1:8080").
 		SetDestinationIP(servUrl.Host)
 
-	sp.SaveX(proxyServ.Database.ctx)
+	sp.SaveX(proxyServ.Database.Ctx)
 
-	// go authServ.Run(AUTH_PORT)
-	proxyServ.Engine.Run(PROXY_PORT)
+	proxyServ.Engine.Run()
 }
