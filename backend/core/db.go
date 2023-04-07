@@ -55,27 +55,6 @@ func (db *Database) CreateServiceProvider(host string, destinationIP string) *en
 	return proj
 }
 
-func (db *Database) CreateAuthorizationCode(token string) *ent.AuthorizationCodeCreate {
-	code := db.Client.AuthorizationCode.
-		Create().
-		SetToken(token)
-
-	return code
-}
-
-func (db *Database) CreateRandomAuthorizationCode() (*ent.AuthorizationCodeCreate, error) {
-	token, err := randomString(32)
-	if err != nil {
-		return nil, err
-	}
-
-	code := db.Client.AuthorizationCode.
-		Create().
-		SetToken(token)
-
-	return code, nil
-}
-
 func (db *Database) MigrateWhiteList() error {
 	var urls []string
 
