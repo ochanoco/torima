@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/ochanoco/proxy/auth/cloud"
-	"github.com/ochanoco/proxy/auth/line"
 	"github.com/ochanoco/proxy/example"
+	"github.com/ochanoco/proxy/serv/cloud"
+	"github.com/ochanoco/proxy/serv/line"
 )
 
 func main() {

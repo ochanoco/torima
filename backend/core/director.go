@@ -9,8 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var patternSpecialPath = regexp.MustCompile(`^\/ochanoco\/`)
-
 var cleanContentPattern = regexp.MustCompile(`.+\.(html|css|js|jpg|png|gif)`)
 
 func MainDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {

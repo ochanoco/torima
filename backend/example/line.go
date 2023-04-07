@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 	"net/url"
 
-	"github.com/ochanoco/proxy/auth/line"
 	"github.com/ochanoco/proxy/core"
+	"github.com/ochanoco/proxy/serv/line"
 )
 
 func Main() {
