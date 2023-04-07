@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func LineLoginFunctionalPoints(r *gin.Engine, proxy *OchanocoProxy) {
+func LineLoginFunctionalPoints(proxy *OchanocoProxy, r *gin.RouterGroup) {
 	lineLogin, err := gin_line_login.NewLineLoginWithEnvironment(r, "/login", "/auth/callback", "/redirect")
 	if err != nil {
 		panic(err)
@@ -51,7 +51,6 @@ func LineLoginFunctionalPoints(r *gin.Engine, proxy *OchanocoProxy) {
 }
 
 func LineLoginFrontPoints(r *gin.Engine, proxy *OchanocoProxy) {
-
 	proxyToPageFunc := func(c *gin.Context) {
 		// todo: authenticate servicer
 		clientId, isExists := c.GetQuery("client_id")

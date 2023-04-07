@@ -14,7 +14,7 @@ func AuthServer(secret string, proxy *OchanocoProxy) *gin.Engine {
 	store := cookie.NewStore([]byte(secret))
 	r.Use(sessions.Sessions("session", store))
 
-	LineLoginFunctionalPoints(r, proxy)
+	LineLoginFunctionalPoints(proxy, &r.RouterGroup)
 	LineLoginFrontPoints(r, proxy)
 
 	return r
