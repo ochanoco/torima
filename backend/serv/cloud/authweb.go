@@ -5,6 +5,7 @@ import (
 	"gin_line_login"
 	"log"
 	"net/http"
+	"net/http/httputil"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -34,7 +35,7 @@ func CloudLoginFunctionalPoints(proxy *core.OchanocoProxy, r *gin.RouterGroup) {
 		session := sessions.Default(c)
 		host := session.Get("host")
 
-		codeCreate, err := proxy.Database.CreateRandomAuthorizationCode()
+		codeCreate, err := CreateRandomAuthorizationCode(proxy.Database)
 
 		if err != nil {
 			panic("failed to generate authorization code")
@@ -68,7 +69,8 @@ func CloudLoginFrontPoints(r *gin.Engine, proxy *core.OchanocoProxy) {
 		session.Set("host", project.Host)
 		session.Save()
 
-		core.DeriveSimpelProxyFunc(core.AuthWebBaseUrl)(c)
+		proxy := httputil.NewSingleHostReverseProxy(core.AuthWebBaseUrl)
+		proxy.ServeHTTP(c.Writer, c.Request)
 	}
 
 	r.GET("/login", proxyToPageFunc)
