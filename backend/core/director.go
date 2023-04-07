@@ -25,8 +25,19 @@ func MainDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool 
 	req.Header.Set("User-Agent", "ochanoco")
 	req.Header.Set("X-Ochanoco-Proxy-Token", "<proxy_token>")
 
+	session := sessions.Default(c)
+	userId := session.Get("userId")
+
+	fmt.Printf("data: %v\n", userId)
+
 	if ADD_USER_ID {
-		req.Header.Set("X-Ochanoco-UserID", "1")
+		switch userId.(type) {
+		case string:
+			req.Header.Set("X-Ochanoco-UserID", userId.(string))
+
+		default:
+			req.Header.Set("X-Ochanoco-UserID", "nil")
+		}
 	}
 
 	return CONTINUE
@@ -52,7 +63,7 @@ func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool 
 	userId := session.Get("user_id")
 
 	switch userId.(type) {
-	case int:
+	case string:
 		req.URL.Scheme = ProxyRedirectUrl.Scheme
 		req.URL.Host = ProxyRedirectUrl.Host
 		req.URL.Path = "/ochanoco/login"
