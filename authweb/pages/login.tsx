@@ -15,7 +15,7 @@ const LoginPage: NextPage = ({ }) => {
         <h1>{TEXT_ON_LOGIN_PAGE.HEADER}</h1>
         <p>{TEXT_ON_LOGIN_PAGE.MESSAGE}</p >
         <button onClick={() => {
-          location.href = '/auth/login'
+          location.href = '/ochanoco/redirect'
         }}>{TEXT_ON_LOGIN_PAGE.BUTTON}</button>
       </main>
     </div>
