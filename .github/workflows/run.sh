@@ -5,4 +5,4 @@ git checkout v1.14.16
 
 cd ../../
 go mod tidy
-go $1 -v 
+go $1 -tags line_example
