@@ -19,7 +19,7 @@ jobs:
       run: sh .github/workflows/run.sh build
 
     - name: Test
-    - run: sh .github/workflows/run.sh test ./core
+      run: sh .github/workflows/run.sh test ./core
       env: 
         OCHANOCO_PROTOCOL: "http://"
         OCHANOCO_PROXYWEB_PORT: ":3000"
