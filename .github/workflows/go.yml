@@ -22,4 +22,4 @@ jobs:
       run: sh .github/workflows/run.sh build
 
     - name: Test
-      run: sh .github/workflows/run.sh test
+      run: sh .github/workflows/run.sh test ./core
