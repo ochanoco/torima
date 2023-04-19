@@ -7,12 +7,12 @@ on:
     branches: [ "develop" ]
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-
+    - name: Env file
+      run: 'cat basic.env >> .env'
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
