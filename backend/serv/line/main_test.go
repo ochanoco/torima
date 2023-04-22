@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	"github.com/ochanoco/proxy/core"
@@ -27,7 +28,7 @@ func TestIntegration(t *testing.T) {
 	server := httptest.NewServer(h)
 	defer server.Close()
 
-	servUrl := core.ParseURL(t, server.URL)
+	servUrl, _ := url.Parse(server.URL)
 
 	sp := proxyServ.Database.Client.ServiceProvider.
 		Create().
