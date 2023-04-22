@@ -8,5 +8,4 @@ func TestMainDirector(t *testing.T) {
 		Cookie:     "ochanoco-token=test",
 	}
 	RunCommonTest(t, &testerOk, "main/director_ok")
-
 }
