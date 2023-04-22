@@ -58,14 +58,15 @@ func testMigrateWhiteList(t *testing.T) {
 	err = db.MigrateWhiteList()
 
 	if err != nil {
-		t.Fatalf("failed to migrate white list: %v", err)
+		t.Fatalf("failed to migrate white list:\n=> %v", err)
 	}
 
 	b, _ := os.ReadFile(WHITELIST_PATH)
+
 	err = json.Unmarshal(b, &fwls)
 
 	if err != nil {
-		t.Fatalf("failed to load migrate.json: %v", err)
+		t.Fatalf("failed to load %v: %v", WHITELIST_PATH, err)
 	}
 
 	dbwls, err := db.Client.WhiteList.
