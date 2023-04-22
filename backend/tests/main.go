@@ -1,10 +1,12 @@
-package core
+package tests
 
 import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/ochanoco/proxy/core"
 )
 
 type MainDirectorTester struct {
@@ -13,7 +15,7 @@ type MainDirectorTester struct {
 	ResultBody string
 }
 
-func (tester *MainDirectorTester) start(t *testing.T, proxy *OchanocoProxy, proxyServ *httptest.Server, testServ *httptest.Server) {
+func (tester *MainDirectorTester) Start(t *testing.T, proxy *core.OchanocoProxy, proxyServ *httptest.Server, testServ *httptest.Server) {
 	testServUrl := ParseURL(t, testServ.URL)
 
 	crp := proxy.Database.CreateServiceProvider(testServUrl.Host, testServUrl.Host)
@@ -23,15 +25,14 @@ func (tester *MainDirectorTester) start(t *testing.T, proxy *OchanocoProxy, prox
 		tester.Host = testServUrl.Host
 
 	}
-
 }
-func (tester *MainDirectorTester) directors(t *testing.T, url string) []OchanocoDirector {
-	return DEFAULT_DIRECTORS
+func (tester *MainDirectorTester) Directors(t *testing.T, url string) []core.OchanocoDirector {
+	return core.DEFAULT_DIRECTORS
 }
-func (tester *MainDirectorTester) modifyResps(t *testing.T) []OchanocoModifyResponse {
-	return makeEmptyModifyResps()
+func (tester *MainDirectorTester) ModifyResps(t *testing.T) []core.OchanocoModifyResponse {
+	return MakeEmptyModifyResps()
 }
-func (tester *MainDirectorTester) testServers(t *testing.T) (*httptest.Server, *httptest.Server, *httptest.Server) {
+func (tester *MainDirectorTester) TestServers(t *testing.T) (*httptest.Server, *httptest.Server, *httptest.Server) {
 	testServ := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
 		fmt.Fprint(writer, TEST_RESP_BODY1)
 
@@ -58,7 +59,7 @@ func (tester *MainDirectorTester) testServers(t *testing.T) (*httptest.Server, *
 	return testServ, errorServ, redirectServ
 }
 
-func (tester *MainDirectorTester) request(t *testing.T, url string) *http.Response {
+func (tester *MainDirectorTester) Request(t *testing.T, url string) *http.Response {
 	req, err := http.NewRequest(http.MethodPost, url, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -76,28 +77,6 @@ func (tester *MainDirectorTester) request(t *testing.T, url string) *http.Respon
 	return resp
 }
 
-func (tester *MainDirectorTester) check(t *testing.T, resp *http.Response) {
-	checkResponseWithBody(t, resp, tester.ResultBody)
-}
-
-func TestMainDirector(t *testing.T) {
-	testerOk := MainDirectorTester{
-		ResultBody: TEST_RESP_BODY1,
-		Cookie:     "ochanoco-token=test",
-	}
-	runCommonTest(t, &testerOk, "main/director_ok")
-
-	testerAuthFailed := MainDirectorTester{
-		ResultBody: TEST_RESP_REDIRECT_BODY,
-		Cookie:     "ochanoco-toke=",
-	}
-	runCommonTest(t, &testerAuthFailed, "main/director_auth_failed")
-
-	testerSiteNotFound := MainDirectorTester{
-		Host:       "www.example.com",
-		ResultBody: TEST_RESP_ERROR_BODY,
-		Cookie:     "ochanoco-token=test",
-	}
-	runCommonTest(t, &testerSiteNotFound, "main/director_site_not_found")
-
+func (tester *MainDirectorTester) Check(t *testing.T, resp *http.Response) {
+	CheckResponseWithBody(t, resp, tester.ResultBody)
 }
