@@ -7,9 +7,12 @@ on:
     branches: [ "develop" ]
 
 jobs:
+
   build:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v3
+
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
@@ -19,7 +22,7 @@ jobs:
       run: sh .github/workflows/run.sh build
 
     - name: Test
-      run: sh .github/workflows/run.sh test ./core
+      run: sh .github/workflows/run.sh test ./tests
       env: 
         OCHANOCO_PROTOCOL: "http://"
         OCHANOCO_PROXYWEB_PORT: ":3000"
