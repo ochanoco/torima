@@ -58,12 +58,15 @@ func (db *Database) CreateServiceProvider(host string, destinationIP string) *en
 func (db *Database) MigrateWhiteList() error {
 	var urls []string
 
-	b, _ := os.ReadFile(WHITELIST_PATH)
-	err := json.Unmarshal(b, &urls)
+	b, err := os.ReadFile(WHITELIST_PATH)
+	if err != nil {
+		return fmt.Errorf("failed to read white list (%v)\n=> %v", WHITELIST_PATH, err)
+	}
+
+	err = json.Unmarshal(b, &urls)
 
 	if err != nil {
-		log.Fatalf("failed to load migrate.json: %v", err)
-		return err
+		return fmt.Errorf("failed to parse white list (%v)\n=> %v", WHITELIST_PATH, err)
 	}
 
 	projc := db.CreateServiceProvider(AUTH_HOST, PROXY_CALLBACK_URL)
