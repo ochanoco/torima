@@ -60,15 +60,20 @@ services:
       - defailt
 
   backend_tee:
+    tty: true
+    privileged: true
     build:
       context: ./
       dockerfile: ./docker/tee/Dockerfile
     volumes:
       - "./data:/workspace/serv/data"
       - "./:/app"
+      - "/dev:/dev"
     ports:
       - 8000:8000
       - 9000:9000
     network_mode: "host"
+    working_dir: '/app/backend'
+    command: "bash -c 'ego-go build --tags line_example && ego sign proxy && ego run proxy'"
     profiles:
       - tee
