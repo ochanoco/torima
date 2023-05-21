@@ -6,7 +6,8 @@ services:
       dockerfile: ./docker/Dockerfile
       args:
         HOST_FOLDER: "./proxyweb"
-        BUILD_CMD: "echo hello"
+        BUILD_CMD: "yarn"
+        # BUILD_CMD: "yarn && yarn build"
         NIX_FILE: "./docker/node.nix"
     environment:
       COMMAND: yarn dev
@@ -21,7 +22,8 @@ services:
       dockerfile: ./docker/Dockerfile
       args:
         HOST_FOLDER: "./authweb"
-        BUILD_CMD: "yarn build"
+        BUILD_CMD: "yarn"
+        # BUILD_CMD: "yarn && yarn build"
         NIX_FILE: "./docker/node.nix"
     environment:
       COMMAND: yarn dev
