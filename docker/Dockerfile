@@ -20,6 +20,7 @@ RUN nix-build default.nix
 # build serv
 COPY ${HOST_FOLDER} /workspace/serv
 WORKDIR /workspace/serv
+RUN nix-shell ../default.nix --command "go get -d ./..."
 RUN nix-shell ../default.nix --command "${BUILD_CMD}"
 
 CMD nix-shell ../default.nix --command "${COMMAND}"
