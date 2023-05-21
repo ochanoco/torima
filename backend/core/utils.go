@@ -2,6 +2,8 @@ package core
 
 import (
 	"crypto/rand"
+	"encoding/json"
+	"net/http"
 )
 
 func RandomString(length int) (string, error) {
@@ -18,4 +20,10 @@ func RandomString(length int) (string, error) {
 	}
 
 	return string(bytes), nil
+}
+
+func DumpHeader(headers http.Header) (string, error) {
+	b, err := json.Marshal(headers)
+	s := string(b)
+	return s, err
 }

@@ -10,7 +10,7 @@ import (
 )
 
 func Main() {
-	core.DB_CONFIG = "file::memory:?cache=shared&_fk=1"
+	// core.DB_CONFIG = "file::memory:?cache=shared&_fk=1"
 
 	core.SetupParsingUrl()
 

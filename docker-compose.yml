@@ -43,8 +43,8 @@ services:
       - "./backend:/workspace/serv"
     ports:
       - 8000:8000
-      - 9000:9000
       - 8080:8080
+      - 9000:9000
     env_file:
       - ./backend/basic.env
       - ./backend/secret.env
