@@ -12,6 +12,7 @@ type ServiceLog struct {
 // Fields of the User.
 func (ServiceLog) Fields() []ent.Field {
 	return []ent.Field{
+		field.Time("time"),
 		field.String("headers"),
 		field.Bytes("body").Optional(),
 	}

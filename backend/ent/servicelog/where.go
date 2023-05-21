@@ -3,6 +3,8 @@
 package servicelog
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
 	"github.com/ochanoco/proxy/ent/predicate"
 )
@@ -78,6 +80,13 @@ func IDLTE(id int) predicate.ServiceLog {
 	})
 }
 
+// Time applies equality check predicate on the "time" field. It's identical to TimeEQ.
+func Time(v time.Time) predicate.ServiceLog {
+	return predicate.ServiceLog(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldTime), v))
+	})
+}
+
 // Headers applies equality check predicate on the "headers" field. It's identical to HeadersEQ.
 func Headers(v string) predicate.ServiceLog {
 	return predicate.ServiceLog(func(s *sql.Selector) {
@@ -89,6 +98,70 @@ func Headers(v string) predicate.ServiceLog {
 func Body(v []byte) predicate.ServiceLog {
 	return predicate.ServiceLog(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldBody), v))
+	})
+}
+
+// TimeEQ applies the EQ predicate on the "time" field.
+func TimeEQ(v time.Time) predicate.ServiceLog {
+	return predicate.ServiceLog(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldTime), v))
+	})
+}
+
+// TimeNEQ applies the NEQ predicate on the "time" field.
+func TimeNEQ(v time.Time) predicate.ServiceLog {
+	return predicate.ServiceLog(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldTime), v))
+	})
+}
+
+// TimeIn applies the In predicate on the "time" field.
+func TimeIn(vs ...time.Time) predicate.ServiceLog {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.ServiceLog(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldTime), v...))
+	})
+}
+
+// TimeNotIn applies the NotIn predicate on the "time" field.
+func TimeNotIn(vs ...time.Time) predicate.ServiceLog {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.ServiceLog(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldTime), v...))
+	})
+}
+
+// TimeGT applies the GT predicate on the "time" field.
+func TimeGT(v time.Time) predicate.ServiceLog {
+	return predicate.ServiceLog(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldTime), v))
+	})
+}
+
+// TimeGTE applies the GTE predicate on the "time" field.
+func TimeGTE(v time.Time) predicate.ServiceLog {
+	return predicate.ServiceLog(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldTime), v))
+	})
+}
+
+// TimeLT applies the LT predicate on the "time" field.
+func TimeLT(v time.Time) predicate.ServiceLog {
+	return predicate.ServiceLog(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldTime), v))
+	})
+}
+
+// TimeLTE applies the LTE predicate on the "time" field.
+func TimeLTE(v time.Time) predicate.ServiceLog {
+	return predicate.ServiceLog(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldTime), v))
 	})
 }
 

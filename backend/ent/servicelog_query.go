@@ -253,12 +253,12 @@ func (slq *ServiceLogQuery) Clone() *ServiceLogQuery {
 // Example:
 //
 //	var v []struct {
-//		Headers string `json:"headers,omitempty"`
+//		Time time.Time `json:"time,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.ServiceLog.Query().
-//		GroupBy(servicelog.FieldHeaders).
+//		GroupBy(servicelog.FieldTime).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 //
@@ -282,11 +282,11 @@ func (slq *ServiceLogQuery) GroupBy(field string, fields ...string) *ServiceLogG
 // Example:
 //
 //	var v []struct {
-//		Headers string `json:"headers,omitempty"`
+//		Time time.Time `json:"time,omitempty"`
 //	}
 //
 //	client.ServiceLog.Query().
-//		Select(servicelog.FieldHeaders).
+//		Select(servicelog.FieldTime).
 //		Scan(ctx, &v)
 //
 func (slq *ServiceLogQuery) Select(fields ...string) *ServiceLogSelect {

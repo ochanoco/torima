@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/ochanoco/proxy/ent/authorizationcode"
 	"github.com/ochanoco/proxy/ent/predicate"
@@ -416,6 +417,7 @@ type ServiceLogMutation struct {
 	op            Op
 	typ           string
 	id            *int
+	time          *time.Time
 	headers       *string
 	body          *[]byte
 	clearedFields map[string]struct{}
@@ -522,6 +524,42 @@ func (m *ServiceLogMutation) IDs(ctx context.Context) ([]int, error) {
 	}
 }
 
+// SetTime sets the "time" field.
+func (m *ServiceLogMutation) SetTime(t time.Time) {
+	m.time = &t
+}
+
+// Time returns the value of the "time" field in the mutation.
+func (m *ServiceLogMutation) Time() (r time.Time, exists bool) {
+	v := m.time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTime returns the old "time" field's value of the ServiceLog entity.
+// If the ServiceLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ServiceLogMutation) OldTime(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTime: %w", err)
+	}
+	return oldValue.Time, nil
+}
+
+// ResetTime resets all changes to the "time" field.
+func (m *ServiceLogMutation) ResetTime() {
+	m.time = nil
+}
+
 // SetHeaders sets the "headers" field.
 func (m *ServiceLogMutation) SetHeaders(s string) {
 	m.headers = &s
@@ -626,7 +664,10 @@ func (m *ServiceLogMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ServiceLogMutation) Fields() []string {
-	fields := make([]string, 0, 2)
+	fields := make([]string, 0, 3)
+	if m.time != nil {
+		fields = append(fields, servicelog.FieldTime)
+	}
 	if m.headers != nil {
 		fields = append(fields, servicelog.FieldHeaders)
 	}
@@ -641,6 +682,8 @@ func (m *ServiceLogMutation) Fields() []string {
 // schema.
 func (m *ServiceLogMutation) Field(name string) (ent.Value, bool) {
 	switch name {
+	case servicelog.FieldTime:
+		return m.Time()
 	case servicelog.FieldHeaders:
 		return m.Headers()
 	case servicelog.FieldBody:
@@ -654,6 +697,8 @@ func (m *ServiceLogMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *ServiceLogMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
+	case servicelog.FieldTime:
+		return m.OldTime(ctx)
 	case servicelog.FieldHeaders:
 		return m.OldHeaders(ctx)
 	case servicelog.FieldBody:
@@ -667,6 +712,13 @@ func (m *ServiceLogMutation) OldField(ctx context.Context, name string) (ent.Val
 // type.
 func (m *ServiceLogMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case servicelog.FieldTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTime(v)
+		return nil
 	case servicelog.FieldHeaders:
 		v, ok := value.(string)
 		if !ok {
@@ -739,6 +791,9 @@ func (m *ServiceLogMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *ServiceLogMutation) ResetField(name string) error {
 	switch name {
+	case servicelog.FieldTime:
+		m.ResetTime()
+		return nil
 	case servicelog.FieldHeaders:
 		m.ResetHeaders()
 		return nil

@@ -31,6 +31,7 @@ var (
 	// ServiceLogsColumns holds the columns for the "service_logs" table.
 	ServiceLogsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "time", Type: field.TypeTime},
 		{Name: "headers", Type: field.TypeString},
 		{Name: "body", Type: field.TypeBytes, Nullable: true},
 	}

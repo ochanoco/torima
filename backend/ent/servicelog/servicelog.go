@@ -7,6 +7,8 @@ const (
 	Label = "service_log"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldTime holds the string denoting the time field in the database.
+	FieldTime = "time"
 	// FieldHeaders holds the string denoting the headers field in the database.
 	FieldHeaders = "headers"
 	// FieldBody holds the string denoting the body field in the database.
@@ -18,6 +20,7 @@ const (
 // Columns holds all SQL columns for servicelog fields.
 var Columns = []string{
 	FieldID,
+	FieldTime,
 	FieldHeaders,
 	FieldBody,
 }
