@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -80,6 +81,8 @@ func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool 
 
 func RequestLogDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
 	log.Printf("LogDirector: start")
+	// Current date in format "2006-01-02T15:04:05Z07:00"
+	tim := time.Now()
 
 	db := proxy.Database
 	if db == nil {
@@ -88,6 +91,8 @@ func RequestLogDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context)
 	}
 
 	l := db.Client.ServiceLog.Create()
+
+	l.SetTime(tim)
 
 	headerJson, err := DumpHeader(req.Header)
 	if err != nil {
@@ -131,6 +136,8 @@ func RequestLogDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context)
 
 func ResponseLogDirector(proxy *OchanocoProxy, res *http.Response, c *gin.Context) bool {
 	log.Printf("LogDirector: start")
+	// Current date in format "2006-01-02T15:04:05Z07:00"
+	tim := time.Now()
 
 	db := proxy.Database
 	if db == nil {
@@ -139,6 +146,7 @@ func ResponseLogDirector(proxy *OchanocoProxy, res *http.Response, c *gin.Contex
 	}
 
 	l := db.Client.ServiceLog.Create()
+	l.SetTime(tim)
 
 	headerJson, err := DumpHeader(res.Header)
 	if err != nil {
