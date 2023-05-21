@@ -14,6 +14,7 @@ services:
       - 3000:3000
     volumes:
       - "./proxyweb:/workspace/serv"
+      - "/workspace/serv/node_modules"
     network_mode: "host"
 
   authweb:
