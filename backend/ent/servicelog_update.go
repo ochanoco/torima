@@ -39,6 +39,12 @@ func (slu *ServiceLogUpdate) SetBody(b []byte) *ServiceLogUpdate {
 	return slu
 }
 
+// ClearBody clears the value of the "body" field.
+func (slu *ServiceLogUpdate) ClearBody() *ServiceLogUpdate {
+	slu.mutation.ClearBody()
+	return slu
+}
+
 // Mutation returns the ServiceLogMutation object of the builder.
 func (slu *ServiceLogUpdate) Mutation() *ServiceLogMutation {
 	return slu.mutation
@@ -122,6 +128,9 @@ func (slu *ServiceLogUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := slu.mutation.Body(); ok {
 		_spec.SetField(servicelog.FieldBody, field.TypeBytes, value)
 	}
+	if slu.mutation.BodyCleared() {
+		_spec.ClearField(servicelog.FieldBody, field.TypeBytes)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, slu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{servicelog.Label}
@@ -150,6 +159,12 @@ func (sluo *ServiceLogUpdateOne) SetHeaders(s string) *ServiceLogUpdateOne {
 // SetBody sets the "body" field.
 func (sluo *ServiceLogUpdateOne) SetBody(b []byte) *ServiceLogUpdateOne {
 	sluo.mutation.SetBody(b)
+	return sluo
+}
+
+// ClearBody clears the value of the "body" field.
+func (sluo *ServiceLogUpdateOne) ClearBody() *ServiceLogUpdateOne {
+	sluo.mutation.ClearBody()
 	return sluo
 }
 
@@ -265,6 +280,9 @@ func (sluo *ServiceLogUpdateOne) sqlSave(ctx context.Context) (_node *ServiceLog
 	}
 	if value, ok := sluo.mutation.Body(); ok {
 		_spec.SetField(servicelog.FieldBody, field.TypeBytes, value)
+	}
+	if sluo.mutation.BodyCleared() {
+		_spec.ClearField(servicelog.FieldBody, field.TypeBytes)
 	}
 	_node = &ServiceLog{config: sluo.config}
 	_spec.Assign = _node.assignValues

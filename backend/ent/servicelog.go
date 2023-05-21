@@ -18,7 +18,7 @@ type ServiceLog struct {
 	// Headers holds the value of the "headers" field.
 	Headers string `json:"headers,omitempty"`
 	// Body holds the value of the "body" field.
-	Body *[]byte `json:"body,omitempty"`
+	Body []byte `json:"body,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -63,7 +63,7 @@ func (sl *ServiceLog) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field body", values[i])
 			} else if value != nil {
-				sl.Body = value
+				sl.Body = *value
 			}
 		}
 	}
@@ -96,10 +96,8 @@ func (sl *ServiceLog) String() string {
 	builder.WriteString("headers=")
 	builder.WriteString(sl.Headers)
 	builder.WriteString(", ")
-	if v := sl.Body; v != nil {
-		builder.WriteString("body=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
+	builder.WriteString("body=")
+	builder.WriteString(fmt.Sprintf("%v", sl.Body))
 	builder.WriteByte(')')
 	return builder.String()
 }

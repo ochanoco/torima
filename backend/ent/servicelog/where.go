@@ -255,6 +255,20 @@ func BodyLTE(v []byte) predicate.ServiceLog {
 	})
 }
 
+// BodyIsNil applies the IsNil predicate on the "body" field.
+func BodyIsNil() predicate.ServiceLog {
+	return predicate.ServiceLog(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldBody)))
+	})
+}
+
+// BodyNotNil applies the NotNil predicate on the "body" field.
+func BodyNotNil() predicate.ServiceLog {
+	return predicate.ServiceLog(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldBody)))
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.ServiceLog) predicate.ServiceLog {
 	return predicate.ServiceLog(func(s *sql.Selector) {

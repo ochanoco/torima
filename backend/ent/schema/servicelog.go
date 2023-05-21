@@ -13,7 +13,7 @@ type ServiceLog struct {
 func (ServiceLog) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("headers"),
-		field.Bytes("body").Nillable(),
+		field.Bytes("body").Optional(),
 	}
 }
 
