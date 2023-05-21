@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 services:
   proxyweb:
     build:
@@ -49,8 +49,9 @@ services:
       # COMMAND: yarn run
     ports:
       - 8000:8000
+      - 8080:8080
       - 9000:9000
     env_file:
       - ./backend/basic.env
       - ./backend/secret.env
-    network_mode: "host"
+    # network_mode: "host"
