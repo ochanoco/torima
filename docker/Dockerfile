@@ -19,11 +19,8 @@ RUN nix-build default.nix
 
 WORKDIR /workspace/serv
 
-COPY ${HOST_FOLDER}/thirdparty /workspace/serv/thirdparty
 # copy project files
-COPY ${HOST_FOLDER}/go.mod ${HOST_FOLDER}/go.sum /workspace/serv/
 # build serv
-RUN nix-shell ../default.nix --command "go mod download"
 COPY ${HOST_FOLDER} /workspace/serv
 RUN nix-shell ../default.nix --command "${BUILD_CMD}"
 
