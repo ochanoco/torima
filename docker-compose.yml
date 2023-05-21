@@ -38,10 +38,10 @@ services:
       dockerfile: ./docker/Dockerfile
       args:
         HOST_FOLDER: "./backend"
-        BUILD_CMD: "go build -tags line_example"
+        BUILD_CMD: "echo 'hello'"
         NIX_FILE: "./docker/go.nix"
     environment:
-      COMMAND: "go run -tags=line ."
+      COMMAND: "go run -tags=line_example ."
     volumes:
       - "./data:/workspace/serv/data"
       - "./backend:/workspace/serv"
