@@ -78,16 +78,52 @@ func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool 
 }
 
 func LogDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
-	body, err := io.ReadAll(req.Body)
-	if err != nil {
-		log.Printf("LogDirector: non-nil error while reading request body: %v", err)
+	log.Printf("LogDirector: start")
+
+	db := proxy.Database
+	if db == nil {
+		log.Printf("LogDirector: db is nil")
 		return false
 	}
-	req.Body.Close()
-	req.Body = io.NopCloser(bytes.NewBuffer(body))
 
-	bodyStr := string(body)
-	log.Printf("LogDirector: %v", bodyStr)
+	l := db.Client.ServiceLog.Create()
+
+	headerJson, err := DumpHeader(req.Header)
+	if err != nil {
+		log.Printf("LogDirector: failed to dump headers to json")
+		return false
+	}
+
+	log.Printf("LogDirector: ========== start header ==========")
+	log.Print(headerJson)
+	log.Printf("LogDirector: ==========  end header  ==========")
+	l.SetHeaders(headerJson)
+
+	if req.Method == http.MethodGet || req.Method == http.MethodHead || req.Method == http.MethodOptions || req.Body == nil {
+		log.Printf("LogDirector: no-body method")
+		l.SetBody(nil)
+	} else {
+		body, err := io.ReadAll(req.Body)
+		if err != nil {
+			log.Printf("LogDirector: non-nil error while reading request body: %v", err)
+			return false
+		}
+		req.Body.Close()
+		req.Body = io.NopCloser(bytes.NewBuffer(body))
+
+		l.SetBody(body)
+	}
+
+	saved, err := l.Save(req.Context())
+	if err != nil {
+		log.Printf("LogDirector: failed to save: %v", err)
+		return false
+	}
+
+	log.Printf("LogDirector: log saved:  %v", saved)
+
+	log.Printf("LogDirector: end")
+	// hello
 
 	return true
 }
