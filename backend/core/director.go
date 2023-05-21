@@ -105,7 +105,8 @@ func RequestLogDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context)
 	log.Printf("RequestLogDirector: ==========  end header  ==========")
 	l.SetHeaders(headerJson)
 
-	if req.Method == http.MethodGet || req.Method == http.MethodHead || req.Method == http.MethodOptions || req.Body == nil {
+	// There are kinds of methods which does not have bodies (i.e., GET, HEAD, OPTIONS, TRACE).
+	if req.Body == nil {
 		log.Printf("RequestLogDirector: no-body method")
 		l.SetBody(nil)
 	} else {
