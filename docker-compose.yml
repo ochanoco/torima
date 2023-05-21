@@ -15,7 +15,6 @@ services:
     volumes:
       - "./proxyweb:/workspace/serv"
       - "/workspace/serv/node_modules"
-    network_mode: "host"
 
   authweb:
     build:
@@ -30,7 +29,6 @@ services:
       COMMAND: "yarn && yarn dev"
     ports:
       - 3001:3000
-    network_mode: "host"
     profiles:
       - cloud
 
@@ -54,4 +52,5 @@ services:
     env_file:
       - ./backend/basic.env
       - ./backend/secret.env
-    network_mode: "host"
+    links:
+      - proxyweb
