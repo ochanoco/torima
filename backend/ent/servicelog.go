@@ -5,6 +5,7 @@ package ent
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/ochanoco/proxy/ent/servicelog"
@@ -15,6 +16,8 @@ type ServiceLog struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// Time holds the value of the "time" field.
+	Time time.Time `json:"time,omitempty"`
 	// Headers holds the value of the "headers" field.
 	Headers string `json:"headers,omitempty"`
 	// Body holds the value of the "body" field.
@@ -32,6 +35,8 @@ func (*ServiceLog) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case servicelog.FieldHeaders:
 			values[i] = new(sql.NullString)
+		case servicelog.FieldTime:
+			values[i] = new(sql.NullTime)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type ServiceLog", columns[i])
 		}
@@ -53,6 +58,12 @@ func (sl *ServiceLog) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			sl.ID = int(value.Int64)
+		case servicelog.FieldTime:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field time", values[i])
+			} else if value.Valid {
+				sl.Time = value.Time
+			}
 		case servicelog.FieldHeaders:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field headers", values[i])
@@ -93,6 +104,9 @@ func (sl *ServiceLog) String() string {
 	var builder strings.Builder
 	builder.WriteString("ServiceLog(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", sl.ID))
+	builder.WriteString("time=")
+	builder.WriteString(sl.Time.Format(time.ANSIC))
+	builder.WriteString(", ")
 	builder.WriteString("headers=")
 	builder.WriteString(sl.Headers)
 	builder.WriteString(", ")

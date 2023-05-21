@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -17,6 +18,12 @@ type ServiceLogCreate struct {
 	config
 	mutation *ServiceLogMutation
 	hooks    []Hook
+}
+
+// SetTime sets the "time" field.
+func (slc *ServiceLogCreate) SetTime(t time.Time) *ServiceLogCreate {
+	slc.mutation.SetTime(t)
+	return slc
 }
 
 // SetHeaders sets the "headers" field.
@@ -107,6 +114,9 @@ func (slc *ServiceLogCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (slc *ServiceLogCreate) check() error {
+	if _, ok := slc.mutation.Time(); !ok {
+		return &ValidationError{Name: "time", err: errors.New(`ent: missing required field "ServiceLog.time"`)}
+	}
 	if _, ok := slc.mutation.Headers(); !ok {
 		return &ValidationError{Name: "headers", err: errors.New(`ent: missing required field "ServiceLog.headers"`)}
 	}
@@ -137,6 +147,10 @@ func (slc *ServiceLogCreate) createSpec() (*ServiceLog, *sqlgraph.CreateSpec) {
 			},
 		}
 	)
+	if value, ok := slc.mutation.Time(); ok {
+		_spec.SetField(servicelog.FieldTime, field.TypeTime, value)
+		_node.Time = value
+	}
 	if value, ok := slc.mutation.Headers(); ok {
 		_spec.SetField(servicelog.FieldHeaders, field.TypeString, value)
 		_node.Headers = value

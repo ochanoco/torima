@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -24,6 +25,12 @@ type ServiceLogUpdate struct {
 // Where appends a list predicates to the ServiceLogUpdate builder.
 func (slu *ServiceLogUpdate) Where(ps ...predicate.ServiceLog) *ServiceLogUpdate {
 	slu.mutation.Where(ps...)
+	return slu
+}
+
+// SetTime sets the "time" field.
+func (slu *ServiceLogUpdate) SetTime(t time.Time) *ServiceLogUpdate {
+	slu.mutation.SetTime(t)
 	return slu
 }
 
@@ -122,6 +129,9 @@ func (slu *ServiceLogUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := slu.mutation.Time(); ok {
+		_spec.SetField(servicelog.FieldTime, field.TypeTime, value)
+	}
 	if value, ok := slu.mutation.Headers(); ok {
 		_spec.SetField(servicelog.FieldHeaders, field.TypeString, value)
 	}
@@ -148,6 +158,12 @@ type ServiceLogUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *ServiceLogMutation
+}
+
+// SetTime sets the "time" field.
+func (sluo *ServiceLogUpdateOne) SetTime(t time.Time) *ServiceLogUpdateOne {
+	sluo.mutation.SetTime(t)
+	return sluo
 }
 
 // SetHeaders sets the "headers" field.
@@ -274,6 +290,9 @@ func (sluo *ServiceLogUpdateOne) sqlSave(ctx context.Context) (_node *ServiceLog
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := sluo.mutation.Time(); ok {
+		_spec.SetField(servicelog.FieldTime, field.TypeTime, value)
 	}
 	if value, ok := sluo.mutation.Headers(); ok {
 		_spec.SetField(servicelog.FieldHeaders, field.TypeString, value)
