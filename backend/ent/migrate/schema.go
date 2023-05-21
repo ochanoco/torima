@@ -32,7 +32,7 @@ var (
 	ServiceLogsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "headers", Type: field.TypeString},
-		{Name: "body", Type: field.TypeBytes},
+		{Name: "body", Type: field.TypeBytes, Nullable: true},
 	}
 	// ServiceLogsTable holds the schema information for the "service_logs" table.
 	ServiceLogsTable = &schema.Table{

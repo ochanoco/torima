@@ -575,7 +575,7 @@ func (m *ServiceLogMutation) Body() (r []byte, exists bool) {
 // OldBody returns the old "body" field's value of the ServiceLog entity.
 // If the ServiceLog object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ServiceLogMutation) OldBody(ctx context.Context) (v *[]byte, err error) {
+func (m *ServiceLogMutation) OldBody(ctx context.Context) (v []byte, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldBody is only allowed on UpdateOne operations")
 	}
@@ -589,9 +589,22 @@ func (m *ServiceLogMutation) OldBody(ctx context.Context) (v *[]byte, err error)
 	return oldValue.Body, nil
 }
 
+// ClearBody clears the value of the "body" field.
+func (m *ServiceLogMutation) ClearBody() {
+	m.body = nil
+	m.clearedFields[servicelog.FieldBody] = struct{}{}
+}
+
+// BodyCleared returns if the "body" field was cleared in this mutation.
+func (m *ServiceLogMutation) BodyCleared() bool {
+	_, ok := m.clearedFields[servicelog.FieldBody]
+	return ok
+}
+
 // ResetBody resets all changes to the "body" field.
 func (m *ServiceLogMutation) ResetBody() {
 	m.body = nil
+	delete(m.clearedFields, servicelog.FieldBody)
 }
 
 // Where appends a list predicates to the ServiceLogMutation builder.
@@ -697,7 +710,11 @@ func (m *ServiceLogMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *ServiceLogMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(servicelog.FieldBody) {
+		fields = append(fields, servicelog.FieldBody)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -710,6 +727,11 @@ func (m *ServiceLogMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *ServiceLogMutation) ClearField(name string) error {
+	switch name {
+	case servicelog.FieldBody:
+		m.ClearBody()
+		return nil
+	}
 	return fmt.Errorf("unknown ServiceLog nullable field %s", name)
 }
 

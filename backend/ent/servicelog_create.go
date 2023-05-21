@@ -110,9 +110,6 @@ func (slc *ServiceLogCreate) check() error {
 	if _, ok := slc.mutation.Headers(); !ok {
 		return &ValidationError{Name: "headers", err: errors.New(`ent: missing required field "ServiceLog.headers"`)}
 	}
-	if _, ok := slc.mutation.Body(); !ok {
-		return &ValidationError{Name: "body", err: errors.New(`ent: missing required field "ServiceLog.body"`)}
-	}
 	return nil
 }
 
@@ -146,7 +143,7 @@ func (slc *ServiceLogCreate) createSpec() (*ServiceLog, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := slc.mutation.Body(); ok {
 		_spec.SetField(servicelog.FieldBody, field.TypeBytes, value)
-		_node.Body = &value
+		_node.Body = value
 	}
 	return _node, _spec
 }
