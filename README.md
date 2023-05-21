@@ -1,17 +1,30 @@
-# ochano.co-projs
-An environment for developing ochano.co modules.
+# ochanoco proxy
 
 [![Go](https://github.com/ochanoco/ochano.co-projs/actions/workflows/go.yml/badge.svg)](https://github.com/ochanoco/ochano.co-projs/actions/workflows/go.yml)
 
-## usage
+## installation
 
 - Requirements:
   - Docker & Docker Compose
 
-```sh
-# First time
-docker-compose build
+### 1. clone repository
 
-# shell
-docker-compose run workspace bash -lc 'nix-shell'
+```sh
+git clone https://github.com/ochanoco/proxy/ --recursive
+cd proxy
+```
+
+### 2. set up env file
+
+Set up `./backend/secret.env` as follows:
+
+```
+LINE_LOGIN_CLIENT_ID="Your line login client id"
+LINE_LOGIN_CLIENT_SECRET="YOur line login client secret"
+```
+
+### 4. docker-compose up
+
+```
+docker-compose up --build
 ```

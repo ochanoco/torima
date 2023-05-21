@@ -6,7 +6,8 @@ services:
       dockerfile: ./docker/Dockerfile
       args:
         HOST_FOLDER: "./proxyweb"
-        BUILD_CMD: "echo hello"
+        BUILD_CMD: "yarn"
+        # BUILD_CMD: "yarn && yarn build"
         NIX_FILE: "./docker/node.nix"
     environment:
       COMMAND: yarn dev
@@ -14,6 +15,8 @@ services:
     ports:
       - 3000:3000
     network_mode: "host"
+    profiles:
+      - default
 
   authweb:
     build:
@@ -21,7 +24,8 @@ services:
       dockerfile: ./docker/Dockerfile
       args:
         HOST_FOLDER: "./authweb"
-        BUILD_CMD: "yarn build"
+        BUILD_CMD: "yarn"
+        # BUILD_CMD: "yarn && yarn build"
         NIX_FILE: "./docker/node.nix"
     environment:
       COMMAND: yarn dev
@@ -52,3 +56,19 @@ services:
       - ./backend/basic.env
       - ./backend/secret.env
     network_mode: "host"
+    profiles:
+      - defailt
+
+  backend_tee:
+    build:
+      context: ./
+      dockerfile: ./docker/tee/Dockerfile
+    volumes:
+      - "./data:/workspace/serv/data"
+      - "./:/app"
+    ports:
+      - 8000:8000
+      - 9000:9000
+    network_mode: "host"
+    profiles:
+      - tee
