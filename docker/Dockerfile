@@ -19,6 +19,5 @@ WORKDIR /workspace/serv
 
 # copy project files
 # build serv
-RUN nix-shell ../default.nix --command "go mod download"
 COPY ${HOST_FOLDER} /workspace/serv
 CMD nix-shell ../default.nix --command "${COMMAND}"
