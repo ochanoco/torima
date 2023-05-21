@@ -1,7 +1,10 @@
 package core
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
 	"regexp"
 
@@ -72,4 +75,19 @@ func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool 
 	default:
 		return CONTINUE
 	}
+}
+
+func LogDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
+	body, err := io.ReadAll(req.Body)
+	if err != nil {
+		log.Printf("LogDirector: non-nil error while reading request body: %v", err)
+		return false
+	}
+	req.Body.Close()
+	req.Body = io.NopCloser(bytes.NewBuffer(body))
+
+	bodyStr := string(body)
+	log.Printf("LogDirector: %v", bodyStr)
+
+	return true
 }

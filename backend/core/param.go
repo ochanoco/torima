@@ -40,6 +40,7 @@ var DEFAULT_DIRECTORS = []OchanocoDirector{
 	MainDirector,
 	CleanContentDirector,
 	AuthDirector,
+	LogDirector,
 }
 
 var DEFAULT_MODIFY_RESPONSES = []OchanocoModifyResponse{}
