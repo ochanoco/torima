@@ -17,10 +17,14 @@ COPY ${NIX_FILE} /workspace/default.nix
 WORKDIR /workspace
 RUN nix-build default.nix
 
-# build serv
-COPY ${HOST_FOLDER} /workspace/serv
 WORKDIR /workspace/serv
-RUN nix-shell ../default.nix --command "go get -d ./..."
+
+COPY ${HOST_FOLDER}/thirdparty /workspace/serv/thirdparty
+# copy project files
+COPY ${HOST_FOLDER}/go.mod ${HOST_FOLDER}/go.sum /workspace/serv/
+# build serv
+RUN nix-shell ../default.nix --command "go mod download"
+COPY ${HOST_FOLDER} /workspace/serv
 RUN nix-shell ../default.nix --command "${BUILD_CMD}"
 
 CMD nix-shell ../default.nix --command "${COMMAND}"
