@@ -32,7 +32,7 @@ func TestIntegration(t *testing.T) {
 
 	sp := proxyServ.Database.Client.ServiceProvider.
 		Create().
-		SetHost("proxyweb:8080").
+		SetHost("127.0.0.1:8080").
 		SetDestinationIP(servUrl.Host)
 
 	sp.SaveX(proxyServ.Database.Ctx)
