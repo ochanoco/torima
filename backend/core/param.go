@@ -44,7 +44,7 @@ var DEFAULT_DIRECTORS = []OchanocoDirector{
 }
 
 var DEFAULT_MODIFY_RESPONSES = []OchanocoModifyResponse{
-	ResponseLogDirector,
+	ResponseLogModifyResponse,
 }
 
 var DEFAULT_PROXYWEB_PAGES = []OchanocoProxyWebPage{}
