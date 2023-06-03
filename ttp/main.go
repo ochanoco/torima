@@ -9,7 +9,7 @@ import (
 
 func main() {
 	// skip attesttation
-	verified, err := AttestateLogger("")
+	verified, err := VerifyLogger("")
 	if err != nil {
 		panic(err)
 	}
