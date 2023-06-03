@@ -4,10 +4,20 @@ import (
 	"fmt"
 
 	"github.com/miekg/dns"
+	"github.com/ochanoco/ttp/domains"
 )
 
 func main() {
-	fmt.Println("hello, world")
+	// skip attesttation
+	verified, err := AttestateLogger("")
+	if err != nil {
+		panic(err)
+	}
+	if !verified {
+		err = fmt.Errorf("main: failed to verify the logger")
+		panic(err)
+	}
+
 	c := new(dns.Client)
 	m := new(dns.Msg)
 	m.SetQuestion("google.com.", dns.TypeA)
@@ -22,5 +32,11 @@ func main() {
 		if a, ok := a.(*dns.A); ok {
 			fmt.Printf("%s\n", a.String())
 		}
+	}
+
+	err = domains.StartServer()
+	if err != nil {
+		e := fmt.Errorf("failed to serve: %w", err)
+		panic(e)
 	}
 }
