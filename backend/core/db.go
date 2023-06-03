@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	_ "sqlite3"
 
@@ -129,4 +130,24 @@ func (db *Database) FindServiceProviderByHost(host string) (*ent.ServiceProvider
 		Query().
 		Where(serviceprovider.HostEQ(host)).
 		Only(db.Ctx)
+}
+
+func (db *Database) CreateServiceLog(t time.Time, header string, body []byte) *ent.ServiceLogCreate {
+	sl := db.Client.ServiceLog.
+		Create().
+		SetTime(t).
+		SetHeaders(header).
+		SetBody(body)
+
+	return sl
+}
+
+func (db *Database) SaveServiceLog(l *ent.ServiceLogCreate) (*ent.ServiceLog, error) {
+	code, err := l.Save(db.Ctx)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to save save log: %v", err)
+	}
+
+	return code, err
 }
