@@ -11,6 +11,7 @@ import (
 	"github.com/ochanoco/proxy/ent/migrate"
 
 	"github.com/ochanoco/proxy/ent/authorizationcode"
+	"github.com/ochanoco/proxy/ent/hashchain"
 	"github.com/ochanoco/proxy/ent/servicelog"
 	"github.com/ochanoco/proxy/ent/serviceprovider"
 	"github.com/ochanoco/proxy/ent/whitelist"
@@ -27,6 +28,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// AuthorizationCode is the client for interacting with the AuthorizationCode builders.
 	AuthorizationCode *AuthorizationCodeClient
+	// HashChain is the client for interacting with the HashChain builders.
+	HashChain *HashChainClient
 	// ServiceLog is the client for interacting with the ServiceLog builders.
 	ServiceLog *ServiceLogClient
 	// ServiceProvider is the client for interacting with the ServiceProvider builders.
@@ -47,6 +50,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.AuthorizationCode = NewAuthorizationCodeClient(c.config)
+	c.HashChain = NewHashChainClient(c.config)
 	c.ServiceLog = NewServiceLogClient(c.config)
 	c.ServiceProvider = NewServiceProviderClient(c.config)
 	c.WhiteList = NewWhiteListClient(c.config)
@@ -84,6 +88,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ctx:               ctx,
 		config:            cfg,
 		AuthorizationCode: NewAuthorizationCodeClient(cfg),
+		HashChain:         NewHashChainClient(cfg),
 		ServiceLog:        NewServiceLogClient(cfg),
 		ServiceProvider:   NewServiceProviderClient(cfg),
 		WhiteList:         NewWhiteListClient(cfg),
@@ -107,6 +112,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ctx:               ctx,
 		config:            cfg,
 		AuthorizationCode: NewAuthorizationCodeClient(cfg),
+		HashChain:         NewHashChainClient(cfg),
 		ServiceLog:        NewServiceLogClient(cfg),
 		ServiceProvider:   NewServiceProviderClient(cfg),
 		WhiteList:         NewWhiteListClient(cfg),
@@ -119,7 +125,6 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 //		AuthorizationCode.
 //		Query().
 //		Count(ctx)
-//
 func (c *Client) Debug() *Client {
 	if c.debug {
 		return c
@@ -140,6 +145,7 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.AuthorizationCode.Use(hooks...)
+	c.HashChain.Use(hooks...)
 	c.ServiceLog.Use(hooks...)
 	c.ServiceProvider.Use(hooks...)
 	c.WhiteList.Use(hooks...)
@@ -251,6 +257,112 @@ func (c *AuthorizationCodeClient) Hooks() []Hook {
 	return c.hooks.AuthorizationCode
 }
 
+// HashChainClient is a client for the HashChain schema.
+type HashChainClient struct {
+	config
+}
+
+// NewHashChainClient returns a client for the HashChain from the given config.
+func NewHashChainClient(c config) *HashChainClient {
+	return &HashChainClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `hashchain.Hooks(f(g(h())))`.
+func (c *HashChainClient) Use(hooks ...Hook) {
+	c.hooks.HashChain = append(c.hooks.HashChain, hooks...)
+}
+
+// Create returns a builder for creating a HashChain entity.
+func (c *HashChainClient) Create() *HashChainCreate {
+	mutation := newHashChainMutation(c.config, OpCreate)
+	return &HashChainCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of HashChain entities.
+func (c *HashChainClient) CreateBulk(builders ...*HashChainCreate) *HashChainCreateBulk {
+	return &HashChainCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for HashChain.
+func (c *HashChainClient) Update() *HashChainUpdate {
+	mutation := newHashChainMutation(c.config, OpUpdate)
+	return &HashChainUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *HashChainClient) UpdateOne(hc *HashChain) *HashChainUpdateOne {
+	mutation := newHashChainMutation(c.config, OpUpdateOne, withHashChain(hc))
+	return &HashChainUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *HashChainClient) UpdateOneID(id int) *HashChainUpdateOne {
+	mutation := newHashChainMutation(c.config, OpUpdateOne, withHashChainID(id))
+	return &HashChainUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for HashChain.
+func (c *HashChainClient) Delete() *HashChainDelete {
+	mutation := newHashChainMutation(c.config, OpDelete)
+	return &HashChainDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *HashChainClient) DeleteOne(hc *HashChain) *HashChainDeleteOne {
+	return c.DeleteOneID(hc.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *HashChainClient) DeleteOneID(id int) *HashChainDeleteOne {
+	builder := c.Delete().Where(hashchain.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &HashChainDeleteOne{builder}
+}
+
+// Query returns a query builder for HashChain.
+func (c *HashChainClient) Query() *HashChainQuery {
+	return &HashChainQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a HashChain entity by its id.
+func (c *HashChainClient) Get(ctx context.Context, id int) (*HashChain, error) {
+	return c.Query().Where(hashchain.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *HashChainClient) GetX(ctx context.Context, id int) *HashChain {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryLog queries the log edge of a HashChain.
+func (c *HashChainClient) QueryLog(hc *HashChain) *ServiceLogQuery {
+	query := &ServiceLogQuery{config: c.config}
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := hc.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(hashchain.Table, hashchain.FieldID, id),
+			sqlgraph.To(servicelog.Table, servicelog.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, hashchain.LogTable, hashchain.LogColumn),
+		)
+		fromV = sqlgraph.Neighbors(hc.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *HashChainClient) Hooks() []Hook {
+	return c.hooks.HashChain
+}
+
 // ServiceLogClient is a client for the ServiceLog schema.
 type ServiceLogClient struct {
 	config
@@ -334,6 +446,22 @@ func (c *ServiceLogClient) GetX(ctx context.Context, id int) *ServiceLog {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryHashchains queries the hashchains edge of a ServiceLog.
+func (c *ServiceLogClient) QueryHashchains(sl *ServiceLog) *HashChainQuery {
+	query := &HashChainQuery{config: c.config}
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := sl.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(servicelog.Table, servicelog.FieldID, id),
+			sqlgraph.To(hashchain.Table, hashchain.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, servicelog.HashchainsTable, servicelog.HashchainsColumn),
+		)
+		fromV = sqlgraph.Neighbors(sl.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.

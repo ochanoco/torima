@@ -298,7 +298,6 @@ func (acq *AuthorizationCodeQuery) WithOwner(opts ...func(*ServiceProviderQuery)
 //		GroupBy(authorizationcode.FieldToken).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-//
 func (acq *AuthorizationCodeQuery) GroupBy(field string, fields ...string) *AuthorizationCodeGroupBy {
 	grbuild := &AuthorizationCodeGroupBy{config: acq.config}
 	grbuild.fields = append([]string{field}, fields...)
@@ -325,7 +324,6 @@ func (acq *AuthorizationCodeQuery) GroupBy(field string, fields ...string) *Auth
 //	client.AuthorizationCode.Query().
 //		Select(authorizationcode.FieldToken).
 //		Scan(ctx, &v)
-//
 func (acq *AuthorizationCodeQuery) Select(fields ...string) *AuthorizationCodeSelect {
 	acq.fields = append(acq.fields, fields...)
 	selbuild := &AuthorizationCodeSelect{AuthorizationCodeQuery: acq}

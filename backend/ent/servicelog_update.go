@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/ochanoco/proxy/ent/hashchain"
 	"github.com/ochanoco/proxy/ent/predicate"
 	"github.com/ochanoco/proxy/ent/servicelog"
 )
@@ -52,9 +53,45 @@ func (slu *ServiceLogUpdate) ClearBody() *ServiceLogUpdate {
 	return slu
 }
 
+// AddHashchainIDs adds the "hashchains" edge to the HashChain entity by IDs.
+func (slu *ServiceLogUpdate) AddHashchainIDs(ids ...int) *ServiceLogUpdate {
+	slu.mutation.AddHashchainIDs(ids...)
+	return slu
+}
+
+// AddHashchains adds the "hashchains" edges to the HashChain entity.
+func (slu *ServiceLogUpdate) AddHashchains(h ...*HashChain) *ServiceLogUpdate {
+	ids := make([]int, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
+	}
+	return slu.AddHashchainIDs(ids...)
+}
+
 // Mutation returns the ServiceLogMutation object of the builder.
 func (slu *ServiceLogUpdate) Mutation() *ServiceLogMutation {
 	return slu.mutation
+}
+
+// ClearHashchains clears all "hashchains" edges to the HashChain entity.
+func (slu *ServiceLogUpdate) ClearHashchains() *ServiceLogUpdate {
+	slu.mutation.ClearHashchains()
+	return slu
+}
+
+// RemoveHashchainIDs removes the "hashchains" edge to HashChain entities by IDs.
+func (slu *ServiceLogUpdate) RemoveHashchainIDs(ids ...int) *ServiceLogUpdate {
+	slu.mutation.RemoveHashchainIDs(ids...)
+	return slu
+}
+
+// RemoveHashchains removes "hashchains" edges to HashChain entities.
+func (slu *ServiceLogUpdate) RemoveHashchains(h ...*HashChain) *ServiceLogUpdate {
+	ids := make([]int, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
+	}
+	return slu.RemoveHashchainIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -141,6 +178,60 @@ func (slu *ServiceLogUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if slu.mutation.BodyCleared() {
 		_spec.ClearField(servicelog.FieldBody, field.TypeBytes)
 	}
+	if slu.mutation.HashchainsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   servicelog.HashchainsTable,
+			Columns: []string{servicelog.HashchainsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: hashchain.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := slu.mutation.RemovedHashchainsIDs(); len(nodes) > 0 && !slu.mutation.HashchainsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   servicelog.HashchainsTable,
+			Columns: []string{servicelog.HashchainsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: hashchain.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := slu.mutation.HashchainsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   servicelog.HashchainsTable,
+			Columns: []string{servicelog.HashchainsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: hashchain.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, slu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{servicelog.Label}
@@ -184,9 +275,45 @@ func (sluo *ServiceLogUpdateOne) ClearBody() *ServiceLogUpdateOne {
 	return sluo
 }
 
+// AddHashchainIDs adds the "hashchains" edge to the HashChain entity by IDs.
+func (sluo *ServiceLogUpdateOne) AddHashchainIDs(ids ...int) *ServiceLogUpdateOne {
+	sluo.mutation.AddHashchainIDs(ids...)
+	return sluo
+}
+
+// AddHashchains adds the "hashchains" edges to the HashChain entity.
+func (sluo *ServiceLogUpdateOne) AddHashchains(h ...*HashChain) *ServiceLogUpdateOne {
+	ids := make([]int, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
+	}
+	return sluo.AddHashchainIDs(ids...)
+}
+
 // Mutation returns the ServiceLogMutation object of the builder.
 func (sluo *ServiceLogUpdateOne) Mutation() *ServiceLogMutation {
 	return sluo.mutation
+}
+
+// ClearHashchains clears all "hashchains" edges to the HashChain entity.
+func (sluo *ServiceLogUpdateOne) ClearHashchains() *ServiceLogUpdateOne {
+	sluo.mutation.ClearHashchains()
+	return sluo
+}
+
+// RemoveHashchainIDs removes the "hashchains" edge to HashChain entities by IDs.
+func (sluo *ServiceLogUpdateOne) RemoveHashchainIDs(ids ...int) *ServiceLogUpdateOne {
+	sluo.mutation.RemoveHashchainIDs(ids...)
+	return sluo
+}
+
+// RemoveHashchains removes "hashchains" edges to HashChain entities.
+func (sluo *ServiceLogUpdateOne) RemoveHashchains(h ...*HashChain) *ServiceLogUpdateOne {
+	ids := make([]int, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
+	}
+	return sluo.RemoveHashchainIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -302,6 +429,60 @@ func (sluo *ServiceLogUpdateOne) sqlSave(ctx context.Context) (_node *ServiceLog
 	}
 	if sluo.mutation.BodyCleared() {
 		_spec.ClearField(servicelog.FieldBody, field.TypeBytes)
+	}
+	if sluo.mutation.HashchainsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   servicelog.HashchainsTable,
+			Columns: []string{servicelog.HashchainsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: hashchain.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := sluo.mutation.RemovedHashchainsIDs(); len(nodes) > 0 && !sluo.mutation.HashchainsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   servicelog.HashchainsTable,
+			Columns: []string{servicelog.HashchainsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: hashchain.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := sluo.mutation.HashchainsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   servicelog.HashchainsTable,
+			Columns: []string{servicelog.HashchainsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: hashchain.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &ServiceLog{config: sluo.config}
 	_spec.Assign = _node.assignValues

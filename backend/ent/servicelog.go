@@ -22,6 +22,27 @@ type ServiceLog struct {
 	Headers string `json:"headers,omitempty"`
 	// Body holds the value of the "body" field.
 	Body []byte `json:"body,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the ServiceLogQuery when eager-loading is set.
+	Edges ServiceLogEdges `json:"edges"`
+}
+
+// ServiceLogEdges holds the relations/edges for other nodes in the graph.
+type ServiceLogEdges struct {
+	// Hashchains holds the value of the hashchains edge.
+	Hashchains []*HashChain `json:"hashchains,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// HashchainsOrErr returns the Hashchains value or an error if the edge
+// was not loaded in eager-loading.
+func (e ServiceLogEdges) HashchainsOrErr() ([]*HashChain, error) {
+	if e.loadedTypes[0] {
+		return e.Hashchains, nil
+	}
+	return nil, &NotLoadedError{edge: "hashchains"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -79,6 +100,11 @@ func (sl *ServiceLog) assignValues(columns []string, values []any) error {
 		}
 	}
 	return nil
+}
+
+// QueryHashchains queries the "hashchains" edge of the ServiceLog entity.
+func (sl *ServiceLog) QueryHashchains() *HashChainQuery {
+	return (&ServiceLogClient{config: sl.config}).QueryHashchains(sl)
 }
 
 // Update returns a builder for updating this ServiceLog.

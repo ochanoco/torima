@@ -298,7 +298,6 @@ func (wlq *WhiteListQuery) WithOwner(opts ...func(*ServiceProviderQuery)) *White
 //		GroupBy(whitelist.FieldPath).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-//
 func (wlq *WhiteListQuery) GroupBy(field string, fields ...string) *WhiteListGroupBy {
 	grbuild := &WhiteListGroupBy{config: wlq.config}
 	grbuild.fields = append([]string{field}, fields...)
@@ -325,7 +324,6 @@ func (wlq *WhiteListQuery) GroupBy(field string, fields ...string) *WhiteListGro
 //	client.WhiteList.Query().
 //		Select(whitelist.FieldPath).
 //		Scan(ctx, &v)
-//
 func (wlq *WhiteListQuery) Select(fields ...string) *WhiteListSelect {
 	wlq.fields = append(wlq.fields, fields...)
 	selbuild := &WhiteListSelect{WhiteListQuery: wlq}
