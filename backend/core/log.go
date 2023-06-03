@@ -11,7 +11,7 @@ import (
 	"github.com/ochanoco/proxy/ent"
 )
 
-func LogToDB(header http.Header, body io.ReadCloser, proxy *OchanocoProxy, c *gin.Context) (*ent.ServiceLog, error) {
+func logToDB(header http.Header, body io.ReadCloser, proxy *OchanocoProxy, c *gin.Context) (*ent.ServiceLog, error) {
 	time := time.Now()
 
 	headerJson, err := DumpHeader(header)
