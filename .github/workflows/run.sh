@@ -1,0 +1,8 @@
+git submodule update --init --recursive
+
+cd backend/thirdparty/go-sqlite3
+git checkout v1.14.16
+
+cd ../../
+go mod tidy
+go $1 $2 -tags line_example
