@@ -3,8 +3,6 @@ FROM nixos/nix
 # set up argument
 ARG HOST_FOLDER="."
 ARG NIX_FILE="./default.nix"
-ARG BUILD_CMD="go build ."
-ARG COMMAND="./serv"
 
 # update
 RUN nix-channel --update
@@ -20,5 +18,9 @@ WORKDIR /workspace/serv
 # copy project files
 # build serv
 COPY ${HOST_FOLDER} /workspace/serv
-RUN nix-shell ../default.nix --command "${BUILD_CMD}"
-CMD nix-shell ../default.nix --command "${COMMAND}"
+ARG BUILD_CMD="go build ."
+RUN nix-shell ../default.nix --run "${BUILD_CMD}"
+
+ARG COMMAND="go run ."
+ENV COMMAND="${COMMAND}"
+CMD nix-shell ../default.nix --run "${COMMAND}"

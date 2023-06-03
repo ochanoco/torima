@@ -5,8 +5,6 @@ services:
     build:
       context: "."
       dockerfile: "./Dockerfile"
-      args:
-        COMMAND: "go run ."
     volumes:
       - ".:/workspace/serv"
       - "nix-store:/nix/store"
