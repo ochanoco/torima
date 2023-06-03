@@ -23,3 +23,8 @@ go.work
 
 db.sqlite3
 proxy/proxy
+
+enclave.json
+private.pem
+public.pem
+
