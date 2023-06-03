@@ -11,6 +11,8 @@ services:
       COMMAND: "yarn && yarn dev"
     ports:
       - 3000:3000
+    profiles:
+      - default
     volumes:
       - "./proxyweb:/workspace/serv"
       - "/workspace/serv/node_modules"
@@ -48,6 +50,9 @@ services:
     env_file:
       - ./backend/basic.env
       - ./backend/secret.env
+    profiles:
+      - default
+      - cloud
     links:
       - proxyweb
 
