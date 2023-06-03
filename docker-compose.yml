@@ -50,7 +50,6 @@ services:
     env_file:
       - ./backend/basic.env
       - ./backend/secret.env
-    network_mode: "host"
     profiles:
       - default
       - cloud
