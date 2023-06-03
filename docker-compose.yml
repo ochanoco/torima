@@ -45,11 +45,29 @@ services:
       - "./backend:/workspace/serv"
     ports:
       - 8000:8000
-      - 9000:9000
       - 8080:8080
+      - 9000:9000
     env_file:
       - ./backend/basic.env
       - ./backend/secret.env
     profiles:
       - default
       - cloud
+    links:
+      - proxyweb
+
+  ttp:
+    profiles:
+      - ttp
+    build:
+      context: "./"
+      dockerfile: "./docker/Dockerfile"
+      args:
+        HOST_FOLDER: "./backend"
+        NIX_FILE: "./docker/go.nix"
+    environment:
+      COMMAND: "go run ."
+    ports:
+      - "127.0.0.1:8053:8053/udp"
+    volumes:
+      - "./ttp:/workspace/serv"
