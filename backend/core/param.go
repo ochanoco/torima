@@ -37,12 +37,15 @@ var DB_CONFIG = os.Getenv("OCHANOCO_DB_CONFIG")
 var WHITELIST_PATH = os.Getenv("OCHANOCO_WHITE_LIST")
 
 var DEFAULT_DIRECTORS = []OchanocoDirector{
-	MainDirector,
+	EnvRouteDirector,
 	CleanContentDirector,
 	AuthDirector,
+	RequestLogDirector,
 }
 
-var DEFAULT_MODIFY_RESPONSES = []OchanocoModifyResponse{}
+var DEFAULT_MODIFY_RESPONSES = []OchanocoModifyResponse{
+	ResponseLogDirector,
+}
 
 var DEFAULT_PROXYWEB_PAGES = []OchanocoProxyWebPage{}
 

@@ -17,9 +17,9 @@ COPY ${NIX_FILE} /workspace/default.nix
 WORKDIR /workspace
 RUN nix-build default.nix
 
+WORKDIR /workspace/serv
+
+# copy project files
 # build serv
 COPY ${HOST_FOLDER} /workspace/serv
-WORKDIR /workspace/serv
-RUN nix-shell ../default.nix --command "${BUILD_CMD}"
-
 CMD nix-shell ../default.nix --command "${COMMAND}"

@@ -4,13 +4,14 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 
 	"github.com/ochanoco/proxy/core"
 	"github.com/ochanoco/proxy/serv/line"
 )
 
 func Main() {
-	core.DB_CONFIG = "file::memory:?cache=shared&_fk=1"
+	// core.DB_CONFIG = "file::memory:?cache=shared&_fk=1"
 
 	core.SetupParsingUrl()
 
@@ -20,12 +21,7 @@ func Main() {
 	servUrl, _ := url.Parse(server.URL)
 	proxyServ := line.Run()
 
-	sp := proxyServ.Database.Client.ServiceProvider.
-		Create().
-		SetHost("127.0.0.1:8080").
-		SetDestinationIP(servUrl.Host)
-
-	sp.SaveX(proxyServ.Database.Ctx)
+	os.Setenv("OCHANOCO_DESTINATION", servUrl.Host)
 
 	proxyServ.Engine.Run(core.PROXY_PORT)
 }

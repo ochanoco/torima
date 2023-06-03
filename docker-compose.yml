@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 services:
   proxyweb:
     build:
@@ -6,17 +6,16 @@ services:
       dockerfile: ./docker/Dockerfile
       args:
         HOST_FOLDER: "./proxyweb"
-        BUILD_CMD: "yarn"
-        # BUILD_CMD: "yarn && yarn build"
         NIX_FILE: "./docker/node.nix"
     environment:
-      COMMAND: yarn dev
-      # COMMAND: yarn run
+      COMMAND: "yarn && yarn dev"
     ports:
       - 3000:3000
-    network_mode: "host"
     profiles:
       - default
+    volumes:
+      - "./proxyweb:/workspace/serv"
+      - "/workspace/serv/node_modules"
 
   authweb:
     build:
@@ -24,15 +23,11 @@ services:
       dockerfile: ./docker/Dockerfile
       args:
         HOST_FOLDER: "./authweb"
-        BUILD_CMD: "yarn"
-        # BUILD_CMD: "yarn && yarn build"
         NIX_FILE: "./docker/node.nix"
     environment:
-      COMMAND: yarn dev
-      # COMMAND: yarn run
+      COMMAND: "yarn && yarn dev"
     ports:
       - 3001:3000
-    network_mode: "host"
     profiles:
       - cloud
 
@@ -42,23 +37,26 @@ services:
       dockerfile: ./docker/Dockerfile
       args:
         HOST_FOLDER: "./backend"
-        BUILD_CMD: "go build -tags line_example"
         NIX_FILE: "./docker/go.nix"
+    environment:
+      COMMAND: "go run -tags=line_example ."
     volumes:
       - "./data:/workspace/serv/data"
-    environment:
-      COMMAND: ./proxy
-      # COMMAND: yarn run
+      - "./backend:/workspace/serv"
     ports:
       - 8000:8000
+      - 8080:8080
       - 9000:9000
     env_file:
       - ./backend/basic.env
       - ./backend/secret.env
-    network_mode: "host"
     profiles:
-      - defailt
+      - default
+      - cloud
+    links:
+      - proxyweb
 
+<<<<<<< HEAD
   backend_tee:
     tty: true
     privileged: true
@@ -77,3 +75,19 @@ services:
     command: "bash -c 'ego-go build --tags line_example && ego sign proxy && ego run proxy'"
     profiles:
       - tee
+
+  ttp:
+    profiles:
+      - ttp
+    build:
+      context: "./"
+      dockerfile: "./docker/Dockerfile"
+      args:
+        HOST_FOLDER: "./backend"
+        NIX_FILE: "./docker/go.nix"
+    environment:
+      COMMAND: "go run ."
+    ports:
+      - "127.0.0.1:8053:8053/udp"
+    volumes:
+      - "./ttp:/workspace/serv"
