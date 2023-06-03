@@ -47,6 +47,8 @@ func main() {
 	ok := certs.Verify(msg, signature)
 	log.Printf("main: is_valid_signature: %v", ok)
 
+	go certs.StartServer(certs.DEFAULT_HOST)
+
 	err = domains.StartServer()
 	if err != nil {
 		e := fmt.Errorf("failed to serve: %w", err)
