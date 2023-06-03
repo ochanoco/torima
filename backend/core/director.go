@@ -1,14 +1,10 @@
 package core
 
 import (
-	"bytes"
 	"fmt"
-	"io"
-	"log"
 	"net/http"
 	"os"
 	"regexp"
-	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -96,57 +92,11 @@ func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool 
 }
 
 func LogDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
-	log.Printf("LogDirector: start")
-	// Current date in format "2006-01-02T15:04:05Z07:00"
-	tim := time.Now()
+	_, err := LogToDB(req.Header, req.Body, proxy, c)
 
-	db := proxy.Database
-	if db == nil {
-		log.Printf("RequestLogDirector: db is nil")
-		return false
-	}
-
-	l := db.Client.ServiceLog.Create()
-
-	l.SetTime(tim)
-
-	headerJson, err := DumpHeader(req.Header)
 	if err != nil {
-		log.Printf("RequestLogDirector: failed to dump headers to json")
+		fmt.Printf("LogModifyResponse: %v\n", err)
 		return false
 	}
-
-	log.Printf("RequestLogDirector: ========== start header ==========")
-	log.Print(headerJson)
-	log.Printf("RequestLogDirector: ==========  end header  ==========")
-	l.SetHeaders(headerJson)
-
-	// There are kinds of methods which does not have bodies (i.e., GET, HEAD, OPTIONS, TRACE).
-	if req.Body == nil {
-		log.Printf("RequestLogDirector: no-body method")
-		l.SetBody(nil)
-	} else {
-		body, err := io.ReadAll(req.Body)
-		if err != nil {
-			log.Printf("RequestLogDirector: non-nil error while reading request body: %v", err)
-			return false
-		}
-		req.Body.Close()
-		req.Body = io.NopCloser(bytes.NewBuffer(body))
-
-		l.SetBody(body)
-	}
-
-	saved, err := l.Save(req.Context())
-	if err != nil {
-		log.Printf("RequestLogDirector: failed to save: %v", err)
-		return false
-	}
-
-	log.Printf("RequestLogDirector: log saved:  %v", saved)
-
-	log.Printf("RequestLogDirector: end")
-	// hello
-
 	return true
 }
