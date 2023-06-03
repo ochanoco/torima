@@ -64,5 +64,6 @@ services:
       COMMAND: "go run ."
     ports:
       - "127.0.0.1:8053:8053/udp"
+      - "8081:8080"
     volumes:
       - "./ttp:/workspace/serv"
