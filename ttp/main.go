@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/miekg/dns"
+	"github.com/ochanoco/ttp/certs"
 	"github.com/ochanoco/ttp/domains"
 )
 
@@ -34,9 +36,21 @@ func main() {
 		}
 	}
 
+	msg := []byte("hello, world")
+	signature, err := certs.Sign(msg)
+	if err != nil {
+		panic(err)
+	}
+	signaturePem := certs.EncodeSignaturePem(signature)
+	log.Printf("main: signature:\n%v", string(signaturePem))
+
+	ok := certs.Verify(msg, signature)
+	log.Printf("main: is_valid_signature: %v", ok)
+
 	err = domains.StartServer()
 	if err != nil {
 		e := fmt.Errorf("failed to serve: %w", err)
+
 		panic(e)
 	}
 }
