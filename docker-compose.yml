@@ -57,7 +57,7 @@ services:
       - ./backend/secret.env
     network_mode: "host"
     profiles:
-      - defailt
+      - default
 
   backend_tee:
     build:
