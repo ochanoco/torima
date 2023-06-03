@@ -1,0 +1,52 @@
+version: "3"
+services:
+  proxyweb:
+    build:
+      context: ./
+      dockerfile: ./docker/Dockerfile
+      args:
+        HOST_FOLDER: "./proxyweb"
+        NIX_FILE: "./docker/node.nix"
+    environment:
+      COMMAND: "yarn && yarn dev"
+    ports:
+      - 3000:3000
+    volumes:
+      - "./proxyweb:/workspace/serv"
+      - "/workspace/serv/node_modules"
+
+  authweb:
+    build:
+      context: ./
+      dockerfile: ./docker/Dockerfile
+      args:
+        HOST_FOLDER: "./authweb"
+        NIX_FILE: "./docker/node.nix"
+    environment:
+      COMMAND: "yarn && yarn dev"
+    ports:
+      - 3001:3000
+    profiles:
+      - cloud
+
+  backend:
+    build:
+      context: ./
+      dockerfile: ./docker/Dockerfile
+      args:
+        HOST_FOLDER: "./backend"
+        NIX_FILE: "./docker/go.nix"
+    environment:
+      COMMAND: "go run -tags=line_example ."
+    volumes:
+      - "./data:/workspace/serv/data"
+      - "./backend:/workspace/serv"
+    ports:
+      - 8000:8000
+      - 8080:8080
+      - 9000:9000
+    env_file:
+      - ./backend/basic.env
+      - ./backend/secret.env
+    links:
+      - proxyweb
