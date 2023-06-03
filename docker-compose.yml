@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  ttp:
+    build:
+      context: "."
+      dockerfile: "./Dockerfile"
+    ports:
+      - "127.0.0.1:8053:8053/udp"
+    volumes:
+      - ".:/workspace/serv"
+      - "nix-store:/nix/store"
+
+volumes:
+  nix-store: {}
