@@ -59,7 +59,7 @@ services:
       dockerfile: "./docker/Dockerfile"
       args:
         HOST_FOLDER: "./backend"
-        NIX_FILE: "./docker/ttp.nix"
+        NIX_FILE: "./docker/go.nix"
     environment:
       COMMAND: "go run ."
     ports:
