@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  ttp:
+    build:
+      context: "."
+      dockerfile: "./Dockerfile"
+      args:
+        COMMAND: "go run ."
+    volumes:
+      - ".:/workspace/serv"
+      - "nix-store:/nix/store"
+
+volumes:
+  nix-store: {}
