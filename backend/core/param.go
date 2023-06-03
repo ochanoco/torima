@@ -40,11 +40,11 @@ var DEFAULT_DIRECTORS = []OchanocoDirector{
 	EnvRouteDirector,
 	CleanContentDirector,
 	AuthDirector,
-	RequestLogDirector,
+	LogDirector,
 }
 
 var DEFAULT_MODIFY_RESPONSES = []OchanocoModifyResponse{
-	ResponseLogModifyResponse,
+	LogModifyResponse,
 }
 
 var DEFAULT_PROXYWEB_PAGES = []OchanocoProxyWebPage{}

@@ -95,7 +95,7 @@ func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool 
 	}
 }
 
-func RequestLogDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
+func LogDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
 	log.Printf("LogDirector: start")
 	// Current date in format "2006-01-02T15:04:05Z07:00"
 	tim := time.Now()

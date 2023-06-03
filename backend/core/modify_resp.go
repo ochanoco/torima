@@ -16,7 +16,7 @@ func MainModifyResponse(proxy *OchanocoProxy, resp *http.Response) {
 	fmt.Printf("=> %v\n", resp.Request.URL)
 }
 
-func ResponseLogModifyResponse(proxy *OchanocoProxy, res *http.Response, c *gin.Context) bool {
+func LogModifyResponse(proxy *OchanocoProxy, res *http.Response, c *gin.Context) bool {
 	log.Printf("LogDirector: start")
 	// Current date in format "2006-01-02T15:04:05Z07:00"
 	tim := time.Now()
