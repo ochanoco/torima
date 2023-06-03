@@ -9,6 +9,9 @@ import (
 // AuthorizationCode is the predicate function for authorizationcode builders.
 type AuthorizationCode func(*sql.Selector)
 
+// HashChain is the predicate function for hashchain builders.
+type HashChain func(*sql.Selector)
+
 // ServiceLog is the predicate function for servicelog builders.
 type ServiceLog func(*sql.Selector)
 

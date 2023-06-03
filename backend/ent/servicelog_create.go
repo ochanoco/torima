@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/ochanoco/proxy/ent/hashchain"
 	"github.com/ochanoco/proxy/ent/servicelog"
 )
 
@@ -36,6 +37,21 @@ func (slc *ServiceLogCreate) SetHeaders(s string) *ServiceLogCreate {
 func (slc *ServiceLogCreate) SetBody(b []byte) *ServiceLogCreate {
 	slc.mutation.SetBody(b)
 	return slc
+}
+
+// AddHashchainIDs adds the "hashchains" edge to the HashChain entity by IDs.
+func (slc *ServiceLogCreate) AddHashchainIDs(ids ...int) *ServiceLogCreate {
+	slc.mutation.AddHashchainIDs(ids...)
+	return slc
+}
+
+// AddHashchains adds the "hashchains" edges to the HashChain entity.
+func (slc *ServiceLogCreate) AddHashchains(h ...*HashChain) *ServiceLogCreate {
+	ids := make([]int, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
+	}
+	return slc.AddHashchainIDs(ids...)
 }
 
 // Mutation returns the ServiceLogMutation object of the builder.
@@ -158,6 +174,25 @@ func (slc *ServiceLogCreate) createSpec() (*ServiceLog, *sqlgraph.CreateSpec) {
 	if value, ok := slc.mutation.Body(); ok {
 		_spec.SetField(servicelog.FieldBody, field.TypeBytes, value)
 		_node.Body = value
+	}
+	if nodes := slc.mutation.HashchainsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   servicelog.HashchainsTable,
+			Columns: []string{servicelog.HashchainsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: hashchain.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/ochanoco/proxy/ent/authorizationcode"
+	"github.com/ochanoco/proxy/ent/hashchain"
 	"github.com/ochanoco/proxy/ent/servicelog"
 	"github.com/ochanoco/proxy/ent/serviceprovider"
 	"github.com/ochanoco/proxy/ent/whitelist"
@@ -35,6 +36,7 @@ type OrderFunc func(*sql.Selector)
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
 		authorizationcode.Table: authorizationcode.ValidColumn,
+		hashchain.Table:         hashchain.ValidColumn,
 		servicelog.Table:        servicelog.ValidColumn,
 		serviceprovider.Table:   serviceprovider.ValidColumn,
 		whitelist.Table:         whitelist.ValidColumn,
@@ -87,7 +89,6 @@ type AggregateFunc func(*sql.Selector) string
 //	GroupBy(field1, field2).
 //	Aggregate(ent.As(ent.Sum(field1), "sum_field1"), (ent.As(ent.Sum(field2), "sum_field2")).
 //	Scan(ctx, &v)
-//
 func As(fn AggregateFunc, end string) AggregateFunc {
 	return func(s *sql.Selector) string {
 		return sql.As(fn(s), end)

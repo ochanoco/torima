@@ -13,8 +13,17 @@ const (
 	FieldHeaders = "headers"
 	// FieldBody holds the string denoting the body field in the database.
 	FieldBody = "body"
+	// EdgeHashchains holds the string denoting the hashchains edge name in mutations.
+	EdgeHashchains = "hashchains"
 	// Table holds the table name of the servicelog in the database.
 	Table = "service_logs"
+	// HashchainsTable is the table that holds the hashchains relation/edge.
+	HashchainsTable = "hash_chains"
+	// HashchainsInverseTable is the table name for the HashChain entity.
+	// It exists in this package in order to avoid circular dependency with the "hashchain" package.
+	HashchainsInverseTable = "hash_chains"
+	// HashchainsColumn is the table column denoting the hashchains relation/edge.
+	HashchainsColumn = "service_log_hashchains"
 )
 
 // Columns holds all SQL columns for servicelog fields.
