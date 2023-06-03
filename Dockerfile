@@ -21,6 +21,6 @@ COPY ${HOST_FOLDER} /workspace/serv
 ARG BUILD_CMD="go build ."
 RUN nix-shell ../default.nix --run "${BUILD_CMD}"
 
-ARG COMMAND="go run ."
+ARG COMMAND="./ttp"
 ENV COMMAND="${COMMAND}"
 CMD nix-shell ../default.nix --run "${COMMAND}"
