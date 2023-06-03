@@ -25,13 +25,13 @@ RUN wget https://dl.google.com/go/go1.20.linux-amd64.tar.gz
 RUN tar -xvf go1.20.linux-amd64.tar.gz && mv go /usr/local
 
 # 必要なパッケージ諸々のインストール
-RUN apt-get install -qq -y snapd golang-go build-essential libssl-dev clang-11 libssl-dev gdb libsgx-enclave-common libsgx-quote-ex libprotobuf17 libsgx-dcap-ql libsgx-dcap-ql-dev az-dcap-client open-enclave 
+RUN apt-get install -qq -y snapd golang-go build-essential libssl-dev clang-11 libssl-dev gdb libsgx-enclave-common libsgx-quote-ex libprotobuf17 libsgx-dcap-ql libsgx-dcap-ql-dev az-dcap-client open-enclave software-properties-common 
 
 RUN wget https://github.com/edgelesssys/ego/releases/download/v1.3.0/ego_1.3.0_amd64.deb
 RUN apt-get install ./ego_1.3.0_amd64.deb 
 
 # egoのインストール
-RUN ego install az-dcap-client
+RUN yes | ego install az-dcap-client
 
 # azure以外のattestationを使うとき
 # ego install libsgx-dcap-default-qpl
