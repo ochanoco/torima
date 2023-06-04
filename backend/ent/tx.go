@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// AuthorizationCode is the client for interacting with the AuthorizationCode builders.
 	AuthorizationCode *AuthorizationCodeClient
+	// HashChain is the client for interacting with the HashChain builders.
+	HashChain *HashChainClient
 	// ServiceLog is the client for interacting with the ServiceLog builders.
 	ServiceLog *ServiceLogClient
 	// ServiceProvider is the client for interacting with the ServiceProvider builders.
@@ -152,6 +154,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.AuthorizationCode = NewAuthorizationCodeClient(tx.config)
+	tx.HashChain = NewHashChainClient(tx.config)
 	tx.ServiceLog = NewServiceLogClient(tx.config)
 	tx.ServiceProvider = NewServiceProviderClient(tx.config)
 	tx.WhiteList = NewWhiteListClient(tx.config)

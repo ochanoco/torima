@@ -334,7 +334,6 @@ func (spq *ServiceProviderQuery) WithAuthorizationCodes(opts ...func(*Authorizat
 //		GroupBy(serviceprovider.FieldHost).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-//
 func (spq *ServiceProviderQuery) GroupBy(field string, fields ...string) *ServiceProviderGroupBy {
 	grbuild := &ServiceProviderGroupBy{config: spq.config}
 	grbuild.fields = append([]string{field}, fields...)
@@ -361,7 +360,6 @@ func (spq *ServiceProviderQuery) GroupBy(field string, fields ...string) *Servic
 //	client.ServiceProvider.Query().
 //		Select(serviceprovider.FieldHost).
 //		Scan(ctx, &v)
-//
 func (spq *ServiceProviderQuery) Select(fields ...string) *ServiceProviderSelect {
 	spq.fields = append(spq.fields, fields...)
 	selbuild := &ServiceProviderSelect{ServiceProviderQuery: spq}

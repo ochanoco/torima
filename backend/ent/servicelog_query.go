@@ -4,12 +4,14 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/ochanoco/proxy/ent/hashchain"
 	"github.com/ochanoco/proxy/ent/predicate"
 	"github.com/ochanoco/proxy/ent/servicelog"
 )
@@ -17,12 +19,13 @@ import (
 // ServiceLogQuery is the builder for querying ServiceLog entities.
 type ServiceLogQuery struct {
 	config
-	limit      *int
-	offset     *int
-	unique     *bool
-	order      []OrderFunc
-	fields     []string
-	predicates []predicate.ServiceLog
+	limit          *int
+	offset         *int
+	unique         *bool
+	order          []OrderFunc
+	fields         []string
+	predicates     []predicate.ServiceLog
+	withHashchains *HashChainQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -57,6 +60,28 @@ func (slq *ServiceLogQuery) Unique(unique bool) *ServiceLogQuery {
 func (slq *ServiceLogQuery) Order(o ...OrderFunc) *ServiceLogQuery {
 	slq.order = append(slq.order, o...)
 	return slq
+}
+
+// QueryHashchains chains the current query on the "hashchains" edge.
+func (slq *ServiceLogQuery) QueryHashchains() *HashChainQuery {
+	query := &HashChainQuery{config: slq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := slq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := slq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(servicelog.Table, servicelog.FieldID, selector),
+			sqlgraph.To(hashchain.Table, hashchain.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, servicelog.HashchainsTable, servicelog.HashchainsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(slq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first ServiceLog entity from the query.
@@ -235,16 +260,28 @@ func (slq *ServiceLogQuery) Clone() *ServiceLogQuery {
 		return nil
 	}
 	return &ServiceLogQuery{
-		config:     slq.config,
-		limit:      slq.limit,
-		offset:     slq.offset,
-		order:      append([]OrderFunc{}, slq.order...),
-		predicates: append([]predicate.ServiceLog{}, slq.predicates...),
+		config:         slq.config,
+		limit:          slq.limit,
+		offset:         slq.offset,
+		order:          append([]OrderFunc{}, slq.order...),
+		predicates:     append([]predicate.ServiceLog{}, slq.predicates...),
+		withHashchains: slq.withHashchains.Clone(),
 		// clone intermediate query.
 		sql:    slq.sql.Clone(),
 		path:   slq.path,
 		unique: slq.unique,
 	}
+}
+
+// WithHashchains tells the query-builder to eager-load the nodes that are connected to
+// the "hashchains" edge. The optional arguments are used to configure the query builder of the edge.
+func (slq *ServiceLogQuery) WithHashchains(opts ...func(*HashChainQuery)) *ServiceLogQuery {
+	query := &HashChainQuery{config: slq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	slq.withHashchains = query
+	return slq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -261,7 +298,6 @@ func (slq *ServiceLogQuery) Clone() *ServiceLogQuery {
 //		GroupBy(servicelog.FieldTime).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-//
 func (slq *ServiceLogQuery) GroupBy(field string, fields ...string) *ServiceLogGroupBy {
 	grbuild := &ServiceLogGroupBy{config: slq.config}
 	grbuild.fields = append([]string{field}, fields...)
@@ -288,7 +324,6 @@ func (slq *ServiceLogQuery) GroupBy(field string, fields ...string) *ServiceLogG
 //	client.ServiceLog.Query().
 //		Select(servicelog.FieldTime).
 //		Scan(ctx, &v)
-//
 func (slq *ServiceLogQuery) Select(fields ...string) *ServiceLogSelect {
 	slq.fields = append(slq.fields, fields...)
 	selbuild := &ServiceLogSelect{ServiceLogQuery: slq}
@@ -320,8 +355,11 @@ func (slq *ServiceLogQuery) prepareQuery(ctx context.Context) error {
 
 func (slq *ServiceLogQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*ServiceLog, error) {
 	var (
-		nodes = []*ServiceLog{}
-		_spec = slq.querySpec()
+		nodes       = []*ServiceLog{}
+		_spec       = slq.querySpec()
+		loadedTypes = [1]bool{
+			slq.withHashchains != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*ServiceLog).scanValues(nil, columns)
@@ -329,6 +367,7 @@ func (slq *ServiceLogQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &ServiceLog{config: slq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -340,7 +379,46 @@ func (slq *ServiceLogQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := slq.withHashchains; query != nil {
+		if err := slq.loadHashchains(ctx, query, nodes,
+			func(n *ServiceLog) { n.Edges.Hashchains = []*HashChain{} },
+			func(n *ServiceLog, e *HashChain) { n.Edges.Hashchains = append(n.Edges.Hashchains, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (slq *ServiceLogQuery) loadHashchains(ctx context.Context, query *HashChainQuery, nodes []*ServiceLog, init func(*ServiceLog), assign func(*ServiceLog, *HashChain)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*ServiceLog)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.HashChain(func(s *sql.Selector) {
+		s.Where(sql.InValues(servicelog.HashchainsColumn, fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.service_log_hashchains
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "service_log_hashchains" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "service_log_hashchains" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
 }
 
 func (slq *ServiceLogQuery) sqlCount(ctx context.Context) (int, error) {
