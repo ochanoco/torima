@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/ochanoco/proxy/ent/predicate"
 )
 
@@ -339,6 +340,34 @@ func BodyIsNil() predicate.ServiceLog {
 func BodyNotNil() predicate.ServiceLog {
 	return predicate.ServiceLog(func(s *sql.Selector) {
 		s.Where(sql.NotNull(s.C(FieldBody)))
+	})
+}
+
+// HasHashchains applies the HasEdge predicate on the "hashchains" edge.
+func HasHashchains() predicate.ServiceLog {
+	return predicate.ServiceLog(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(HashchainsTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, HashchainsTable, HashchainsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasHashchainsWith applies the HasEdge predicate on the "hashchains" edge with a given conditions (other predicates).
+func HasHashchainsWith(preds ...predicate.HashChain) predicate.ServiceLog {
+	return predicate.ServiceLog(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(HashchainsInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, HashchainsTable, HashchainsColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
 	})
 }
 
