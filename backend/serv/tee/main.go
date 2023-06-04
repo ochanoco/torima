@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/ochanoco/proxy/core"
 )
@@ -13,10 +14,8 @@ const NAME = "tee"
 const attestationProviderURL = "https://shareduks.uks.attest.azure.net"
 const serverAddr = "0.0.0.0:8080"
 
-func Run(config *tls.Config) *core.OchanocoProxy {
+func Run(rsaPriv *rsa.PrivateKey) *core.OchanocoProxy {
 	secret := "testest"
-
-	rsaPriv := config.Certificates[0].PrivateKey.(*rsa.PrivateKey)
 
 	core.DEFAULT_DIRECTORS = []core.OchanocoDirector{
 		core.EnvRouteDirector,
@@ -35,10 +34,21 @@ func Run(config *tls.Config) *core.OchanocoProxy {
 }
 
 func Main() {
-	tlsConfig := setupTLS()
+	_, err1 := os.Stat(private_path)
+	_, err2 := os.Stat(certificate_path)
 
-	proxyServ := Run(tlsConfig)
-	setupAttestaion(proxyServ.Engine, tlsConfig)
+	hasKeyExist := err1 == nil && err2 == nil
+
+	var tlsCfg *tls.Config
+
+	if hasKeyExist {
+		tlsCfg = ReadConfig()
+	} else {
+		tlsCfg = InitConfig()
+	}
+
+	priv := tlsCfg.Certificates[0].PrivateKey.(*rsa.PrivateKey)
+	proxyServ := Run(priv)
 
 	err := verifyDB(proxyServ)
 	if err != nil {
@@ -48,7 +58,7 @@ func Main() {
 
 	teeServer := http.Server{
 		Addr:      serverAddr,
-		TLSConfig: tlsConfig,
+		TLSConfig: tlsCfg,
 		Handler:   proxyServ.Engine,
 	}
 
