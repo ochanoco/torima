@@ -1,8 +1,11 @@
 package core
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 )
 
@@ -26,4 +29,17 @@ func DumpHeader(headers http.Header) (string, error) {
 	b, err := json.Marshal(headers)
 	s := string(b)
 	return s, err
+}
+
+func ReadHTTPBody(body *io.ReadCloser) ([]byte, error) {
+	bodyBuf, err := io.ReadAll(*body)
+	if err != nil {
+		return nil, fmt.Errorf("RequestLogDirector: non-nil error while reading request body: %v", err)
+	}
+
+	(*body).Close()
+	b := io.NopCloser(bytes.NewBuffer(bodyBuf))
+	*body = b
+
+	return bodyBuf, err
 }
