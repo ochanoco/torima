@@ -40,12 +40,20 @@ func Main() {
 	proxyServ := Run(tlsConfig)
 	setupAttestaion(proxyServ.Engine, tlsConfig)
 
+	err := verifyDB(proxyServ)
+	if err != nil {
+		fmt.Printf("verifyDB: %v\n", err)
+		return
+	}
+
 	teeServer := http.Server{
 		Addr:      serverAddr,
 		TLSConfig: tlsConfig,
 		Handler:   proxyServ.Engine,
 	}
 
-	err := teeServer.ListenAndServeTLS("", "")
+	fmt.Printf("tee server is listening on %v\n", serverAddr)
+
+	err = teeServer.ListenAndServeTLS("", "")
 	fmt.Println(err)
 }
