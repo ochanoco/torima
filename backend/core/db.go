@@ -173,8 +173,19 @@ func (db *Database) SaveHashChain(l *ent.HashChainCreate) (*ent.HashChain, error
 }
 
 func (db *Database) FindLastHashChain() (*ent.HashChain, error) {
-	return db.Client.HashChain.
+	hash, err := db.Client.HashChain.
 		Query().
 		Order(ent.Desc(hashchain.FieldID)).
-		Only(db.Ctx)
+		Limit(1).
+		All(db.Ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(hash) == 0 {
+		return nil, nil
+	}
+
+	return hash[0], nil
 }
