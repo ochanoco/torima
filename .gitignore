@@ -152,3 +152,6 @@ backend/sqlite3.db
 backend/test.sqlite3
 backend/secret.env
 data/db.sqlite3
+backend/private.der
+.gitignore
+backend/cert.der
