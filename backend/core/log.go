@@ -39,11 +39,8 @@ func logCommunication(header http.Header, body *io.ReadCloser, proxy *OchanocoPr
 	return logRaw(headerJson, bodyBuf, proxy)
 }
 
-func logRawHashChain(new, previous []byte, proxy *OchanocoProxy, privkey *rsa.PrivateKey) (*ent.HashChain, error) {
-	hasher := crypto.SHA256.New()
-	hasher.Write(previous)
-	hasher.Write(new)
-	hash := hasher.Sum(nil)
+func logRawHashChain(new *ent.ServiceLog, previous *ent.HashChain, proxy *OchanocoProxy, privkey *rsa.PrivateKey) (*ent.HashChain, error) {
+	hash := CalcHashChain(new, previous)
 
 	signature, err := rsa.SignPSS(rand.Reader, privkey, crypto.SHA3_256, hash, &rsa.PSSOptions{
 		SaltLength: rsa.PSSSaltLengthAuto,
@@ -62,11 +59,7 @@ func logVerifiableCommunication(header http.Header, body *io.ReadCloser, proxy *
 	last, err := proxy.Database.FindLastHashChain()
 
 	if err != nil {
-		last, err = logRawHashChain([]byte("this may be first hash"), []byte{}, proxy, privkey)
-
-		if err != nil {
-			return nil, nil, err
-		}
+		return nil, nil, err
 	}
 
 	log, err := logCommunication(header, body, proxy)
@@ -75,10 +68,8 @@ func logVerifiableCommunication(header http.Header, body *io.ReadCloser, proxy *
 		return nil, nil, err
 	}
 
-	new := append([]byte(log.Headers), log.Body...)
-
 	// todo: change timing to log
-	chain, err := logRawHashChain(new, last.Hash, proxy, privkey)
+	chain, err := logRawHashChain(log, last, proxy, privkey)
 
 	if err != nil {
 		return nil, nil, err
@@ -89,8 +80,6 @@ func logVerifiableCommunication(header http.Header, body *io.ReadCloser, proxy *
 
 func SetupLogVerifiableCommunicationDirector(privkey *rsa.PrivateKey) OchanocoDirector {
 	return func(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
-		fmt.Printf("body1: %v\n", req.Body)
-
 		_, _, err := logVerifiableCommunication(req.Header, &req.Body, proxy, privkey)
 
 		if err != nil {
