@@ -189,3 +189,9 @@ func (db *Database) FindLastHashChain() (*ent.HashChain, error) {
 
 	return hash[0], nil
 }
+
+func (db *Database) SelectAllServiceLogs() ([]*ent.ServiceLog, error) {
+	return db.Client.ServiceLog.
+		Query().
+		All(db.Ctx)
+}
