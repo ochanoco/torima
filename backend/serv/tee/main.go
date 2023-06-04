@@ -1,18 +1,31 @@
 package tee
 
 import (
-	"github.com/ochanoco/proxy/core"
+	"crypto/rsa"
+	"crypto/tls"
 	"fmt"
 	"net/http"
-)
 
+	"github.com/ochanoco/proxy/core"
+)
 
 const NAME = "tee"
 const attestationProviderURL = "https://shareduks.uks.attest.azure.net"
 const serverAddr = "0.0.0.0:8080"
 
-func Run() *core.OchanocoProxy {
+func Run(config *tls.Config) *core.OchanocoProxy {
 	secret := "testest"
+
+	rsaPriv := config.Certificates[0].PrivateKey.(*rsa.PrivateKey)
+
+	core.DEFAULT_DIRECTORS = []core.OchanocoDirector{
+		core.EnvRouteDirector,
+		core.SetupLogVerifiableCommunicationDirector(rsaPriv),
+	}
+
+	core.DEFAULT_MODIFY_RESPONSES = []core.OchanocoModifyResponse{
+		core.SetupLogVerifiableCommunicationResp(rsaPriv),
+	}
 	core.DEFAULT_PROXYWEB_PAGES = DEFAULT_PROXYWEB_PAGES
 
 	core.SetupParsingUrl()
@@ -21,10 +34,10 @@ func Run() *core.OchanocoProxy {
 	return proxyServ
 }
 
-func Main() {	
+func Main() {
 	tlsConfig := setupTLS()
 
-	proxyServ := Run()	
+	proxyServ := Run(tlsConfig)
 	setupAttestaion(proxyServ.Engine, tlsConfig)
 
 	teeServer := http.Server{
