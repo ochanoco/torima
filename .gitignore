@@ -155,3 +155,5 @@ data/db.sqlite3
 backend/private.der
 .gitignore
 backend/cert.der
+
+data/

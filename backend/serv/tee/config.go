@@ -14,8 +14,8 @@ import (
 	"github.com/edgelesssys/ego/ecrypto"
 )
 
-const private_path = "./private.der"
-const certificate_path = "./cert.der"
+const private_path = "./data/private.der"
+const certificate_path = "./data/cert.der"
 
 func ReadConfig() *tls.Config {
 	bytes, err := ioutil.ReadFile(private_path)
