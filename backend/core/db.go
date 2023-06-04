@@ -11,6 +11,7 @@ import (
 	_ "sqlite3"
 
 	"github.com/ochanoco/proxy/ent"
+	"github.com/ochanoco/proxy/ent/hashchain"
 	"github.com/ochanoco/proxy/ent/serviceprovider"
 )
 
@@ -150,4 +151,30 @@ func (db *Database) SaveServiceLog(l *ent.ServiceLogCreate) (*ent.ServiceLog, er
 	}
 
 	return code, err
+}
+
+func (db *Database) CreateHashChain(hash, signature []byte) *ent.HashChainCreate {
+	chain := db.Client.HashChain.
+		Create().
+		SetHash(hash).
+		SetSignature(signature)
+
+	return chain
+}
+
+func (db *Database) SaveHashChain(l *ent.HashChainCreate) (*ent.HashChain, error) {
+	code, err := l.Save(db.Ctx)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to save save log: %v", err)
+	}
+
+	return code, err
+}
+
+func (db *Database) FindLastHashChain() (*ent.HashChain, error) {
+	return db.Client.HashChain.
+		Query().
+		Order(ent.Desc(hashchain.FieldID)).
+		Only(db.Ctx)
 }
