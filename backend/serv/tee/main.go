@@ -50,7 +50,7 @@ func Main() {
 	priv := tlsCfg.Certificates[0].PrivateKey.(*rsa.PrivateKey)
 	proxyServ := Run(priv)
 
-	err := verifyDB(proxyServ)
+	err := verifyDB(&priv.PublicKey, proxyServ)
 	if err != nil {
 		fmt.Printf("verifyDB: %v\n", err)
 		return
