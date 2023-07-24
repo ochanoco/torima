@@ -1,0 +1,84 @@
+{
+    "exe": "./proxy",
+    "key": "private.pem",
+    "debug": true,
+    "heapSize": 512,
+    "executableHeap": false,
+    "productID": 1,
+    "securityVersion": 1,
+    "mounts": [
+	{
+            "source": "./data",
+            "target": "./data",
+            "type": "hostfs",
+            "readOnly": false
+        }
+    ],
+    "env": [
+        {
+            "name": "LINE_LOGIN_BASE",
+            "value": "http://127.0.0.1:8080/ochanoco"
+        },
+        {
+            "name": "OCHANOCO_AUTHWEB_HOST",
+            "value": "127.0.0.1:3001"
+        },
+        {
+            "name": "OCHANOCO_AUTHWEB_PORT",
+            "value": ":3001"
+        },
+        {
+            "name": "OCHANOCO_AUTH_HOST",
+            "value": "127.0.0.1:8081"
+        },
+        {
+            "name": "OCHANOCO_AUTH_PORT",
+            "value": ":8081"
+        },
+        {
+            "name": "OCHANOCO_DB_CONFIG",
+            "value": "./data/db.sqlite3"
+        },
+        {
+            "name": "OCHANOCO_DB_TYPE",
+            "value": "sqlite3"
+        },
+        {
+            "name": "OCHANOCO_PROTOCOL",
+            "value": "http://"
+        },
+        {
+            "name": "OCHANOCO_PROXYWEB_HOST",
+            "value": "127.0.0.1:3000"
+        },
+        {
+            "name": "OCHANOCO_PROXYWEB_PORT",
+            "value": ":3000"
+        },
+        {
+            "name": "OCHANOCO_PROXY_HOST",
+            "value": "127.0.0.1:8080"
+        },
+        {
+            "name": "OCHANOCO_PROXY_PORT",
+            "value": ":8080"
+        },
+        {
+            "name": "OCHANOCO_WHITE_LIST",
+            "value": "./whitelist.json"
+        },
+        {
+            "name": "TEST_INTEGRATION",
+            "value": "1"
+        },
+	{
+	    "name": "LINE_LOGIN_CLIENT_ID",
+	    "value": ""
+	},
+	{
+	    "name": "LINE_LOGIN_CLIENT_SECRET",
+	    "value": ""
+	}
+    ],
+    "files": null
+}

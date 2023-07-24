@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	_ "sqlite3"
 
 	"github.com/ochanoco/proxy/ent"
+	"github.com/ochanoco/proxy/ent/hashchain"
 	"github.com/ochanoco/proxy/ent/serviceprovider"
 )
 
@@ -129,4 +131,73 @@ func (db *Database) FindServiceProviderByHost(host string) (*ent.ServiceProvider
 		Query().
 		Where(serviceprovider.HostEQ(host)).
 		Only(db.Ctx)
+}
+
+func (db *Database) CreateServiceLog(t time.Time, header string, body []byte) *ent.ServiceLogCreate {
+	sl := db.Client.ServiceLog.
+		Create().
+		SetTime(t).
+		SetHeaders(header).
+		SetBody(body)
+
+	return sl
+}
+
+func (db *Database) SaveServiceLog(l *ent.ServiceLogCreate) (*ent.ServiceLog, error) {
+	code, err := l.Save(db.Ctx)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to save save log: %v", err)
+	}
+
+	return code, err
+}
+
+func (db *Database) CreateHashChain(hash, signature []byte) *ent.HashChainCreate {
+	chain := db.Client.HashChain.
+		Create().
+		SetHash(hash).
+		SetSignature(signature)
+
+	return chain
+}
+
+func (db *Database) SaveHashChain(l *ent.HashChainCreate) (*ent.HashChain, error) {
+	code, err := l.Save(db.Ctx)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to save save log: %v", err)
+	}
+
+	return code, err
+}
+
+func (db *Database) FindLastHashChain() (*ent.HashChain, error) {
+	hash, err := db.Client.HashChain.
+		Query().
+		Order(ent.Desc(hashchain.FieldID)).
+		Limit(1).
+		All(db.Ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(hash) == 0 {
+		return nil, nil
+	}
+
+	return hash[0], nil
+}
+
+func (db *Database) SelectAllHashChains() ([]*ent.HashChain, error) {
+	return db.Client.HashChain.
+		Query().
+		All(db.Ctx)
+}
+
+func (db *Database) SelectAllServiceLogs() ([]*ent.ServiceLog, error) {
+	return db.Client.ServiceLog.
+		Query().
+		All(db.Ctx)
 }
