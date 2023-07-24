@@ -2,54 +2,35 @@ package core
 
 import (
 	"fmt"
-	"log"
+	"io"
 	"net/http"
-	"reflect"
-	"runtime"
+	"time"
+
+	"github.com/ochanoco/proxy/ent"
 )
 
-type FlowLog struct {
-	name   string
-	result bool
+func logRaw(header string, body []byte, proxy *OchanocoProxy) (*ent.ServiceLog, error) {
+	time := time.Now()
+
+	l := proxy.Database.CreateServiceLog(time, header, body)
+	return proxy.Database.SaveServiceLog(l)
 }
 
-type FlowLogs struct {
-	logs []FlowLog
-}
-
-func NewFlowLogs() FlowLogs {
-	return FlowLogs{
-		logs: []FlowLog{},
-	}
-}
-
-func (flowLogs *FlowLogs) Add(f any, result bool) {
-	rv := reflect.ValueOf(f)
-	ptr := rv.Pointer()
-	name := runtime.FuncForPC(ptr).Name()
-
-	newLog := FlowLog{
-		name,
-		result,
+func LogCommunication(header http.Header, body *io.ReadCloser, proxy *OchanocoProxy) (*ent.ServiceLog, error) {
+	headerJson, err := DumpHeader(header)
+	if err != nil {
+		return nil, fmt.Errorf("failed to dump headers to json: %v", err)
 	}
 
-	flowLogs.logs = append(flowLogs.logs, newLog)
-}
-
-func (flowLogs *FlowLogs) Show() {
-	log.Println("\n--- start ----")
-
-	for _, v := range flowLogs.logs {
-		log.Printf("name: %v\n", v.name)
-		log.Printf("result: %v\n", v.result)
+	// There are kinds of methods which does not have bodies (i.e., GET, HEAD, OPTIONS, TRACE).
+	if *body == nil {
+		return logRaw(headerJson, nil, proxy)
 	}
 
-	fmt.Println("---  end  ----")
-}
+	bodyBuf, err := ReadHTTPBody(body)
+	if body == nil {
+		return nil, err
+	}
 
-/**
- * LogReq is the function that logs the request.
-**/
-func LogReq(req *http.Request) {
-	fmt.Printf("[%s] %s%s\n=> %s%s\n\n", req.Method, req.Host, req.RequestURI, req.URL.Host, req.URL.Path)
+	return logRaw(headerJson, bodyBuf, proxy)
 }

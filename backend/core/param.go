@@ -38,11 +38,15 @@ var WHITELIST_PATH = os.Getenv("OCHANOCO_WHITE_LIST")
 
 var DEFAULT_DIRECTORS = []OchanocoDirector{
 	EnvRouteDirector,
-	CleanContentDirector,
-	AuthDirector,
+	// CleanContentDirector,
+	// AuthDirector,
+	LogDirector,
+	// RequestLogDirector,
 }
 
-var DEFAULT_MODIFY_RESPONSES = []OchanocoModifyResponse{}
+var DEFAULT_MODIFY_RESPONSES = []OchanocoModifyResponse{
+	// LogModifyResponse,
+}
 
 var DEFAULT_PROXYWEB_PAGES = []OchanocoProxyWebPage{}
 
