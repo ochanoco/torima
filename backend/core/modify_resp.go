@@ -12,7 +12,7 @@ func MainModifyResponse(proxy *OchanocoProxy, resp *http.Response) {
 }
 
 func LogModifyResponse(proxy *OchanocoProxy, res *http.Response, c *gin.Context) bool {
-	_, err := logCommunication(res.Header, &res.Body, proxy)
+	_, err := LogCommunication(res.Header, &res.Body, proxy)
 
 	if err != nil {
 		fmt.Printf("LogModifyResponse: %v\n", err)

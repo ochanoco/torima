@@ -28,7 +28,7 @@ func verifyDB(pubkey *rsa.PublicKey, proxy *core.OchanocoProxy) error {
 		return nil
 	}
 
-	var previous core.HashChain
+	var previous HashChain
 
 	for index, log := range serviceLogs[1:] {
 		chain := hashChains[index]
@@ -40,8 +40,8 @@ func verifyDB(pubkey *rsa.PublicKey, proxy *core.OchanocoProxy) error {
 		if err != nil {
 			return err
 		}
-		previous = core.HashChain{
-			Hash: core.CalcHashChain(log, &previous),
+		previous = HashChain{
+			Hash: CalcHashChain(log, &previous),
 		}
 	}
 

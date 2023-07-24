@@ -92,7 +92,7 @@ func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool 
 }
 
 func LogDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
-	_, err := logCommunication(req.Header, &req.Body, proxy)
+	_, err := LogCommunication(req.Header, &req.Body, proxy)
 
 	if err != nil {
 		fmt.Printf("LogModifyResponse: %v\n", err)

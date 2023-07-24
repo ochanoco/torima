@@ -19,11 +19,11 @@ func Run(rsaPriv *rsa.PrivateKey) *core.OchanocoProxy {
 
 	core.DEFAULT_DIRECTORS = []core.OchanocoDirector{
 		core.EnvRouteDirector,
-		core.SetupLogVerifiableCommunicationDirector(rsaPriv),
+		SetupLogVerifiableCommunicationDirector(rsaPriv),
 	}
 
 	core.DEFAULT_MODIFY_RESPONSES = []core.OchanocoModifyResponse{
-		core.SetupLogVerifiableCommunicationResp(rsaPriv),
+		SetupLogVerifiableCommunicationResp(rsaPriv),
 	}
 	core.DEFAULT_PROXYWEB_PAGES = DEFAULT_PROXYWEB_PAGES
 
