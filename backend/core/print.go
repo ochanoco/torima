@@ -13,17 +13,17 @@ type FlowLog struct {
 	result bool
 }
 
-type FlowLogs struct {
+type FlowLogger struct {
 	logs []FlowLog
 }
 
-func NewFlowLogs() FlowLogs {
-	return FlowLogs{
+func NewFlowLogger() FlowLogger {
+	return FlowLogger{
 		logs: []FlowLog{},
 	}
 }
 
-func (flowLogs *FlowLogs) Add(f any, result bool) {
+func (logger *FlowLogger) Add(f any, result bool) {
 	rv := reflect.ValueOf(f)
 	ptr := rv.Pointer()
 	name := runtime.FuncForPC(ptr).Name()
@@ -33,10 +33,10 @@ func (flowLogs *FlowLogs) Add(f any, result bool) {
 		result,
 	}
 
-	flowLogs.logs = append(flowLogs.logs, newLog)
+	logger.logs = append(logger.logs, newLog)
 }
 
-func (flowLogs *FlowLogs) Show() {
+func (flowLogs *FlowLogger) Show() {
 	log.Println("\n--- start ----")
 
 	for _, v := range flowLogs.logs {
