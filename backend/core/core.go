@@ -7,8 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type OchanocoDirector = func(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool
-type OchanocoModifyResponse = func(proxy *OchanocoProxy, req *http.Response, c *gin.Context) bool
+type OchanocoDirector = func(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool, error)
+type OchanocoModifyResponse = func(proxy *OchanocoProxy, req *http.Response, c *gin.Context) (bool, error)
 type OchanocoProxyWebPage = func(proxy *OchanocoProxy, c *gin.RouterGroup)
 
 type OchanocoProxy struct {
@@ -17,22 +17,29 @@ type OchanocoProxy struct {
 	ProxyWebPages   []OchanocoProxyWebPage
 	Engine          *gin.Engine
 	Database        *Database
+	ErrorHandler    *gin.HandlerFunc
+	Config          *OchanocoConfig
 }
 
 func NewOchancoProxy(
 	r *gin.Engine,
 	directors []OchanocoDirector,
 	modifyResponses []OchanocoModifyResponse,
-	ProxyWebPages []OchanocoProxyWebPage,
+	errorHandler *gin.HandlerFunc,
+	proxyWebPages []OchanocoProxyWebPage,
+	config *OchanocoConfig,
 	database *Database,
 ) OchanocoProxy {
 	proxy := OchanocoProxy{}
 
 	proxy.Directors = directors
 	proxy.ModifyResponses = modifyResponses
-	proxy.ProxyWebPages = ProxyWebPages
+	proxy.ErrorHandler = errorHandler
+
+	proxy.ProxyWebPages = proxyWebPages
 	proxy.Database = database
 
+	r.Use(*errorHandler)
 	proxy.Engine = r
 
 	specialPath := r.Group("/ochanoco")
@@ -56,6 +63,8 @@ func NewOchancoProxy(
 
 		proxy.ServeHTTP(c.Writer, c.Request)
 	})
+
+	proxy.Config = config
 
 	return proxy
 }
