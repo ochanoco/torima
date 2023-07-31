@@ -34,20 +34,23 @@ var DB_TYPE = os.Getenv("OCHANOCO_DB_TYPE")
 var DB_CONFIG = os.Getenv("OCHANOCO_DB_CONFIG")
 
 /* other */
-var WHITELIST_PATH = os.Getenv("OCHANOCO_WHITE_LIST")
-
 var DEFAULT_DIRECTORS = []OchanocoDirector{
-	EnvRouteDirector,
-	// CleanContentDirector,
-	// AuthDirector,
+	AuthDirector,
+	DefaultRouteDirector,
+	ThirdPartyDirector,
 	LogDirector,
-	// RequestLogDirector,
 }
 
 var DEFAULT_MODIFY_RESPONSES = []OchanocoModifyResponse{
-	// LogModifyResponse,
+	LogModifyResponse,
 }
 
-var DEFAULT_PROXYWEB_PAGES = []OchanocoProxyWebPage{}
+var DEFAULT_PROXYWEB_PAGES = []OchanocoProxyWebPage{
+	IgnoreListWeb,
+	StaticWeb,
+}
 
-var ADD_USER_ID = true
+var DEFAULT_ERROR_HANDLER = errorMiddleware()
+
+var ADD_USER_ID = false
+var CONFIG_FILE = "./config.yaml"

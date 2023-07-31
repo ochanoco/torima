@@ -44,13 +44,13 @@ func logRawHashChain(new *ent.ServiceLog, previous *ent.HashChain, proxy *core.O
 		return nil, err
 	}
 
-	chainCreate := proxy.Database.CreateHashChain(hash, signature)
-	return proxy.Database.SaveHashChain(chainCreate)
+	chainCreate := CreateHashChain(proxy.Database, hash, signature)
+	return SaveHashChain(proxy.Database, chainCreate)
 
 }
 
 func logVerifiableCommunication(header http.Header, body *io.ReadCloser, proxy *core.OchanocoProxy, privkey *rsa.PrivateKey) (*ent.ServiceLog, *ent.HashChain, error) {
-	last, err := proxy.Database.FindLastHashChain()
+	last, err := FindLastHashChain(proxy.Database)
 
 	if err != nil {
 		return nil, nil, err

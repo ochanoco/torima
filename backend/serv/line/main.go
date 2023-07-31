@@ -6,17 +6,19 @@ import (
 
 const NAME = "line"
 
-func Run() *core.OchanocoProxy {
+func Run() (*core.OchanocoProxy, error) {
 	secret := "testest"
 	core.DEFAULT_PROXYWEB_PAGES = DEFAULT_PROXYWEB_PAGES
 
-	core.SetupParsingUrl()
-
-	proxyServ := core.ProxyServer(secret)
-	return proxyServ
+	proxyServ, err := core.ProxyServer(secret)
+	return proxyServ, err
 }
 
 func Main() {
-	proxyServ := Run()
+	proxyServ, err := Run()
+	if err != nil {
+		panic(err)
+	}
+
 	proxyServ.Engine.Run(core.PROXY_PORT)
 }

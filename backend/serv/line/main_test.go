@@ -12,9 +12,12 @@ import (
 
 func TestIntegration(t *testing.T) {
 	core.DB_CONFIG = "file::memory:?cache=shared&_fk=1"
-	core.SetupParsingUrl()
 
-	proxyServ := Run()
+	proxyServ, err := Run()
+
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
 
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
