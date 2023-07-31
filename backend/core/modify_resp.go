@@ -3,21 +3,21 @@ package core
 import (
 	"fmt"
 	"net/http"
+	"net/http/httputil"
 
 	"github.com/gin-gonic/gin"
 )
 
-func MainModifyResponse(proxy *OchanocoProxy, resp *http.Response) {
-	fmt.Printf("=> %v\n", resp.Request.URL)
+func MainModifyResponse(proxy *OchanocoProxy, res *http.Response) {
+	fmt.Printf("=> %v\n", res.Request.URL)
 }
 
-func LogModifyResponse(proxy *OchanocoProxy, res *http.Response, c *gin.Context) bool {
-	_, err := LogCommunication(res.Header, &res.Body, proxy)
+func LogModifyResponse(proxy *OchanocoProxy, res *http.Response, c *gin.Context) (bool, error) {
+	response, err := httputil.DumpResponse(res, true)
+	fmt.Printf("%v\n", string(response))
 
-	if err != nil {
-		fmt.Printf("LogModifyResponse: %v\n", err)
-		return false
-	}
+	err = makeError(err, "failed to dump response: %v")
+	logRawCommunication("", response, proxy)
 
-	return true
+	return CONTINUE, err
 }
