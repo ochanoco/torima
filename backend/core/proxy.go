@@ -1,6 +1,7 @@
 package core
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,22 +13,26 @@ const FINISHED = false
 type OchanocoPackageArgument interface{ *http.Request | *http.Response }
 
 func runAllPackage[T OchanocoPackageArgument](
-	pkgs []func(*OchanocoProxy, T, *gin.Context) bool,
+	pkgs []func(*OchanocoProxy, T, *gin.Context) (bool, error),
 	args T, proxy *OchanocoProxy, c *gin.Context) {
 
-	flogLogs := NewFlowLogs()
+	logger := NewFlowLogger()
 
 	for _, pkg := range pkgs {
-		isContinuing := pkg(proxy, args, c)
+		isContinuing, err := pkg(proxy, args, c)
 
-		flogLogs.Add(pkg, isContinuing)
+		logger.Add(pkg, isContinuing)
+
+		if err != nil {
+			panic(err)
+		}
 
 		if !isContinuing {
 			break
 		}
 	}
 
-	flogLogs.Show()
+	logger.Show()
 }
 
 /**
@@ -48,4 +53,21 @@ func (proxy *OchanocoProxy) Director(req *http.Request, c *gin.Context) {
 func (proxy *OchanocoProxy) ModifyResponse(res *http.Response, c *gin.Context) error {
 	runAllPackage(proxy.ModifyResponses, res, proxy, c)
 	return nil
+}
+
+func errorMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Next()
+
+		err := c.Errors.ByType(gin.ErrorTypePublic).Last()
+		if err == nil {
+			return
+		}
+
+		log.Print(err.Err)
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"Error": err.Error(),
+		})
+	}
 }

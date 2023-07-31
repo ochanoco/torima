@@ -13,12 +13,12 @@ func verifyDB(pubkey *rsa.PublicKey, proxy *core.OchanocoProxy) error {
 	fmt.Println("logger is verifing DB...")
 
 	// todo: use db relation
-	serviceLogs, err := proxy.Database.SelectAllServiceLogs()
+	serviceLogs, err := SelectAllServiceLogs(proxy.Database)
 	if err != nil {
 		return err
 	}
 
-	hashChains, err := proxy.Database.SelectAllHashChains()
+	hashChains, err := SelectAllHashChains(proxy.Database)
 	if err != nil {
 		return err
 	}
@@ -45,7 +45,7 @@ func verifyDB(pubkey *rsa.PublicKey, proxy *core.OchanocoProxy) error {
 		}
 	}
 
-	last, err := proxy.Database.FindLastHashChain()
+	last, err := FindLastHashChain(proxy.Database)
 
 	if err != nil {
 		return err

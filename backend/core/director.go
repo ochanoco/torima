@@ -3,100 +3,97 @@ package core
 import (
 	"fmt"
 	"net/http"
-	"os"
-	"regexp"
+	"net/http/httputil"
+	"strings"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/exp/slices"
 )
 
-var cleanContentPattern = regexp.MustCompile(`.+\.(html|css|js|jpg|png|gif)`)
-
-func RouteDirector(host string, proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
+func RouteDirector(host string, proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool, error) {
 	req.URL.Host = host
 
 	req.Header.Set("User-Agent", "ochanoco")
 	req.Header.Set("X-Ochanoco-Proxy-Token", "<proxy_token>")
 
-	session := sessions.Default(c)
-	userId := session.Get("userId")
+	// req.URL.Scheme = "https"
 
-	fmt.Printf("data: %v\n", userId)
-
-	if ADD_USER_ID {
-		switch userId.(type) {
-		case string:
-			req.Header.Set("X-Ochanoco-UserID", userId.(string))
-
-		default:
-			req.Header.Set("X-Ochanoco-UserID", "nil")
-		}
-	}
-
-	return CONTINUE
+	return CONTINUE, nil
 }
 
-func EnvRouteDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
-	host := os.Getenv("OCHANOCO_DESTINATION")
+func DefaultRouteDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool, error) {
+	if strings.HasPrefix(req.URL.Path, "/ochanoco/") {
+		return CONTINUE, nil
+	}
+
+	host := proxy.Config.DefaultOrigin
 
 	if host == "" {
-		msg := fmt.Errorf("failed to get destination site on environment variable named 'DESTINATION' (%s)", req.Host)
-		GoToErrorPage("", msg, req)
-		return FINISHED
+		err := fmt.Errorf("failed to get destination config (%s)", host)
+		return FINISHED, err
 	}
 
 	return RouteDirector(host, proxy, req, c)
 }
 
-func CloudRouteDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
-	project, err := proxy.Database.FindServiceProviderByHost(req.Host)
+func ThirdPartyDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool, error) {
+	path := strings.Split(req.URL.Path, "/")
+	hasRedirectPrefix := strings.HasPrefix(req.URL.Path, "/ochanoco/redirect/")
 
-	if err != nil {
-		msg := fmt.Sprintf("failed to get destination site (%s)", req.Host)
-		GoToErrorPage(msg, err, req)
-		return FINISHED
+	if !hasRedirectPrefix || len(path) < 3 {
+		return CONTINUE, nil
 	}
 
-	return RouteDirector(project.DestinationIP, proxy, req, c)
+	for _, origin := range proxy.Config.AcceptedOrigins {
+		if origin == path[3] {
+			req.Host = origin
+			req.URL.Host = origin
+
+			p := strings.Join(path[4:], "/")
+			req.URL.Path = "/" + p
+
+			return RouteDirector(origin, proxy, req, c)
+		}
+	}
+
+	return CONTINUE, nil
 }
 
-func CleanContentDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
-	if req.Method != "GET" {
-		// If the request is not GET, the request is passed.
-		return CONTINUE
-	}
-
-	if req.RequestURI == "/" || cleanContentPattern.MatchString(req.URL.Path) {
-		// If the request is for static content, the request is passed.
-		req.URL.Path = cleanContentPattern.FindString(req.URL.Path)
-		return FINISHED
-	}
-
-	return CONTINUE
-}
-
-func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
+func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool, error) {
 	session := sessions.Default(c)
 	userId := session.Get("user_id")
 
 	switch userId.(type) {
 	case string:
-		req.URL.Scheme = ProxyRedirectUrl.Scheme
-		req.URL.Host = ProxyRedirectUrl.Host
-		req.URL.Path = "/ochanoco/login"
-
-		return FINISHED
+		return CONTINUE, nil
 	default:
-		return CONTINUE
 	}
+
+	if req.Method == "GET" {
+		if req.URL.Path == "/" {
+			return CONTINUE, nil
+		}
+
+		if slices.Contains(proxy.Config.WhiteListPath, req.URL.Path) {
+			return CONTINUE, nil
+		}
+
+		for _, whitelist := range proxy.Config.WhiteListDirs {
+			if strings.HasPrefix(req.URL.Path, whitelist) {
+				return CONTINUE, nil
+			}
+		}
+	}
+
+	return FINISHED, fmt.Errorf("failed to authenticate user")
 }
 
-func LogDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) bool {
-	_, err := LogCommunication(req.Header, &req.Body, proxy)
+func LogDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool, error) {
+	request, err := httputil.DumpRequest(req, true)
+	fmt.Printf("%v\n", string(request))
+	err = makeError(err, "failed to dump headers to json: %v")
+	logRawCommunication("", request, proxy)
 
-	if err != nil {
-		fmt.Printf("LogModifyResponse: %v\n", err)
-		return FINISHED
-	}
-	return CONTINUE
+	return CONTINUE, err
 }
