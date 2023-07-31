@@ -157,3 +157,4 @@ backend/private.der
 backend/cert.der
 
 data/
+backend/config.yaml
