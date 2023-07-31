@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ProxyServer(secret string) *OchanocoProxy {
+func ProxyServer(secret string) (*OchanocoProxy, error) {
 	r := gin.Default()
 
 	store := cookie.NewStore([]byte(secret))
@@ -19,7 +19,10 @@ func ProxyServer(secret string) *OchanocoProxy {
 		log.Fatalf("failed to init db: %v", err)
 	}
 
-	proxy := NewOchancoProxy(r, DEFAULT_DIRECTORS, DEFAULT_MODIFY_RESPONSES, DEFAULT_PROXYWEB_PAGES, db)
+	config, err := readConfig()
+	err = makeError(err, "failed to read whitelist file")
 
-	return &proxy
+	proxy := NewOchancoProxy(r, DEFAULT_DIRECTORS, DEFAULT_MODIFY_RESPONSES, &DEFAULT_ERROR_HANDLER, DEFAULT_PROXYWEB_PAGES, &config, db)
+
+	return &proxy, err
 }
