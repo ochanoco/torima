@@ -41,7 +41,7 @@ func CloudLoginFunctionalPoints(proxy *core.OchanocoProxy, r *gin.RouterGroup) {
 			panic("failed to generate authorization code")
 		}
 
-		code, err := proxy.Database.SaveAuthorizationCode(codeCreate)
+		code, err := SaveAuthorizationCode(proxy.Database, codeCreate)
 
 		if err != nil {
 			panic("failed to save authorization code")
@@ -60,7 +60,7 @@ func CloudLoginFrontPoints(r *gin.Engine, proxy *core.OchanocoProxy) {
 			panic("client_id is not found on query params")
 		}
 
-		project, err := proxy.Database.FindServiceProviderByHost(clientId)
+		project, err := FindServiceProviderByHost(proxy.Database, clientId)
 		if err != nil || project == nil {
 			log.Fatalf("client_id is not found on DB(%v)", clientId)
 		}
