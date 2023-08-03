@@ -1,6 +1,8 @@
 package line
 
 import (
+	"fmt"
+
 	"github.com/ochanoco/proxy/core"
 )
 
@@ -20,5 +22,6 @@ func Main() {
 		panic(err)
 	}
 
-	proxyServ.Engine.Run(core.PROXY_PORT)
+	port := fmt.Sprintf(":%d", proxyServ.Config.Port)
+	proxyServ.Engine.Run(port)
 }
