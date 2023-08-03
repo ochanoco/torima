@@ -25,5 +25,4 @@ var DEFAULT_PROXYWEB_PAGES = []OchanocoProxyWebPage{
 
 var DEFAULT_ERROR_HANDLER = errorMiddleware()
 
-var ADD_USER_ID = false
 var CONFIG_FILE = "./config.yaml"
