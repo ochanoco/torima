@@ -1,11 +1,11 @@
 package example
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 
-	"github.com/ochanoco/proxy/core"
 	"github.com/ochanoco/proxy/serv/line"
 )
 
@@ -23,7 +23,8 @@ func Main() {
 
 	proxyServ.Config.DefaultOrigin = servUrl.Host
 
-	proxyServ.Engine.Run(core.PROXY_PORT)
+	port := fmt.Sprintf(":%d", proxyServ.Config.Port)
+	proxyServ.Engine.Run(port)
 }
 
 const LINE_NAME = "line_example"

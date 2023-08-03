@@ -62,12 +62,10 @@ func ThirdPartyDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context)
 
 func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool, error) {
 	session := sessions.Default(c)
-	userId := session.Get("user_id")
+	userId := session.Get("userId")
 
-	switch userId.(type) {
-	case string:
+	if userId != nil {
 		return CONTINUE, nil
-	default:
 	}
 
 	if req.Method == "GET" {
