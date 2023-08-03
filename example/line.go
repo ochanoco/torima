@@ -6,16 +6,15 @@ import (
 	"net/http/httptest"
 	"net/url"
 
-	"github.com/ochanoco/proxy/serv/line"
+	"github.com/ochanoco/proxy/serv"
 )
 
 func Main() {
-	// core.DB_CONFIG = "file::memory:?cache=shared&_fk=1"
 	h := http.HandlerFunc(targetServ)
 	server := httptest.NewServer(h)
 
 	servUrl, _ := url.Parse(server.URL)
-	proxyServ, err := line.Run()
+	proxyServ, err := serv.Run()
 
 	if err != nil {
 		panic(err)

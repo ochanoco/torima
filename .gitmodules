@@ -1,6 +1,6 @@
-[submodule "backend/thirdparty/line-login"]
-	path = backend/thirdparty/line-login
+[submodule "thirdparty/line-login"]
+	path = thirdparty/line-login
 	url = https://github.com/ochanoco/line-login.git
-[submodule "backend/thirdparty/go-sqlite3"]
-	path = backend/thirdparty/go-sqlite3
+[submodule "thirdparty/go-sqlite3"]
+	path = thirdparty/go-sqlite3
 	url = https://github.com/mattn/go-sqlite3
