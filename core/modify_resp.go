@@ -17,7 +17,7 @@ func LogModifyResponse(proxy *OchanocoProxy, res *http.Response, c *gin.Context)
 	fmt.Printf("%v\n", string(response))
 
 	err = makeError(err, "failed to dump response: %v")
-	logRawCommunication("", response, proxy)
+	logRawCommunication("response", "", response, proxy)
 
 	return CONTINUE, err
 }

@@ -8,111 +8,25 @@ import (
 )
 
 var (
-	// AuthorizationCodesColumns holds the columns for the "authorization_codes" table.
-	AuthorizationCodesColumns = []*schema.Column{
+	// CommunicationLogsColumns holds the columns for the "communication_logs" table.
+	CommunicationLogsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "token", Type: field.TypeString},
-		{Name: "service_provider_authorization_codes", Type: field.TypeInt, Nullable: true},
-	}
-	// AuthorizationCodesTable holds the schema information for the "authorization_codes" table.
-	AuthorizationCodesTable = &schema.Table{
-		Name:       "authorization_codes",
-		Columns:    AuthorizationCodesColumns,
-		PrimaryKey: []*schema.Column{AuthorizationCodesColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "authorization_codes_service_providers_authorization_codes",
-				Columns:    []*schema.Column{AuthorizationCodesColumns[2]},
-				RefColumns: []*schema.Column{ServiceProvidersColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
-	}
-	// HashChainsColumns holds the columns for the "hash_chains" table.
-	HashChainsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "hash", Type: field.TypeBytes},
-		{Name: "signature", Type: field.TypeBytes},
-		{Name: "service_log_hashchains", Type: field.TypeInt, Nullable: true},
-	}
-	// HashChainsTable holds the schema information for the "hash_chains" table.
-	HashChainsTable = &schema.Table{
-		Name:       "hash_chains",
-		Columns:    HashChainsColumns,
-		PrimaryKey: []*schema.Column{HashChainsColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "hash_chains_service_logs_hashchains",
-				Columns:    []*schema.Column{HashChainsColumns[3]},
-				RefColumns: []*schema.Column{ServiceLogsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
-	}
-	// ServiceLogsColumns holds the columns for the "service_logs" table.
-	ServiceLogsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "type", Type: field.TypeString},
 		{Name: "time", Type: field.TypeTime},
 		{Name: "headers", Type: field.TypeString},
 		{Name: "body", Type: field.TypeBytes, Nullable: true},
 	}
-	// ServiceLogsTable holds the schema information for the "service_logs" table.
-	ServiceLogsTable = &schema.Table{
-		Name:       "service_logs",
-		Columns:    ServiceLogsColumns,
-		PrimaryKey: []*schema.Column{ServiceLogsColumns[0]},
-	}
-	// ServiceProvidersColumns holds the columns for the "service_providers" table.
-	ServiceProvidersColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "host", Type: field.TypeString},
-		{Name: "destination_ip", Type: field.TypeString},
-	}
-	// ServiceProvidersTable holds the schema information for the "service_providers" table.
-	ServiceProvidersTable = &schema.Table{
-		Name:       "service_providers",
-		Columns:    ServiceProvidersColumns,
-		PrimaryKey: []*schema.Column{ServiceProvidersColumns[0]},
-		Indexes: []*schema.Index{
-			{
-				Name:    "serviceprovider_host",
-				Unique:  true,
-				Columns: []*schema.Column{ServiceProvidersColumns[1]},
-			},
-		},
-	}
-	// WhiteListsColumns holds the columns for the "white_lists" table.
-	WhiteListsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "path", Type: field.TypeString},
-		{Name: "service_provider_whitelists", Type: field.TypeInt, Nullable: true},
-	}
-	// WhiteListsTable holds the schema information for the "white_lists" table.
-	WhiteListsTable = &schema.Table{
-		Name:       "white_lists",
-		Columns:    WhiteListsColumns,
-		PrimaryKey: []*schema.Column{WhiteListsColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "white_lists_service_providers_whitelists",
-				Columns:    []*schema.Column{WhiteListsColumns[2]},
-				RefColumns: []*schema.Column{ServiceProvidersColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
+	// CommunicationLogsTable holds the schema information for the "communication_logs" table.
+	CommunicationLogsTable = &schema.Table{
+		Name:       "communication_logs",
+		Columns:    CommunicationLogsColumns,
+		PrimaryKey: []*schema.Column{CommunicationLogsColumns[0]},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		AuthorizationCodesTable,
-		HashChainsTable,
-		ServiceLogsTable,
-		ServiceProvidersTable,
-		WhiteListsTable,
+		CommunicationLogsTable,
 	}
 )
 
 func init() {
-	AuthorizationCodesTable.ForeignKeys[0].RefTable = ServiceProvidersTable
-	HashChainsTable.ForeignKeys[0].RefTable = ServiceLogsTable
-	WhiteListsTable.ForeignKeys[0].RefTable = ServiceProvidersTable
 }
