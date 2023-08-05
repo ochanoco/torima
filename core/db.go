@@ -36,9 +36,10 @@ func InitDB(path string) (*Database, error) {
 	return dbl, err
 }
 
-func (db *Database) CreateServiceLog(t time.Time, header string, body []byte) *ent.ServiceLogCreate {
-	sl := db.Client.ServiceLog.
+func (db *Database) CommunicationLog(_type string, t time.Time, header string, body []byte) *ent.CommunicationLogCreate {
+	sl := db.Client.CommunicationLog.
 		Create().
+		SetType(_type).
 		SetTime(t).
 		SetHeaders(header).
 		SetBody(body)
@@ -46,7 +47,7 @@ func (db *Database) CreateServiceLog(t time.Time, header string, body []byte) *e
 	return sl
 }
 
-func (db *Database) SaveServiceLog(l *ent.ServiceLogCreate) (*ent.ServiceLog, error) {
+func (db *Database) SaveCommunicateLog(l *ent.CommunicationLogCreate) (*ent.CommunicationLog, error) {
 	code, err := l.Save(db.Ctx)
 
 	if err != nil {

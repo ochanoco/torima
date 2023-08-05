@@ -91,7 +91,7 @@ func LogDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool,
 	request, err := httputil.DumpRequest(req, true)
 	fmt.Printf("%v\n", string(request))
 	err = makeError(err, "failed to dump headers to json: %v")
-	logRawCommunication("", request, proxy)
+	logRawCommunication("request", request, proxy)
 
 	return CONTINUE, err
 }
