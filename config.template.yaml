@@ -1,0 +1,12 @@
+default_origin: localhost:8080
+
+white_list_path:
+  - /favicon.ico
+
+accepted_origins:
+  - example.com
+
+ignored_origins:
+  - cdn.jsdelivr.net
+
+port: 8080
