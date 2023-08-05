@@ -5,7 +5,7 @@ import (
 )
 
 func StaticWeb(proxy *OchanocoProxy, r *gin.RouterGroup) {
-	r.Static("/static", "./static")
+	r.Static("/static", STATIC_FOLDER)
 }
 
 func IgnoreListWeb(proxy *OchanocoProxy, r *gin.RouterGroup) {
