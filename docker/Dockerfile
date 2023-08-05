@@ -1,6 +1,6 @@
 FROM nixos/nix
 
-ARG HOST_FOLDER="../backend"
+ARG HOST_FOLDER="../"
 
 # update
 RUN nix-channel --update
