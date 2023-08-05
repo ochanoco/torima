@@ -10,11 +10,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/ochanoco/proxy/ent/authorizationcode"
-	"github.com/ochanoco/proxy/ent/hashchain"
-	"github.com/ochanoco/proxy/ent/servicelog"
-	"github.com/ochanoco/proxy/ent/serviceprovider"
-	"github.com/ochanoco/proxy/ent/whitelist"
+	"github.com/ochanoco/proxy/ent/communicationlog"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -35,11 +31,7 @@ type OrderFunc func(*sql.Selector)
 // columnChecker returns a function indicates if the column exists in the given column.
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
-		authorizationcode.Table: authorizationcode.ValidColumn,
-		hashchain.Table:         hashchain.ValidColumn,
-		servicelog.Table:        servicelog.ValidColumn,
-		serviceprovider.Table:   serviceprovider.ValidColumn,
-		whitelist.Table:         whitelist.ValidColumn,
+		communicationlog.Table: communicationlog.ValidColumn,
 	}
 	check, ok := checks[table]
 	if !ok {

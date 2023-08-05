@@ -24,11 +24,7 @@ type config struct {
 
 // hooks per client, for fast access.
 type hooks struct {
-	AuthorizationCode []ent.Hook
-	HashChain         []ent.Hook
-	ServiceLog        []ent.Hook
-	ServiceProvider   []ent.Hook
-	WhiteList         []ent.Hook
+	CommunicationLog []ent.Hook
 }
 
 // Options applies the options on the config object.

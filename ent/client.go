@@ -10,15 +10,10 @@ import (
 
 	"github.com/ochanoco/proxy/ent/migrate"
 
-	"github.com/ochanoco/proxy/ent/authorizationcode"
-	"github.com/ochanoco/proxy/ent/hashchain"
-	"github.com/ochanoco/proxy/ent/servicelog"
-	"github.com/ochanoco/proxy/ent/serviceprovider"
-	"github.com/ochanoco/proxy/ent/whitelist"
+	"github.com/ochanoco/proxy/ent/communicationlog"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // Client is the client that holds all ent builders.
@@ -26,16 +21,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
-	// AuthorizationCode is the client for interacting with the AuthorizationCode builders.
-	AuthorizationCode *AuthorizationCodeClient
-	// HashChain is the client for interacting with the HashChain builders.
-	HashChain *HashChainClient
-	// ServiceLog is the client for interacting with the ServiceLog builders.
-	ServiceLog *ServiceLogClient
-	// ServiceProvider is the client for interacting with the ServiceProvider builders.
-	ServiceProvider *ServiceProviderClient
-	// WhiteList is the client for interacting with the WhiteList builders.
-	WhiteList *WhiteListClient
+	// CommunicationLog is the client for interacting with the CommunicationLog builders.
+	CommunicationLog *CommunicationLogClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -49,11 +36,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
-	c.AuthorizationCode = NewAuthorizationCodeClient(c.config)
-	c.HashChain = NewHashChainClient(c.config)
-	c.ServiceLog = NewServiceLogClient(c.config)
-	c.ServiceProvider = NewServiceProviderClient(c.config)
-	c.WhiteList = NewWhiteListClient(c.config)
+	c.CommunicationLog = NewCommunicationLogClient(c.config)
 }
 
 // Open opens a database/sql.DB specified by the driver name and
@@ -85,13 +68,9 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:               ctx,
-		config:            cfg,
-		AuthorizationCode: NewAuthorizationCodeClient(cfg),
-		HashChain:         NewHashChainClient(cfg),
-		ServiceLog:        NewServiceLogClient(cfg),
-		ServiceProvider:   NewServiceProviderClient(cfg),
-		WhiteList:         NewWhiteListClient(cfg),
+		ctx:              ctx,
+		config:           cfg,
+		CommunicationLog: NewCommunicationLogClient(cfg),
 	}, nil
 }
 
@@ -109,20 +88,16 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:               ctx,
-		config:            cfg,
-		AuthorizationCode: NewAuthorizationCodeClient(cfg),
-		HashChain:         NewHashChainClient(cfg),
-		ServiceLog:        NewServiceLogClient(cfg),
-		ServiceProvider:   NewServiceProviderClient(cfg),
-		WhiteList:         NewWhiteListClient(cfg),
+		ctx:              ctx,
+		config:           cfg,
+		CommunicationLog: NewCommunicationLogClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		AuthorizationCode.
+//		CommunicationLog.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -144,91 +119,87 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.AuthorizationCode.Use(hooks...)
-	c.HashChain.Use(hooks...)
-	c.ServiceLog.Use(hooks...)
-	c.ServiceProvider.Use(hooks...)
-	c.WhiteList.Use(hooks...)
+	c.CommunicationLog.Use(hooks...)
 }
 
-// AuthorizationCodeClient is a client for the AuthorizationCode schema.
-type AuthorizationCodeClient struct {
+// CommunicationLogClient is a client for the CommunicationLog schema.
+type CommunicationLogClient struct {
 	config
 }
 
-// NewAuthorizationCodeClient returns a client for the AuthorizationCode from the given config.
-func NewAuthorizationCodeClient(c config) *AuthorizationCodeClient {
-	return &AuthorizationCodeClient{config: c}
+// NewCommunicationLogClient returns a client for the CommunicationLog from the given config.
+func NewCommunicationLogClient(c config) *CommunicationLogClient {
+	return &CommunicationLogClient{config: c}
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `authorizationcode.Hooks(f(g(h())))`.
-func (c *AuthorizationCodeClient) Use(hooks ...Hook) {
-	c.hooks.AuthorizationCode = append(c.hooks.AuthorizationCode, hooks...)
+// A call to `Use(f, g, h)` equals to `communicationlog.Hooks(f(g(h())))`.
+func (c *CommunicationLogClient) Use(hooks ...Hook) {
+	c.hooks.CommunicationLog = append(c.hooks.CommunicationLog, hooks...)
 }
 
-// Create returns a builder for creating a AuthorizationCode entity.
-func (c *AuthorizationCodeClient) Create() *AuthorizationCodeCreate {
-	mutation := newAuthorizationCodeMutation(c.config, OpCreate)
-	return &AuthorizationCodeCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Create returns a builder for creating a CommunicationLog entity.
+func (c *CommunicationLogClient) Create() *CommunicationLogCreate {
+	mutation := newCommunicationLogMutation(c.config, OpCreate)
+	return &CommunicationLogCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// CreateBulk returns a builder for creating a bulk of AuthorizationCode entities.
-func (c *AuthorizationCodeClient) CreateBulk(builders ...*AuthorizationCodeCreate) *AuthorizationCodeCreateBulk {
-	return &AuthorizationCodeCreateBulk{config: c.config, builders: builders}
+// CreateBulk returns a builder for creating a bulk of CommunicationLog entities.
+func (c *CommunicationLogClient) CreateBulk(builders ...*CommunicationLogCreate) *CommunicationLogCreateBulk {
+	return &CommunicationLogCreateBulk{config: c.config, builders: builders}
 }
 
-// Update returns an update builder for AuthorizationCode.
-func (c *AuthorizationCodeClient) Update() *AuthorizationCodeUpdate {
-	mutation := newAuthorizationCodeMutation(c.config, OpUpdate)
-	return &AuthorizationCodeUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Update returns an update builder for CommunicationLog.
+func (c *CommunicationLogClient) Update() *CommunicationLogUpdate {
+	mutation := newCommunicationLogMutation(c.config, OpUpdate)
+	return &CommunicationLogUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *AuthorizationCodeClient) UpdateOne(ac *AuthorizationCode) *AuthorizationCodeUpdateOne {
-	mutation := newAuthorizationCodeMutation(c.config, OpUpdateOne, withAuthorizationCode(ac))
-	return &AuthorizationCodeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *CommunicationLogClient) UpdateOne(cl *CommunicationLog) *CommunicationLogUpdateOne {
+	mutation := newCommunicationLogMutation(c.config, OpUpdateOne, withCommunicationLog(cl))
+	return &CommunicationLogUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *AuthorizationCodeClient) UpdateOneID(id int) *AuthorizationCodeUpdateOne {
-	mutation := newAuthorizationCodeMutation(c.config, OpUpdateOne, withAuthorizationCodeID(id))
-	return &AuthorizationCodeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *CommunicationLogClient) UpdateOneID(id int) *CommunicationLogUpdateOne {
+	mutation := newCommunicationLogMutation(c.config, OpUpdateOne, withCommunicationLogID(id))
+	return &CommunicationLogUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Delete returns a delete builder for AuthorizationCode.
-func (c *AuthorizationCodeClient) Delete() *AuthorizationCodeDelete {
-	mutation := newAuthorizationCodeMutation(c.config, OpDelete)
-	return &AuthorizationCodeDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Delete returns a delete builder for CommunicationLog.
+func (c *CommunicationLogClient) Delete() *CommunicationLogDelete {
+	mutation := newCommunicationLogMutation(c.config, OpDelete)
+	return &CommunicationLogDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *AuthorizationCodeClient) DeleteOne(ac *AuthorizationCode) *AuthorizationCodeDeleteOne {
-	return c.DeleteOneID(ac.ID)
+func (c *CommunicationLogClient) DeleteOne(cl *CommunicationLog) *CommunicationLogDeleteOne {
+	return c.DeleteOneID(cl.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *AuthorizationCodeClient) DeleteOneID(id int) *AuthorizationCodeDeleteOne {
-	builder := c.Delete().Where(authorizationcode.ID(id))
+func (c *CommunicationLogClient) DeleteOneID(id int) *CommunicationLogDeleteOne {
+	builder := c.Delete().Where(communicationlog.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
-	return &AuthorizationCodeDeleteOne{builder}
+	return &CommunicationLogDeleteOne{builder}
 }
 
-// Query returns a query builder for AuthorizationCode.
-func (c *AuthorizationCodeClient) Query() *AuthorizationCodeQuery {
-	return &AuthorizationCodeQuery{
+// Query returns a query builder for CommunicationLog.
+func (c *CommunicationLogClient) Query() *CommunicationLogQuery {
+	return &CommunicationLogQuery{
 		config: c.config,
 	}
 }
 
-// Get returns a AuthorizationCode entity by its id.
-func (c *AuthorizationCodeClient) Get(ctx context.Context, id int) (*AuthorizationCode, error) {
-	return c.Query().Where(authorizationcode.ID(id)).Only(ctx)
+// Get returns a CommunicationLog entity by its id.
+func (c *CommunicationLogClient) Get(ctx context.Context, id int) (*CommunicationLog, error) {
+	return c.Query().Where(communicationlog.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *AuthorizationCodeClient) GetX(ctx context.Context, id int) *AuthorizationCode {
+func (c *CommunicationLogClient) GetX(ctx context.Context, id int) *CommunicationLog {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -236,463 +207,7 @@ func (c *AuthorizationCodeClient) GetX(ctx context.Context, id int) *Authorizati
 	return obj
 }
 
-// QueryOwner queries the owner edge of a AuthorizationCode.
-func (c *AuthorizationCodeClient) QueryOwner(ac *AuthorizationCode) *ServiceProviderQuery {
-	query := &ServiceProviderQuery{config: c.config}
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := ac.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(authorizationcode.Table, authorizationcode.FieldID, id),
-			sqlgraph.To(serviceprovider.Table, serviceprovider.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, authorizationcode.OwnerTable, authorizationcode.OwnerColumn),
-		)
-		fromV = sqlgraph.Neighbors(ac.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // Hooks returns the client hooks.
-func (c *AuthorizationCodeClient) Hooks() []Hook {
-	return c.hooks.AuthorizationCode
-}
-
-// HashChainClient is a client for the HashChain schema.
-type HashChainClient struct {
-	config
-}
-
-// NewHashChainClient returns a client for the HashChain from the given config.
-func NewHashChainClient(c config) *HashChainClient {
-	return &HashChainClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `hashchain.Hooks(f(g(h())))`.
-func (c *HashChainClient) Use(hooks ...Hook) {
-	c.hooks.HashChain = append(c.hooks.HashChain, hooks...)
-}
-
-// Create returns a builder for creating a HashChain entity.
-func (c *HashChainClient) Create() *HashChainCreate {
-	mutation := newHashChainMutation(c.config, OpCreate)
-	return &HashChainCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of HashChain entities.
-func (c *HashChainClient) CreateBulk(builders ...*HashChainCreate) *HashChainCreateBulk {
-	return &HashChainCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for HashChain.
-func (c *HashChainClient) Update() *HashChainUpdate {
-	mutation := newHashChainMutation(c.config, OpUpdate)
-	return &HashChainUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *HashChainClient) UpdateOne(hc *HashChain) *HashChainUpdateOne {
-	mutation := newHashChainMutation(c.config, OpUpdateOne, withHashChain(hc))
-	return &HashChainUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *HashChainClient) UpdateOneID(id int) *HashChainUpdateOne {
-	mutation := newHashChainMutation(c.config, OpUpdateOne, withHashChainID(id))
-	return &HashChainUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for HashChain.
-func (c *HashChainClient) Delete() *HashChainDelete {
-	mutation := newHashChainMutation(c.config, OpDelete)
-	return &HashChainDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *HashChainClient) DeleteOne(hc *HashChain) *HashChainDeleteOne {
-	return c.DeleteOneID(hc.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *HashChainClient) DeleteOneID(id int) *HashChainDeleteOne {
-	builder := c.Delete().Where(hashchain.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &HashChainDeleteOne{builder}
-}
-
-// Query returns a query builder for HashChain.
-func (c *HashChainClient) Query() *HashChainQuery {
-	return &HashChainQuery{
-		config: c.config,
-	}
-}
-
-// Get returns a HashChain entity by its id.
-func (c *HashChainClient) Get(ctx context.Context, id int) (*HashChain, error) {
-	return c.Query().Where(hashchain.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *HashChainClient) GetX(ctx context.Context, id int) *HashChain {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryLog queries the log edge of a HashChain.
-func (c *HashChainClient) QueryLog(hc *HashChain) *ServiceLogQuery {
-	query := &ServiceLogQuery{config: c.config}
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := hc.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(hashchain.Table, hashchain.FieldID, id),
-			sqlgraph.To(servicelog.Table, servicelog.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, hashchain.LogTable, hashchain.LogColumn),
-		)
-		fromV = sqlgraph.Neighbors(hc.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *HashChainClient) Hooks() []Hook {
-	return c.hooks.HashChain
-}
-
-// ServiceLogClient is a client for the ServiceLog schema.
-type ServiceLogClient struct {
-	config
-}
-
-// NewServiceLogClient returns a client for the ServiceLog from the given config.
-func NewServiceLogClient(c config) *ServiceLogClient {
-	return &ServiceLogClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `servicelog.Hooks(f(g(h())))`.
-func (c *ServiceLogClient) Use(hooks ...Hook) {
-	c.hooks.ServiceLog = append(c.hooks.ServiceLog, hooks...)
-}
-
-// Create returns a builder for creating a ServiceLog entity.
-func (c *ServiceLogClient) Create() *ServiceLogCreate {
-	mutation := newServiceLogMutation(c.config, OpCreate)
-	return &ServiceLogCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of ServiceLog entities.
-func (c *ServiceLogClient) CreateBulk(builders ...*ServiceLogCreate) *ServiceLogCreateBulk {
-	return &ServiceLogCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for ServiceLog.
-func (c *ServiceLogClient) Update() *ServiceLogUpdate {
-	mutation := newServiceLogMutation(c.config, OpUpdate)
-	return &ServiceLogUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *ServiceLogClient) UpdateOne(sl *ServiceLog) *ServiceLogUpdateOne {
-	mutation := newServiceLogMutation(c.config, OpUpdateOne, withServiceLog(sl))
-	return &ServiceLogUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *ServiceLogClient) UpdateOneID(id int) *ServiceLogUpdateOne {
-	mutation := newServiceLogMutation(c.config, OpUpdateOne, withServiceLogID(id))
-	return &ServiceLogUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for ServiceLog.
-func (c *ServiceLogClient) Delete() *ServiceLogDelete {
-	mutation := newServiceLogMutation(c.config, OpDelete)
-	return &ServiceLogDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *ServiceLogClient) DeleteOne(sl *ServiceLog) *ServiceLogDeleteOne {
-	return c.DeleteOneID(sl.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *ServiceLogClient) DeleteOneID(id int) *ServiceLogDeleteOne {
-	builder := c.Delete().Where(servicelog.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &ServiceLogDeleteOne{builder}
-}
-
-// Query returns a query builder for ServiceLog.
-func (c *ServiceLogClient) Query() *ServiceLogQuery {
-	return &ServiceLogQuery{
-		config: c.config,
-	}
-}
-
-// Get returns a ServiceLog entity by its id.
-func (c *ServiceLogClient) Get(ctx context.Context, id int) (*ServiceLog, error) {
-	return c.Query().Where(servicelog.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *ServiceLogClient) GetX(ctx context.Context, id int) *ServiceLog {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryHashchains queries the hashchains edge of a ServiceLog.
-func (c *ServiceLogClient) QueryHashchains(sl *ServiceLog) *HashChainQuery {
-	query := &HashChainQuery{config: c.config}
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := sl.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(servicelog.Table, servicelog.FieldID, id),
-			sqlgraph.To(hashchain.Table, hashchain.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, servicelog.HashchainsTable, servicelog.HashchainsColumn),
-		)
-		fromV = sqlgraph.Neighbors(sl.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *ServiceLogClient) Hooks() []Hook {
-	return c.hooks.ServiceLog
-}
-
-// ServiceProviderClient is a client for the ServiceProvider schema.
-type ServiceProviderClient struct {
-	config
-}
-
-// NewServiceProviderClient returns a client for the ServiceProvider from the given config.
-func NewServiceProviderClient(c config) *ServiceProviderClient {
-	return &ServiceProviderClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `serviceprovider.Hooks(f(g(h())))`.
-func (c *ServiceProviderClient) Use(hooks ...Hook) {
-	c.hooks.ServiceProvider = append(c.hooks.ServiceProvider, hooks...)
-}
-
-// Create returns a builder for creating a ServiceProvider entity.
-func (c *ServiceProviderClient) Create() *ServiceProviderCreate {
-	mutation := newServiceProviderMutation(c.config, OpCreate)
-	return &ServiceProviderCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of ServiceProvider entities.
-func (c *ServiceProviderClient) CreateBulk(builders ...*ServiceProviderCreate) *ServiceProviderCreateBulk {
-	return &ServiceProviderCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for ServiceProvider.
-func (c *ServiceProviderClient) Update() *ServiceProviderUpdate {
-	mutation := newServiceProviderMutation(c.config, OpUpdate)
-	return &ServiceProviderUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *ServiceProviderClient) UpdateOne(sp *ServiceProvider) *ServiceProviderUpdateOne {
-	mutation := newServiceProviderMutation(c.config, OpUpdateOne, withServiceProvider(sp))
-	return &ServiceProviderUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *ServiceProviderClient) UpdateOneID(id int) *ServiceProviderUpdateOne {
-	mutation := newServiceProviderMutation(c.config, OpUpdateOne, withServiceProviderID(id))
-	return &ServiceProviderUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for ServiceProvider.
-func (c *ServiceProviderClient) Delete() *ServiceProviderDelete {
-	mutation := newServiceProviderMutation(c.config, OpDelete)
-	return &ServiceProviderDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *ServiceProviderClient) DeleteOne(sp *ServiceProvider) *ServiceProviderDeleteOne {
-	return c.DeleteOneID(sp.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *ServiceProviderClient) DeleteOneID(id int) *ServiceProviderDeleteOne {
-	builder := c.Delete().Where(serviceprovider.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &ServiceProviderDeleteOne{builder}
-}
-
-// Query returns a query builder for ServiceProvider.
-func (c *ServiceProviderClient) Query() *ServiceProviderQuery {
-	return &ServiceProviderQuery{
-		config: c.config,
-	}
-}
-
-// Get returns a ServiceProvider entity by its id.
-func (c *ServiceProviderClient) Get(ctx context.Context, id int) (*ServiceProvider, error) {
-	return c.Query().Where(serviceprovider.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *ServiceProviderClient) GetX(ctx context.Context, id int) *ServiceProvider {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryWhitelists queries the whitelists edge of a ServiceProvider.
-func (c *ServiceProviderClient) QueryWhitelists(sp *ServiceProvider) *WhiteListQuery {
-	query := &WhiteListQuery{config: c.config}
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := sp.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(serviceprovider.Table, serviceprovider.FieldID, id),
-			sqlgraph.To(whitelist.Table, whitelist.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, serviceprovider.WhitelistsTable, serviceprovider.WhitelistsColumn),
-		)
-		fromV = sqlgraph.Neighbors(sp.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryAuthorizationCodes queries the authorization_codes edge of a ServiceProvider.
-func (c *ServiceProviderClient) QueryAuthorizationCodes(sp *ServiceProvider) *AuthorizationCodeQuery {
-	query := &AuthorizationCodeQuery{config: c.config}
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := sp.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(serviceprovider.Table, serviceprovider.FieldID, id),
-			sqlgraph.To(authorizationcode.Table, authorizationcode.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, serviceprovider.AuthorizationCodesTable, serviceprovider.AuthorizationCodesColumn),
-		)
-		fromV = sqlgraph.Neighbors(sp.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *ServiceProviderClient) Hooks() []Hook {
-	return c.hooks.ServiceProvider
-}
-
-// WhiteListClient is a client for the WhiteList schema.
-type WhiteListClient struct {
-	config
-}
-
-// NewWhiteListClient returns a client for the WhiteList from the given config.
-func NewWhiteListClient(c config) *WhiteListClient {
-	return &WhiteListClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `whitelist.Hooks(f(g(h())))`.
-func (c *WhiteListClient) Use(hooks ...Hook) {
-	c.hooks.WhiteList = append(c.hooks.WhiteList, hooks...)
-}
-
-// Create returns a builder for creating a WhiteList entity.
-func (c *WhiteListClient) Create() *WhiteListCreate {
-	mutation := newWhiteListMutation(c.config, OpCreate)
-	return &WhiteListCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of WhiteList entities.
-func (c *WhiteListClient) CreateBulk(builders ...*WhiteListCreate) *WhiteListCreateBulk {
-	return &WhiteListCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for WhiteList.
-func (c *WhiteListClient) Update() *WhiteListUpdate {
-	mutation := newWhiteListMutation(c.config, OpUpdate)
-	return &WhiteListUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *WhiteListClient) UpdateOne(wl *WhiteList) *WhiteListUpdateOne {
-	mutation := newWhiteListMutation(c.config, OpUpdateOne, withWhiteList(wl))
-	return &WhiteListUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *WhiteListClient) UpdateOneID(id int) *WhiteListUpdateOne {
-	mutation := newWhiteListMutation(c.config, OpUpdateOne, withWhiteListID(id))
-	return &WhiteListUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for WhiteList.
-func (c *WhiteListClient) Delete() *WhiteListDelete {
-	mutation := newWhiteListMutation(c.config, OpDelete)
-	return &WhiteListDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *WhiteListClient) DeleteOne(wl *WhiteList) *WhiteListDeleteOne {
-	return c.DeleteOneID(wl.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *WhiteListClient) DeleteOneID(id int) *WhiteListDeleteOne {
-	builder := c.Delete().Where(whitelist.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &WhiteListDeleteOne{builder}
-}
-
-// Query returns a query builder for WhiteList.
-func (c *WhiteListClient) Query() *WhiteListQuery {
-	return &WhiteListQuery{
-		config: c.config,
-	}
-}
-
-// Get returns a WhiteList entity by its id.
-func (c *WhiteListClient) Get(ctx context.Context, id int) (*WhiteList, error) {
-	return c.Query().Where(whitelist.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *WhiteListClient) GetX(ctx context.Context, id int) *WhiteList {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryOwner queries the owner edge of a WhiteList.
-func (c *WhiteListClient) QueryOwner(wl *WhiteList) *ServiceProviderQuery {
-	query := &ServiceProviderQuery{config: c.config}
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := wl.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(whitelist.Table, whitelist.FieldID, id),
-			sqlgraph.To(serviceprovider.Table, serviceprovider.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, whitelist.OwnerTable, whitelist.OwnerColumn),
-		)
-		fromV = sqlgraph.Neighbors(wl.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *WhiteListClient) Hooks() []Hook {
-	return c.hooks.WhiteList
+func (c *CommunicationLogClient) Hooks() []Hook {
+	return c.hooks.CommunicationLog
 }

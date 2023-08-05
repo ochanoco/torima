@@ -9,12 +9,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ochanoco/proxy/ent/authorizationcode"
-	"github.com/ochanoco/proxy/ent/hashchain"
+	"github.com/ochanoco/proxy/ent/communicationlog"
 	"github.com/ochanoco/proxy/ent/predicate"
-	"github.com/ochanoco/proxy/ent/servicelog"
-	"github.com/ochanoco/proxy/ent/serviceprovider"
-	"github.com/ochanoco/proxy/ent/whitelist"
 
 	"entgo.io/ent"
 )
@@ -28,39 +24,36 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeAuthorizationCode = "AuthorizationCode"
-	TypeHashChain         = "HashChain"
-	TypeServiceLog        = "ServiceLog"
-	TypeServiceProvider   = "ServiceProvider"
-	TypeWhiteList         = "WhiteList"
+	TypeCommunicationLog = "CommunicationLog"
 )
 
-// AuthorizationCodeMutation represents an operation that mutates the AuthorizationCode nodes in the graph.
-type AuthorizationCodeMutation struct {
+// CommunicationLogMutation represents an operation that mutates the CommunicationLog nodes in the graph.
+type CommunicationLogMutation struct {
 	config
 	op            Op
 	typ           string
 	id            *int
-	token         *string
+	_type         *string
+	time          *time.Time
+	headers       *string
+	body          *[]byte
 	clearedFields map[string]struct{}
-	owner         *int
-	clearedowner  bool
 	done          bool
-	oldValue      func(context.Context) (*AuthorizationCode, error)
-	predicates    []predicate.AuthorizationCode
+	oldValue      func(context.Context) (*CommunicationLog, error)
+	predicates    []predicate.CommunicationLog
 }
 
-var _ ent.Mutation = (*AuthorizationCodeMutation)(nil)
+var _ ent.Mutation = (*CommunicationLogMutation)(nil)
 
-// authorizationcodeOption allows management of the mutation configuration using functional options.
-type authorizationcodeOption func(*AuthorizationCodeMutation)
+// communicationlogOption allows management of the mutation configuration using functional options.
+type communicationlogOption func(*CommunicationLogMutation)
 
-// newAuthorizationCodeMutation creates new mutation for the AuthorizationCode entity.
-func newAuthorizationCodeMutation(c config, op Op, opts ...authorizationcodeOption) *AuthorizationCodeMutation {
-	m := &AuthorizationCodeMutation{
+// newCommunicationLogMutation creates new mutation for the CommunicationLog entity.
+func newCommunicationLogMutation(c config, op Op, opts ...communicationlogOption) *CommunicationLogMutation {
+	m := &CommunicationLogMutation{
 		config:        c,
 		op:            op,
-		typ:           TypeAuthorizationCode,
+		typ:           TypeCommunicationLog,
 		clearedFields: make(map[string]struct{}),
 	}
 	for _, opt := range opts {
@@ -69,20 +62,20 @@ func newAuthorizationCodeMutation(c config, op Op, opts ...authorizationcodeOpti
 	return m
 }
 
-// withAuthorizationCodeID sets the ID field of the mutation.
-func withAuthorizationCodeID(id int) authorizationcodeOption {
-	return func(m *AuthorizationCodeMutation) {
+// withCommunicationLogID sets the ID field of the mutation.
+func withCommunicationLogID(id int) communicationlogOption {
+	return func(m *CommunicationLogMutation) {
 		var (
 			err   error
 			once  sync.Once
-			value *AuthorizationCode
+			value *CommunicationLog
 		)
-		m.oldValue = func(ctx context.Context) (*AuthorizationCode, error) {
+		m.oldValue = func(ctx context.Context) (*CommunicationLog, error) {
 			once.Do(func() {
 				if m.done {
 					err = errors.New("querying old values post mutation is not allowed")
 				} else {
-					value, err = m.Client().AuthorizationCode.Get(ctx, id)
+					value, err = m.Client().CommunicationLog.Get(ctx, id)
 				}
 			})
 			return value, err
@@ -91,10 +84,10 @@ func withAuthorizationCodeID(id int) authorizationcodeOption {
 	}
 }
 
-// withAuthorizationCode sets the old AuthorizationCode of the mutation.
-func withAuthorizationCode(node *AuthorizationCode) authorizationcodeOption {
-	return func(m *AuthorizationCodeMutation) {
-		m.oldValue = func(context.Context) (*AuthorizationCode, error) {
+// withCommunicationLog sets the old CommunicationLog of the mutation.
+func withCommunicationLog(node *CommunicationLog) communicationlogOption {
+	return func(m *CommunicationLogMutation) {
+		m.oldValue = func(context.Context) (*CommunicationLog, error) {
 			return node, nil
 		}
 		m.id = &node.ID
@@ -103,7 +96,7 @@ func withAuthorizationCode(node *AuthorizationCode) authorizationcodeOption {
 
 // Client returns a new `ent.Client` from the mutation. If the mutation was
 // executed in a transaction (ent.Tx), a transactional client is returned.
-func (m AuthorizationCodeMutation) Client() *Client {
+func (m CommunicationLogMutation) Client() *Client {
 	client := &Client{config: m.config}
 	client.init()
 	return client
@@ -111,7 +104,7 @@ func (m AuthorizationCodeMutation) Client() *Client {
 
 // Tx returns an `ent.Tx` for mutations that were executed in transactions;
 // it returns an error otherwise.
-func (m AuthorizationCodeMutation) Tx() (*Tx, error) {
+func (m CommunicationLogMutation) Tx() (*Tx, error) {
 	if _, ok := m.driver.(*txDriver); !ok {
 		return nil, errors.New("ent: mutation is not running in a transaction")
 	}
@@ -122,7 +115,7 @@ func (m AuthorizationCodeMutation) Tx() (*Tx, error) {
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *AuthorizationCodeMutation) ID() (id int, exists bool) {
+func (m *CommunicationLogMutation) ID() (id int, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -133,7 +126,7 @@ func (m *AuthorizationCodeMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *AuthorizationCodeMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *CommunicationLogMutation) IDs(ctx context.Context) ([]int, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
@@ -142,832 +135,55 @@ func (m *AuthorizationCodeMutation) IDs(ctx context.Context) ([]int, error) {
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().AuthorizationCode.Query().Where(m.predicates...).IDs(ctx)
+		return m.Client().CommunicationLog.Query().Where(m.predicates...).IDs(ctx)
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
 }
 
-// SetToken sets the "token" field.
-func (m *AuthorizationCodeMutation) SetToken(s string) {
-	m.token = &s
+// SetType sets the "type" field.
+func (m *CommunicationLogMutation) SetType(s string) {
+	m._type = &s
 }
 
-// Token returns the value of the "token" field in the mutation.
-func (m *AuthorizationCodeMutation) Token() (r string, exists bool) {
-	v := m.token
+// GetType returns the value of the "type" field in the mutation.
+func (m *CommunicationLogMutation) GetType() (r string, exists bool) {
+	v := m._type
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldToken returns the old "token" field's value of the AuthorizationCode entity.
-// If the AuthorizationCode object wasn't provided to the builder, the object is fetched from the database.
+// OldType returns the old "type" field's value of the CommunicationLog entity.
+// If the CommunicationLog object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AuthorizationCodeMutation) OldToken(ctx context.Context) (v string, err error) {
+func (m *CommunicationLogMutation) OldType(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldToken is only allowed on UpdateOne operations")
+		return v, errors.New("OldType is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldToken requires an ID field in the mutation")
+		return v, errors.New("OldType requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldToken: %w", err)
+		return v, fmt.Errorf("querying old value for OldType: %w", err)
 	}
-	return oldValue.Token, nil
+	return oldValue.Type, nil
 }
 
-// ResetToken resets all changes to the "token" field.
-func (m *AuthorizationCodeMutation) ResetToken() {
-	m.token = nil
-}
-
-// SetOwnerID sets the "owner" edge to the ServiceProvider entity by id.
-func (m *AuthorizationCodeMutation) SetOwnerID(id int) {
-	m.owner = &id
-}
-
-// ClearOwner clears the "owner" edge to the ServiceProvider entity.
-func (m *AuthorizationCodeMutation) ClearOwner() {
-	m.clearedowner = true
-}
-
-// OwnerCleared reports if the "owner" edge to the ServiceProvider entity was cleared.
-func (m *AuthorizationCodeMutation) OwnerCleared() bool {
-	return m.clearedowner
-}
-
-// OwnerID returns the "owner" edge ID in the mutation.
-func (m *AuthorizationCodeMutation) OwnerID() (id int, exists bool) {
-	if m.owner != nil {
-		return *m.owner, true
-	}
-	return
-}
-
-// OwnerIDs returns the "owner" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// OwnerID instead. It exists only for internal usage by the builders.
-func (m *AuthorizationCodeMutation) OwnerIDs() (ids []int) {
-	if id := m.owner; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetOwner resets all changes to the "owner" edge.
-func (m *AuthorizationCodeMutation) ResetOwner() {
-	m.owner = nil
-	m.clearedowner = false
-}
-
-// Where appends a list predicates to the AuthorizationCodeMutation builder.
-func (m *AuthorizationCodeMutation) Where(ps ...predicate.AuthorizationCode) {
-	m.predicates = append(m.predicates, ps...)
-}
-
-// Op returns the operation name.
-func (m *AuthorizationCodeMutation) Op() Op {
-	return m.op
-}
-
-// Type returns the node type of this mutation (AuthorizationCode).
-func (m *AuthorizationCodeMutation) Type() string {
-	return m.typ
-}
-
-// Fields returns all fields that were changed during this mutation. Note that in
-// order to get all numeric fields that were incremented/decremented, call
-// AddedFields().
-func (m *AuthorizationCodeMutation) Fields() []string {
-	fields := make([]string, 0, 1)
-	if m.token != nil {
-		fields = append(fields, authorizationcode.FieldToken)
-	}
-	return fields
-}
-
-// Field returns the value of a field with the given name. The second boolean
-// return value indicates that this field was not set, or was not defined in the
-// schema.
-func (m *AuthorizationCodeMutation) Field(name string) (ent.Value, bool) {
-	switch name {
-	case authorizationcode.FieldToken:
-		return m.Token()
-	}
-	return nil, false
-}
-
-// OldField returns the old value of the field from the database. An error is
-// returned if the mutation operation is not UpdateOne, or the query to the
-// database failed.
-func (m *AuthorizationCodeMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
-	switch name {
-	case authorizationcode.FieldToken:
-		return m.OldToken(ctx)
-	}
-	return nil, fmt.Errorf("unknown AuthorizationCode field %s", name)
-}
-
-// SetField sets the value of a field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *AuthorizationCodeMutation) SetField(name string, value ent.Value) error {
-	switch name {
-	case authorizationcode.FieldToken:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetToken(v)
-		return nil
-	}
-	return fmt.Errorf("unknown AuthorizationCode field %s", name)
-}
-
-// AddedFields returns all numeric fields that were incremented/decremented during
-// this mutation.
-func (m *AuthorizationCodeMutation) AddedFields() []string {
-	return nil
-}
-
-// AddedField returns the numeric value that was incremented/decremented on a field
-// with the given name. The second boolean return value indicates that this field
-// was not set, or was not defined in the schema.
-func (m *AuthorizationCodeMutation) AddedField(name string) (ent.Value, bool) {
-	return nil, false
-}
-
-// AddField adds the value to the field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *AuthorizationCodeMutation) AddField(name string, value ent.Value) error {
-	switch name {
-	}
-	return fmt.Errorf("unknown AuthorizationCode numeric field %s", name)
-}
-
-// ClearedFields returns all nullable fields that were cleared during this
-// mutation.
-func (m *AuthorizationCodeMutation) ClearedFields() []string {
-	return nil
-}
-
-// FieldCleared returns a boolean indicating if a field with the given name was
-// cleared in this mutation.
-func (m *AuthorizationCodeMutation) FieldCleared(name string) bool {
-	_, ok := m.clearedFields[name]
-	return ok
-}
-
-// ClearField clears the value of the field with the given name. It returns an
-// error if the field is not defined in the schema.
-func (m *AuthorizationCodeMutation) ClearField(name string) error {
-	return fmt.Errorf("unknown AuthorizationCode nullable field %s", name)
-}
-
-// ResetField resets all changes in the mutation for the field with the given name.
-// It returns an error if the field is not defined in the schema.
-func (m *AuthorizationCodeMutation) ResetField(name string) error {
-	switch name {
-	case authorizationcode.FieldToken:
-		m.ResetToken()
-		return nil
-	}
-	return fmt.Errorf("unknown AuthorizationCode field %s", name)
-}
-
-// AddedEdges returns all edge names that were set/added in this mutation.
-func (m *AuthorizationCodeMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.owner != nil {
-		edges = append(edges, authorizationcode.EdgeOwner)
-	}
-	return edges
-}
-
-// AddedIDs returns all IDs (to other nodes) that were added for the given edge
-// name in this mutation.
-func (m *AuthorizationCodeMutation) AddedIDs(name string) []ent.Value {
-	switch name {
-	case authorizationcode.EdgeOwner:
-		if id := m.owner; id != nil {
-			return []ent.Value{*id}
-		}
-	}
-	return nil
-}
-
-// RemovedEdges returns all edge names that were removed in this mutation.
-func (m *AuthorizationCodeMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
-	return edges
-}
-
-// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
-// the given name in this mutation.
-func (m *AuthorizationCodeMutation) RemovedIDs(name string) []ent.Value {
-	return nil
-}
-
-// ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *AuthorizationCodeMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.clearedowner {
-		edges = append(edges, authorizationcode.EdgeOwner)
-	}
-	return edges
-}
-
-// EdgeCleared returns a boolean which indicates if the edge with the given name
-// was cleared in this mutation.
-func (m *AuthorizationCodeMutation) EdgeCleared(name string) bool {
-	switch name {
-	case authorizationcode.EdgeOwner:
-		return m.clearedowner
-	}
-	return false
-}
-
-// ClearEdge clears the value of the edge with the given name. It returns an error
-// if that edge is not defined in the schema.
-func (m *AuthorizationCodeMutation) ClearEdge(name string) error {
-	switch name {
-	case authorizationcode.EdgeOwner:
-		m.ClearOwner()
-		return nil
-	}
-	return fmt.Errorf("unknown AuthorizationCode unique edge %s", name)
-}
-
-// ResetEdge resets all changes to the edge with the given name in this mutation.
-// It returns an error if the edge is not defined in the schema.
-func (m *AuthorizationCodeMutation) ResetEdge(name string) error {
-	switch name {
-	case authorizationcode.EdgeOwner:
-		m.ResetOwner()
-		return nil
-	}
-	return fmt.Errorf("unknown AuthorizationCode edge %s", name)
-}
-
-// HashChainMutation represents an operation that mutates the HashChain nodes in the graph.
-type HashChainMutation struct {
-	config
-	op            Op
-	typ           string
-	id            *int
-	hash          *[]byte
-	signature     *[]byte
-	clearedFields map[string]struct{}
-	log           *int
-	clearedlog    bool
-	done          bool
-	oldValue      func(context.Context) (*HashChain, error)
-	predicates    []predicate.HashChain
-}
-
-var _ ent.Mutation = (*HashChainMutation)(nil)
-
-// hashchainOption allows management of the mutation configuration using functional options.
-type hashchainOption func(*HashChainMutation)
-
-// newHashChainMutation creates new mutation for the HashChain entity.
-func newHashChainMutation(c config, op Op, opts ...hashchainOption) *HashChainMutation {
-	m := &HashChainMutation{
-		config:        c,
-		op:            op,
-		typ:           TypeHashChain,
-		clearedFields: make(map[string]struct{}),
-	}
-	for _, opt := range opts {
-		opt(m)
-	}
-	return m
-}
-
-// withHashChainID sets the ID field of the mutation.
-func withHashChainID(id int) hashchainOption {
-	return func(m *HashChainMutation) {
-		var (
-			err   error
-			once  sync.Once
-			value *HashChain
-		)
-		m.oldValue = func(ctx context.Context) (*HashChain, error) {
-			once.Do(func() {
-				if m.done {
-					err = errors.New("querying old values post mutation is not allowed")
-				} else {
-					value, err = m.Client().HashChain.Get(ctx, id)
-				}
-			})
-			return value, err
-		}
-		m.id = &id
-	}
-}
-
-// withHashChain sets the old HashChain of the mutation.
-func withHashChain(node *HashChain) hashchainOption {
-	return func(m *HashChainMutation) {
-		m.oldValue = func(context.Context) (*HashChain, error) {
-			return node, nil
-		}
-		m.id = &node.ID
-	}
-}
-
-// Client returns a new `ent.Client` from the mutation. If the mutation was
-// executed in a transaction (ent.Tx), a transactional client is returned.
-func (m HashChainMutation) Client() *Client {
-	client := &Client{config: m.config}
-	client.init()
-	return client
-}
-
-// Tx returns an `ent.Tx` for mutations that were executed in transactions;
-// it returns an error otherwise.
-func (m HashChainMutation) Tx() (*Tx, error) {
-	if _, ok := m.driver.(*txDriver); !ok {
-		return nil, errors.New("ent: mutation is not running in a transaction")
-	}
-	tx := &Tx{config: m.config}
-	tx.init()
-	return tx, nil
-}
-
-// ID returns the ID value in the mutation. Note that the ID is only available
-// if it was provided to the builder or after it was returned from the database.
-func (m *HashChainMutation) ID() (id int, exists bool) {
-	if m.id == nil {
-		return
-	}
-	return *m.id, true
-}
-
-// IDs queries the database and returns the entity ids that match the mutation's predicate.
-// That means, if the mutation is applied within a transaction with an isolation level such
-// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
-// or updated by the mutation.
-func (m *HashChainMutation) IDs(ctx context.Context) ([]int, error) {
-	switch {
-	case m.op.Is(OpUpdateOne | OpDeleteOne):
-		id, exists := m.ID()
-		if exists {
-			return []int{id}, nil
-		}
-		fallthrough
-	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().HashChain.Query().Where(m.predicates...).IDs(ctx)
-	default:
-		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
-	}
-}
-
-// SetHash sets the "hash" field.
-func (m *HashChainMutation) SetHash(b []byte) {
-	m.hash = &b
-}
-
-// Hash returns the value of the "hash" field in the mutation.
-func (m *HashChainMutation) Hash() (r []byte, exists bool) {
-	v := m.hash
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldHash returns the old "hash" field's value of the HashChain entity.
-// If the HashChain object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HashChainMutation) OldHash(ctx context.Context) (v []byte, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldHash is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldHash requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldHash: %w", err)
-	}
-	return oldValue.Hash, nil
-}
-
-// ResetHash resets all changes to the "hash" field.
-func (m *HashChainMutation) ResetHash() {
-	m.hash = nil
-}
-
-// SetSignature sets the "signature" field.
-func (m *HashChainMutation) SetSignature(b []byte) {
-	m.signature = &b
-}
-
-// Signature returns the value of the "signature" field in the mutation.
-func (m *HashChainMutation) Signature() (r []byte, exists bool) {
-	v := m.signature
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldSignature returns the old "signature" field's value of the HashChain entity.
-// If the HashChain object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HashChainMutation) OldSignature(ctx context.Context) (v []byte, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldSignature is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldSignature requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSignature: %w", err)
-	}
-	return oldValue.Signature, nil
-}
-
-// ResetSignature resets all changes to the "signature" field.
-func (m *HashChainMutation) ResetSignature() {
-	m.signature = nil
-}
-
-// SetLogID sets the "log" edge to the ServiceLog entity by id.
-func (m *HashChainMutation) SetLogID(id int) {
-	m.log = &id
-}
-
-// ClearLog clears the "log" edge to the ServiceLog entity.
-func (m *HashChainMutation) ClearLog() {
-	m.clearedlog = true
-}
-
-// LogCleared reports if the "log" edge to the ServiceLog entity was cleared.
-func (m *HashChainMutation) LogCleared() bool {
-	return m.clearedlog
-}
-
-// LogID returns the "log" edge ID in the mutation.
-func (m *HashChainMutation) LogID() (id int, exists bool) {
-	if m.log != nil {
-		return *m.log, true
-	}
-	return
-}
-
-// LogIDs returns the "log" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// LogID instead. It exists only for internal usage by the builders.
-func (m *HashChainMutation) LogIDs() (ids []int) {
-	if id := m.log; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetLog resets all changes to the "log" edge.
-func (m *HashChainMutation) ResetLog() {
-	m.log = nil
-	m.clearedlog = false
-}
-
-// Where appends a list predicates to the HashChainMutation builder.
-func (m *HashChainMutation) Where(ps ...predicate.HashChain) {
-	m.predicates = append(m.predicates, ps...)
-}
-
-// Op returns the operation name.
-func (m *HashChainMutation) Op() Op {
-	return m.op
-}
-
-// Type returns the node type of this mutation (HashChain).
-func (m *HashChainMutation) Type() string {
-	return m.typ
-}
-
-// Fields returns all fields that were changed during this mutation. Note that in
-// order to get all numeric fields that were incremented/decremented, call
-// AddedFields().
-func (m *HashChainMutation) Fields() []string {
-	fields := make([]string, 0, 2)
-	if m.hash != nil {
-		fields = append(fields, hashchain.FieldHash)
-	}
-	if m.signature != nil {
-		fields = append(fields, hashchain.FieldSignature)
-	}
-	return fields
-}
-
-// Field returns the value of a field with the given name. The second boolean
-// return value indicates that this field was not set, or was not defined in the
-// schema.
-func (m *HashChainMutation) Field(name string) (ent.Value, bool) {
-	switch name {
-	case hashchain.FieldHash:
-		return m.Hash()
-	case hashchain.FieldSignature:
-		return m.Signature()
-	}
-	return nil, false
-}
-
-// OldField returns the old value of the field from the database. An error is
-// returned if the mutation operation is not UpdateOne, or the query to the
-// database failed.
-func (m *HashChainMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
-	switch name {
-	case hashchain.FieldHash:
-		return m.OldHash(ctx)
-	case hashchain.FieldSignature:
-		return m.OldSignature(ctx)
-	}
-	return nil, fmt.Errorf("unknown HashChain field %s", name)
-}
-
-// SetField sets the value of a field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *HashChainMutation) SetField(name string, value ent.Value) error {
-	switch name {
-	case hashchain.FieldHash:
-		v, ok := value.([]byte)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetHash(v)
-		return nil
-	case hashchain.FieldSignature:
-		v, ok := value.([]byte)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetSignature(v)
-		return nil
-	}
-	return fmt.Errorf("unknown HashChain field %s", name)
-}
-
-// AddedFields returns all numeric fields that were incremented/decremented during
-// this mutation.
-func (m *HashChainMutation) AddedFields() []string {
-	return nil
-}
-
-// AddedField returns the numeric value that was incremented/decremented on a field
-// with the given name. The second boolean return value indicates that this field
-// was not set, or was not defined in the schema.
-func (m *HashChainMutation) AddedField(name string) (ent.Value, bool) {
-	return nil, false
-}
-
-// AddField adds the value to the field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *HashChainMutation) AddField(name string, value ent.Value) error {
-	switch name {
-	}
-	return fmt.Errorf("unknown HashChain numeric field %s", name)
-}
-
-// ClearedFields returns all nullable fields that were cleared during this
-// mutation.
-func (m *HashChainMutation) ClearedFields() []string {
-	return nil
-}
-
-// FieldCleared returns a boolean indicating if a field with the given name was
-// cleared in this mutation.
-func (m *HashChainMutation) FieldCleared(name string) bool {
-	_, ok := m.clearedFields[name]
-	return ok
-}
-
-// ClearField clears the value of the field with the given name. It returns an
-// error if the field is not defined in the schema.
-func (m *HashChainMutation) ClearField(name string) error {
-	return fmt.Errorf("unknown HashChain nullable field %s", name)
-}
-
-// ResetField resets all changes in the mutation for the field with the given name.
-// It returns an error if the field is not defined in the schema.
-func (m *HashChainMutation) ResetField(name string) error {
-	switch name {
-	case hashchain.FieldHash:
-		m.ResetHash()
-		return nil
-	case hashchain.FieldSignature:
-		m.ResetSignature()
-		return nil
-	}
-	return fmt.Errorf("unknown HashChain field %s", name)
-}
-
-// AddedEdges returns all edge names that were set/added in this mutation.
-func (m *HashChainMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.log != nil {
-		edges = append(edges, hashchain.EdgeLog)
-	}
-	return edges
-}
-
-// AddedIDs returns all IDs (to other nodes) that were added for the given edge
-// name in this mutation.
-func (m *HashChainMutation) AddedIDs(name string) []ent.Value {
-	switch name {
-	case hashchain.EdgeLog:
-		if id := m.log; id != nil {
-			return []ent.Value{*id}
-		}
-	}
-	return nil
-}
-
-// RemovedEdges returns all edge names that were removed in this mutation.
-func (m *HashChainMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
-	return edges
-}
-
-// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
-// the given name in this mutation.
-func (m *HashChainMutation) RemovedIDs(name string) []ent.Value {
-	return nil
-}
-
-// ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *HashChainMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.clearedlog {
-		edges = append(edges, hashchain.EdgeLog)
-	}
-	return edges
-}
-
-// EdgeCleared returns a boolean which indicates if the edge with the given name
-// was cleared in this mutation.
-func (m *HashChainMutation) EdgeCleared(name string) bool {
-	switch name {
-	case hashchain.EdgeLog:
-		return m.clearedlog
-	}
-	return false
-}
-
-// ClearEdge clears the value of the edge with the given name. It returns an error
-// if that edge is not defined in the schema.
-func (m *HashChainMutation) ClearEdge(name string) error {
-	switch name {
-	case hashchain.EdgeLog:
-		m.ClearLog()
-		return nil
-	}
-	return fmt.Errorf("unknown HashChain unique edge %s", name)
-}
-
-// ResetEdge resets all changes to the edge with the given name in this mutation.
-// It returns an error if the edge is not defined in the schema.
-func (m *HashChainMutation) ResetEdge(name string) error {
-	switch name {
-	case hashchain.EdgeLog:
-		m.ResetLog()
-		return nil
-	}
-	return fmt.Errorf("unknown HashChain edge %s", name)
-}
-
-// ServiceLogMutation represents an operation that mutates the ServiceLog nodes in the graph.
-type ServiceLogMutation struct {
-	config
-	op                Op
-	typ               string
-	id                *int
-	time              *time.Time
-	headers           *string
-	body              *[]byte
-	clearedFields     map[string]struct{}
-	hashchains        map[int]struct{}
-	removedhashchains map[int]struct{}
-	clearedhashchains bool
-	done              bool
-	oldValue          func(context.Context) (*ServiceLog, error)
-	predicates        []predicate.ServiceLog
-}
-
-var _ ent.Mutation = (*ServiceLogMutation)(nil)
-
-// servicelogOption allows management of the mutation configuration using functional options.
-type servicelogOption func(*ServiceLogMutation)
-
-// newServiceLogMutation creates new mutation for the ServiceLog entity.
-func newServiceLogMutation(c config, op Op, opts ...servicelogOption) *ServiceLogMutation {
-	m := &ServiceLogMutation{
-		config:        c,
-		op:            op,
-		typ:           TypeServiceLog,
-		clearedFields: make(map[string]struct{}),
-	}
-	for _, opt := range opts {
-		opt(m)
-	}
-	return m
-}
-
-// withServiceLogID sets the ID field of the mutation.
-func withServiceLogID(id int) servicelogOption {
-	return func(m *ServiceLogMutation) {
-		var (
-			err   error
-			once  sync.Once
-			value *ServiceLog
-		)
-		m.oldValue = func(ctx context.Context) (*ServiceLog, error) {
-			once.Do(func() {
-				if m.done {
-					err = errors.New("querying old values post mutation is not allowed")
-				} else {
-					value, err = m.Client().ServiceLog.Get(ctx, id)
-				}
-			})
-			return value, err
-		}
-		m.id = &id
-	}
-}
-
-// withServiceLog sets the old ServiceLog of the mutation.
-func withServiceLog(node *ServiceLog) servicelogOption {
-	return func(m *ServiceLogMutation) {
-		m.oldValue = func(context.Context) (*ServiceLog, error) {
-			return node, nil
-		}
-		m.id = &node.ID
-	}
-}
-
-// Client returns a new `ent.Client` from the mutation. If the mutation was
-// executed in a transaction (ent.Tx), a transactional client is returned.
-func (m ServiceLogMutation) Client() *Client {
-	client := &Client{config: m.config}
-	client.init()
-	return client
-}
-
-// Tx returns an `ent.Tx` for mutations that were executed in transactions;
-// it returns an error otherwise.
-func (m ServiceLogMutation) Tx() (*Tx, error) {
-	if _, ok := m.driver.(*txDriver); !ok {
-		return nil, errors.New("ent: mutation is not running in a transaction")
-	}
-	tx := &Tx{config: m.config}
-	tx.init()
-	return tx, nil
-}
-
-// ID returns the ID value in the mutation. Note that the ID is only available
-// if it was provided to the builder or after it was returned from the database.
-func (m *ServiceLogMutation) ID() (id int, exists bool) {
-	if m.id == nil {
-		return
-	}
-	return *m.id, true
-}
-
-// IDs queries the database and returns the entity ids that match the mutation's predicate.
-// That means, if the mutation is applied within a transaction with an isolation level such
-// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
-// or updated by the mutation.
-func (m *ServiceLogMutation) IDs(ctx context.Context) ([]int, error) {
-	switch {
-	case m.op.Is(OpUpdateOne | OpDeleteOne):
-		id, exists := m.ID()
-		if exists {
-			return []int{id}, nil
-		}
-		fallthrough
-	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().ServiceLog.Query().Where(m.predicates...).IDs(ctx)
-	default:
-		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
-	}
+// ResetType resets all changes to the "type" field.
+func (m *CommunicationLogMutation) ResetType() {
+	m._type = nil
 }
 
 // SetTime sets the "time" field.
-func (m *ServiceLogMutation) SetTime(t time.Time) {
+func (m *CommunicationLogMutation) SetTime(t time.Time) {
 	m.time = &t
 }
 
 // Time returns the value of the "time" field in the mutation.
-func (m *ServiceLogMutation) Time() (r time.Time, exists bool) {
+func (m *CommunicationLogMutation) Time() (r time.Time, exists bool) {
 	v := m.time
 	if v == nil {
 		return
@@ -975,10 +191,10 @@ func (m *ServiceLogMutation) Time() (r time.Time, exists bool) {
 	return *v, true
 }
 
-// OldTime returns the old "time" field's value of the ServiceLog entity.
-// If the ServiceLog object wasn't provided to the builder, the object is fetched from the database.
+// OldTime returns the old "time" field's value of the CommunicationLog entity.
+// If the CommunicationLog object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ServiceLogMutation) OldTime(ctx context.Context) (v time.Time, err error) {
+func (m *CommunicationLogMutation) OldTime(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldTime is only allowed on UpdateOne operations")
 	}
@@ -993,17 +209,17 @@ func (m *ServiceLogMutation) OldTime(ctx context.Context) (v time.Time, err erro
 }
 
 // ResetTime resets all changes to the "time" field.
-func (m *ServiceLogMutation) ResetTime() {
+func (m *CommunicationLogMutation) ResetTime() {
 	m.time = nil
 }
 
 // SetHeaders sets the "headers" field.
-func (m *ServiceLogMutation) SetHeaders(s string) {
+func (m *CommunicationLogMutation) SetHeaders(s string) {
 	m.headers = &s
 }
 
 // Headers returns the value of the "headers" field in the mutation.
-func (m *ServiceLogMutation) Headers() (r string, exists bool) {
+func (m *CommunicationLogMutation) Headers() (r string, exists bool) {
 	v := m.headers
 	if v == nil {
 		return
@@ -1011,10 +227,10 @@ func (m *ServiceLogMutation) Headers() (r string, exists bool) {
 	return *v, true
 }
 
-// OldHeaders returns the old "headers" field's value of the ServiceLog entity.
-// If the ServiceLog object wasn't provided to the builder, the object is fetched from the database.
+// OldHeaders returns the old "headers" field's value of the CommunicationLog entity.
+// If the CommunicationLog object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ServiceLogMutation) OldHeaders(ctx context.Context) (v string, err error) {
+func (m *CommunicationLogMutation) OldHeaders(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldHeaders is only allowed on UpdateOne operations")
 	}
@@ -1029,17 +245,17 @@ func (m *ServiceLogMutation) OldHeaders(ctx context.Context) (v string, err erro
 }
 
 // ResetHeaders resets all changes to the "headers" field.
-func (m *ServiceLogMutation) ResetHeaders() {
+func (m *CommunicationLogMutation) ResetHeaders() {
 	m.headers = nil
 }
 
 // SetBody sets the "body" field.
-func (m *ServiceLogMutation) SetBody(b []byte) {
+func (m *CommunicationLogMutation) SetBody(b []byte) {
 	m.body = &b
 }
 
 // Body returns the value of the "body" field in the mutation.
-func (m *ServiceLogMutation) Body() (r []byte, exists bool) {
+func (m *CommunicationLogMutation) Body() (r []byte, exists bool) {
 	v := m.body
 	if v == nil {
 		return
@@ -1047,10 +263,10 @@ func (m *ServiceLogMutation) Body() (r []byte, exists bool) {
 	return *v, true
 }
 
-// OldBody returns the old "body" field's value of the ServiceLog entity.
-// If the ServiceLog object wasn't provided to the builder, the object is fetched from the database.
+// OldBody returns the old "body" field's value of the CommunicationLog entity.
+// If the CommunicationLog object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ServiceLogMutation) OldBody(ctx context.Context) (v []byte, err error) {
+func (m *CommunicationLogMutation) OldBody(ctx context.Context) (v []byte, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldBody is only allowed on UpdateOne operations")
 	}
@@ -1065,105 +281,54 @@ func (m *ServiceLogMutation) OldBody(ctx context.Context) (v []byte, err error) 
 }
 
 // ClearBody clears the value of the "body" field.
-func (m *ServiceLogMutation) ClearBody() {
+func (m *CommunicationLogMutation) ClearBody() {
 	m.body = nil
-	m.clearedFields[servicelog.FieldBody] = struct{}{}
+	m.clearedFields[communicationlog.FieldBody] = struct{}{}
 }
 
 // BodyCleared returns if the "body" field was cleared in this mutation.
-func (m *ServiceLogMutation) BodyCleared() bool {
-	_, ok := m.clearedFields[servicelog.FieldBody]
+func (m *CommunicationLogMutation) BodyCleared() bool {
+	_, ok := m.clearedFields[communicationlog.FieldBody]
 	return ok
 }
 
 // ResetBody resets all changes to the "body" field.
-func (m *ServiceLogMutation) ResetBody() {
+func (m *CommunicationLogMutation) ResetBody() {
 	m.body = nil
-	delete(m.clearedFields, servicelog.FieldBody)
+	delete(m.clearedFields, communicationlog.FieldBody)
 }
 
-// AddHashchainIDs adds the "hashchains" edge to the HashChain entity by ids.
-func (m *ServiceLogMutation) AddHashchainIDs(ids ...int) {
-	if m.hashchains == nil {
-		m.hashchains = make(map[int]struct{})
-	}
-	for i := range ids {
-		m.hashchains[ids[i]] = struct{}{}
-	}
-}
-
-// ClearHashchains clears the "hashchains" edge to the HashChain entity.
-func (m *ServiceLogMutation) ClearHashchains() {
-	m.clearedhashchains = true
-}
-
-// HashchainsCleared reports if the "hashchains" edge to the HashChain entity was cleared.
-func (m *ServiceLogMutation) HashchainsCleared() bool {
-	return m.clearedhashchains
-}
-
-// RemoveHashchainIDs removes the "hashchains" edge to the HashChain entity by IDs.
-func (m *ServiceLogMutation) RemoveHashchainIDs(ids ...int) {
-	if m.removedhashchains == nil {
-		m.removedhashchains = make(map[int]struct{})
-	}
-	for i := range ids {
-		delete(m.hashchains, ids[i])
-		m.removedhashchains[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedHashchains returns the removed IDs of the "hashchains" edge to the HashChain entity.
-func (m *ServiceLogMutation) RemovedHashchainsIDs() (ids []int) {
-	for id := range m.removedhashchains {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// HashchainsIDs returns the "hashchains" edge IDs in the mutation.
-func (m *ServiceLogMutation) HashchainsIDs() (ids []int) {
-	for id := range m.hashchains {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ResetHashchains resets all changes to the "hashchains" edge.
-func (m *ServiceLogMutation) ResetHashchains() {
-	m.hashchains = nil
-	m.clearedhashchains = false
-	m.removedhashchains = nil
-}
-
-// Where appends a list predicates to the ServiceLogMutation builder.
-func (m *ServiceLogMutation) Where(ps ...predicate.ServiceLog) {
+// Where appends a list predicates to the CommunicationLogMutation builder.
+func (m *CommunicationLogMutation) Where(ps ...predicate.CommunicationLog) {
 	m.predicates = append(m.predicates, ps...)
 }
 
 // Op returns the operation name.
-func (m *ServiceLogMutation) Op() Op {
+func (m *CommunicationLogMutation) Op() Op {
 	return m.op
 }
 
-// Type returns the node type of this mutation (ServiceLog).
-func (m *ServiceLogMutation) Type() string {
+// Type returns the node type of this mutation (CommunicationLog).
+func (m *CommunicationLogMutation) Type() string {
 	return m.typ
 }
 
 // Fields returns all fields that were changed during this mutation. Note that in
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
-func (m *ServiceLogMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+func (m *CommunicationLogMutation) Fields() []string {
+	fields := make([]string, 0, 4)
+	if m._type != nil {
+		fields = append(fields, communicationlog.FieldType)
+	}
 	if m.time != nil {
-		fields = append(fields, servicelog.FieldTime)
+		fields = append(fields, communicationlog.FieldTime)
 	}
 	if m.headers != nil {
-		fields = append(fields, servicelog.FieldHeaders)
+		fields = append(fields, communicationlog.FieldHeaders)
 	}
 	if m.body != nil {
-		fields = append(fields, servicelog.FieldBody)
+		fields = append(fields, communicationlog.FieldBody)
 	}
 	return fields
 }
@@ -1171,13 +336,15 @@ func (m *ServiceLogMutation) Fields() []string {
 // Field returns the value of a field with the given name. The second boolean
 // return value indicates that this field was not set, or was not defined in the
 // schema.
-func (m *ServiceLogMutation) Field(name string) (ent.Value, bool) {
+func (m *CommunicationLogMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case servicelog.FieldTime:
+	case communicationlog.FieldType:
+		return m.GetType()
+	case communicationlog.FieldTime:
 		return m.Time()
-	case servicelog.FieldHeaders:
+	case communicationlog.FieldHeaders:
 		return m.Headers()
-	case servicelog.FieldBody:
+	case communicationlog.FieldBody:
 		return m.Body()
 	}
 	return nil, false
@@ -1186,38 +353,47 @@ func (m *ServiceLogMutation) Field(name string) (ent.Value, bool) {
 // OldField returns the old value of the field from the database. An error is
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
-func (m *ServiceLogMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+func (m *CommunicationLogMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case servicelog.FieldTime:
+	case communicationlog.FieldType:
+		return m.OldType(ctx)
+	case communicationlog.FieldTime:
 		return m.OldTime(ctx)
-	case servicelog.FieldHeaders:
+	case communicationlog.FieldHeaders:
 		return m.OldHeaders(ctx)
-	case servicelog.FieldBody:
+	case communicationlog.FieldBody:
 		return m.OldBody(ctx)
 	}
-	return nil, fmt.Errorf("unknown ServiceLog field %s", name)
+	return nil, fmt.Errorf("unknown CommunicationLog field %s", name)
 }
 
 // SetField sets the value of a field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
-func (m *ServiceLogMutation) SetField(name string, value ent.Value) error {
+func (m *CommunicationLogMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case servicelog.FieldTime:
+	case communicationlog.FieldType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetType(v)
+		return nil
+	case communicationlog.FieldTime:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetTime(v)
 		return nil
-	case servicelog.FieldHeaders:
+	case communicationlog.FieldHeaders:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetHeaders(v)
 		return nil
-	case servicelog.FieldBody:
+	case communicationlog.FieldBody:
 		v, ok := value.([]byte)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
@@ -1225,1075 +401,123 @@ func (m *ServiceLogMutation) SetField(name string, value ent.Value) error {
 		m.SetBody(v)
 		return nil
 	}
-	return fmt.Errorf("unknown ServiceLog field %s", name)
+	return fmt.Errorf("unknown CommunicationLog field %s", name)
 }
 
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
-func (m *ServiceLogMutation) AddedFields() []string {
+func (m *CommunicationLogMutation) AddedFields() []string {
 	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
-func (m *ServiceLogMutation) AddedField(name string) (ent.Value, bool) {
+func (m *CommunicationLogMutation) AddedField(name string) (ent.Value, bool) {
 	return nil, false
 }
 
 // AddField adds the value to the field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
-func (m *ServiceLogMutation) AddField(name string, value ent.Value) error {
+func (m *CommunicationLogMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	}
-	return fmt.Errorf("unknown ServiceLog numeric field %s", name)
+	return fmt.Errorf("unknown CommunicationLog numeric field %s", name)
 }
 
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
-func (m *ServiceLogMutation) ClearedFields() []string {
+func (m *CommunicationLogMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(servicelog.FieldBody) {
-		fields = append(fields, servicelog.FieldBody)
+	if m.FieldCleared(communicationlog.FieldBody) {
+		fields = append(fields, communicationlog.FieldBody)
 	}
 	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
 // cleared in this mutation.
-func (m *ServiceLogMutation) FieldCleared(name string) bool {
+func (m *CommunicationLogMutation) FieldCleared(name string) bool {
 	_, ok := m.clearedFields[name]
 	return ok
 }
 
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
-func (m *ServiceLogMutation) ClearField(name string) error {
+func (m *CommunicationLogMutation) ClearField(name string) error {
 	switch name {
-	case servicelog.FieldBody:
+	case communicationlog.FieldBody:
 		m.ClearBody()
 		return nil
 	}
-	return fmt.Errorf("unknown ServiceLog nullable field %s", name)
+	return fmt.Errorf("unknown CommunicationLog nullable field %s", name)
 }
 
 // ResetField resets all changes in the mutation for the field with the given name.
 // It returns an error if the field is not defined in the schema.
-func (m *ServiceLogMutation) ResetField(name string) error {
+func (m *CommunicationLogMutation) ResetField(name string) error {
 	switch name {
-	case servicelog.FieldTime:
+	case communicationlog.FieldType:
+		m.ResetType()
+		return nil
+	case communicationlog.FieldTime:
 		m.ResetTime()
 		return nil
-	case servicelog.FieldHeaders:
+	case communicationlog.FieldHeaders:
 		m.ResetHeaders()
 		return nil
-	case servicelog.FieldBody:
+	case communicationlog.FieldBody:
 		m.ResetBody()
 		return nil
 	}
-	return fmt.Errorf("unknown ServiceLog field %s", name)
+	return fmt.Errorf("unknown CommunicationLog field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
-func (m *ServiceLogMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.hashchains != nil {
-		edges = append(edges, servicelog.EdgeHashchains)
-	}
+func (m *CommunicationLogMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
-func (m *ServiceLogMutation) AddedIDs(name string) []ent.Value {
-	switch name {
-	case servicelog.EdgeHashchains:
-		ids := make([]ent.Value, 0, len(m.hashchains))
-		for id := range m.hashchains {
-			ids = append(ids, id)
-		}
-		return ids
-	}
+func (m *CommunicationLogMutation) AddedIDs(name string) []ent.Value {
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
-func (m *ServiceLogMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.removedhashchains != nil {
-		edges = append(edges, servicelog.EdgeHashchains)
-	}
+func (m *CommunicationLogMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
-func (m *ServiceLogMutation) RemovedIDs(name string) []ent.Value {
-	switch name {
-	case servicelog.EdgeHashchains:
-		ids := make([]ent.Value, 0, len(m.removedhashchains))
-		for id := range m.removedhashchains {
-			ids = append(ids, id)
-		}
-		return ids
-	}
+func (m *CommunicationLogMutation) RemovedIDs(name string) []ent.Value {
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *ServiceLogMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.clearedhashchains {
-		edges = append(edges, servicelog.EdgeHashchains)
-	}
+func (m *CommunicationLogMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
-func (m *ServiceLogMutation) EdgeCleared(name string) bool {
-	switch name {
-	case servicelog.EdgeHashchains:
-		return m.clearedhashchains
-	}
+func (m *CommunicationLogMutation) EdgeCleared(name string) bool {
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
-func (m *ServiceLogMutation) ClearEdge(name string) error {
-	switch name {
-	}
-	return fmt.Errorf("unknown ServiceLog unique edge %s", name)
+func (m *CommunicationLogMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown CommunicationLog unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
-func (m *ServiceLogMutation) ResetEdge(name string) error {
-	switch name {
-	case servicelog.EdgeHashchains:
-		m.ResetHashchains()
-		return nil
-	}
-	return fmt.Errorf("unknown ServiceLog edge %s", name)
-}
-
-// ServiceProviderMutation represents an operation that mutates the ServiceProvider nodes in the graph.
-type ServiceProviderMutation struct {
-	config
-	op                         Op
-	typ                        string
-	id                         *int
-	host                       *string
-	destination_ip             *string
-	clearedFields              map[string]struct{}
-	whitelists                 map[int]struct{}
-	removedwhitelists          map[int]struct{}
-	clearedwhitelists          bool
-	authorization_codes        map[int]struct{}
-	removedauthorization_codes map[int]struct{}
-	clearedauthorization_codes bool
-	done                       bool
-	oldValue                   func(context.Context) (*ServiceProvider, error)
-	predicates                 []predicate.ServiceProvider
-}
-
-var _ ent.Mutation = (*ServiceProviderMutation)(nil)
-
-// serviceproviderOption allows management of the mutation configuration using functional options.
-type serviceproviderOption func(*ServiceProviderMutation)
-
-// newServiceProviderMutation creates new mutation for the ServiceProvider entity.
-func newServiceProviderMutation(c config, op Op, opts ...serviceproviderOption) *ServiceProviderMutation {
-	m := &ServiceProviderMutation{
-		config:        c,
-		op:            op,
-		typ:           TypeServiceProvider,
-		clearedFields: make(map[string]struct{}),
-	}
-	for _, opt := range opts {
-		opt(m)
-	}
-	return m
-}
-
-// withServiceProviderID sets the ID field of the mutation.
-func withServiceProviderID(id int) serviceproviderOption {
-	return func(m *ServiceProviderMutation) {
-		var (
-			err   error
-			once  sync.Once
-			value *ServiceProvider
-		)
-		m.oldValue = func(ctx context.Context) (*ServiceProvider, error) {
-			once.Do(func() {
-				if m.done {
-					err = errors.New("querying old values post mutation is not allowed")
-				} else {
-					value, err = m.Client().ServiceProvider.Get(ctx, id)
-				}
-			})
-			return value, err
-		}
-		m.id = &id
-	}
-}
-
-// withServiceProvider sets the old ServiceProvider of the mutation.
-func withServiceProvider(node *ServiceProvider) serviceproviderOption {
-	return func(m *ServiceProviderMutation) {
-		m.oldValue = func(context.Context) (*ServiceProvider, error) {
-			return node, nil
-		}
-		m.id = &node.ID
-	}
-}
-
-// Client returns a new `ent.Client` from the mutation. If the mutation was
-// executed in a transaction (ent.Tx), a transactional client is returned.
-func (m ServiceProviderMutation) Client() *Client {
-	client := &Client{config: m.config}
-	client.init()
-	return client
-}
-
-// Tx returns an `ent.Tx` for mutations that were executed in transactions;
-// it returns an error otherwise.
-func (m ServiceProviderMutation) Tx() (*Tx, error) {
-	if _, ok := m.driver.(*txDriver); !ok {
-		return nil, errors.New("ent: mutation is not running in a transaction")
-	}
-	tx := &Tx{config: m.config}
-	tx.init()
-	return tx, nil
-}
-
-// ID returns the ID value in the mutation. Note that the ID is only available
-// if it was provided to the builder or after it was returned from the database.
-func (m *ServiceProviderMutation) ID() (id int, exists bool) {
-	if m.id == nil {
-		return
-	}
-	return *m.id, true
-}
-
-// IDs queries the database and returns the entity ids that match the mutation's predicate.
-// That means, if the mutation is applied within a transaction with an isolation level such
-// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
-// or updated by the mutation.
-func (m *ServiceProviderMutation) IDs(ctx context.Context) ([]int, error) {
-	switch {
-	case m.op.Is(OpUpdateOne | OpDeleteOne):
-		id, exists := m.ID()
-		if exists {
-			return []int{id}, nil
-		}
-		fallthrough
-	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().ServiceProvider.Query().Where(m.predicates...).IDs(ctx)
-	default:
-		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
-	}
-}
-
-// SetHost sets the "host" field.
-func (m *ServiceProviderMutation) SetHost(s string) {
-	m.host = &s
-}
-
-// Host returns the value of the "host" field in the mutation.
-func (m *ServiceProviderMutation) Host() (r string, exists bool) {
-	v := m.host
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldHost returns the old "host" field's value of the ServiceProvider entity.
-// If the ServiceProvider object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ServiceProviderMutation) OldHost(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldHost is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldHost requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldHost: %w", err)
-	}
-	return oldValue.Host, nil
-}
-
-// ResetHost resets all changes to the "host" field.
-func (m *ServiceProviderMutation) ResetHost() {
-	m.host = nil
-}
-
-// SetDestinationIP sets the "destination_ip" field.
-func (m *ServiceProviderMutation) SetDestinationIP(s string) {
-	m.destination_ip = &s
-}
-
-// DestinationIP returns the value of the "destination_ip" field in the mutation.
-func (m *ServiceProviderMutation) DestinationIP() (r string, exists bool) {
-	v := m.destination_ip
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDestinationIP returns the old "destination_ip" field's value of the ServiceProvider entity.
-// If the ServiceProvider object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ServiceProviderMutation) OldDestinationIP(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDestinationIP is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDestinationIP requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDestinationIP: %w", err)
-	}
-	return oldValue.DestinationIP, nil
-}
-
-// ResetDestinationIP resets all changes to the "destination_ip" field.
-func (m *ServiceProviderMutation) ResetDestinationIP() {
-	m.destination_ip = nil
-}
-
-// AddWhitelistIDs adds the "whitelists" edge to the WhiteList entity by ids.
-func (m *ServiceProviderMutation) AddWhitelistIDs(ids ...int) {
-	if m.whitelists == nil {
-		m.whitelists = make(map[int]struct{})
-	}
-	for i := range ids {
-		m.whitelists[ids[i]] = struct{}{}
-	}
-}
-
-// ClearWhitelists clears the "whitelists" edge to the WhiteList entity.
-func (m *ServiceProviderMutation) ClearWhitelists() {
-	m.clearedwhitelists = true
-}
-
-// WhitelistsCleared reports if the "whitelists" edge to the WhiteList entity was cleared.
-func (m *ServiceProviderMutation) WhitelistsCleared() bool {
-	return m.clearedwhitelists
-}
-
-// RemoveWhitelistIDs removes the "whitelists" edge to the WhiteList entity by IDs.
-func (m *ServiceProviderMutation) RemoveWhitelistIDs(ids ...int) {
-	if m.removedwhitelists == nil {
-		m.removedwhitelists = make(map[int]struct{})
-	}
-	for i := range ids {
-		delete(m.whitelists, ids[i])
-		m.removedwhitelists[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedWhitelists returns the removed IDs of the "whitelists" edge to the WhiteList entity.
-func (m *ServiceProviderMutation) RemovedWhitelistsIDs() (ids []int) {
-	for id := range m.removedwhitelists {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// WhitelistsIDs returns the "whitelists" edge IDs in the mutation.
-func (m *ServiceProviderMutation) WhitelistsIDs() (ids []int) {
-	for id := range m.whitelists {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ResetWhitelists resets all changes to the "whitelists" edge.
-func (m *ServiceProviderMutation) ResetWhitelists() {
-	m.whitelists = nil
-	m.clearedwhitelists = false
-	m.removedwhitelists = nil
-}
-
-// AddAuthorizationCodeIDs adds the "authorization_codes" edge to the AuthorizationCode entity by ids.
-func (m *ServiceProviderMutation) AddAuthorizationCodeIDs(ids ...int) {
-	if m.authorization_codes == nil {
-		m.authorization_codes = make(map[int]struct{})
-	}
-	for i := range ids {
-		m.authorization_codes[ids[i]] = struct{}{}
-	}
-}
-
-// ClearAuthorizationCodes clears the "authorization_codes" edge to the AuthorizationCode entity.
-func (m *ServiceProviderMutation) ClearAuthorizationCodes() {
-	m.clearedauthorization_codes = true
-}
-
-// AuthorizationCodesCleared reports if the "authorization_codes" edge to the AuthorizationCode entity was cleared.
-func (m *ServiceProviderMutation) AuthorizationCodesCleared() bool {
-	return m.clearedauthorization_codes
-}
-
-// RemoveAuthorizationCodeIDs removes the "authorization_codes" edge to the AuthorizationCode entity by IDs.
-func (m *ServiceProviderMutation) RemoveAuthorizationCodeIDs(ids ...int) {
-	if m.removedauthorization_codes == nil {
-		m.removedauthorization_codes = make(map[int]struct{})
-	}
-	for i := range ids {
-		delete(m.authorization_codes, ids[i])
-		m.removedauthorization_codes[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedAuthorizationCodes returns the removed IDs of the "authorization_codes" edge to the AuthorizationCode entity.
-func (m *ServiceProviderMutation) RemovedAuthorizationCodesIDs() (ids []int) {
-	for id := range m.removedauthorization_codes {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// AuthorizationCodesIDs returns the "authorization_codes" edge IDs in the mutation.
-func (m *ServiceProviderMutation) AuthorizationCodesIDs() (ids []int) {
-	for id := range m.authorization_codes {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ResetAuthorizationCodes resets all changes to the "authorization_codes" edge.
-func (m *ServiceProviderMutation) ResetAuthorizationCodes() {
-	m.authorization_codes = nil
-	m.clearedauthorization_codes = false
-	m.removedauthorization_codes = nil
-}
-
-// Where appends a list predicates to the ServiceProviderMutation builder.
-func (m *ServiceProviderMutation) Where(ps ...predicate.ServiceProvider) {
-	m.predicates = append(m.predicates, ps...)
-}
-
-// Op returns the operation name.
-func (m *ServiceProviderMutation) Op() Op {
-	return m.op
-}
-
-// Type returns the node type of this mutation (ServiceProvider).
-func (m *ServiceProviderMutation) Type() string {
-	return m.typ
-}
-
-// Fields returns all fields that were changed during this mutation. Note that in
-// order to get all numeric fields that were incremented/decremented, call
-// AddedFields().
-func (m *ServiceProviderMutation) Fields() []string {
-	fields := make([]string, 0, 2)
-	if m.host != nil {
-		fields = append(fields, serviceprovider.FieldHost)
-	}
-	if m.destination_ip != nil {
-		fields = append(fields, serviceprovider.FieldDestinationIP)
-	}
-	return fields
-}
-
-// Field returns the value of a field with the given name. The second boolean
-// return value indicates that this field was not set, or was not defined in the
-// schema.
-func (m *ServiceProviderMutation) Field(name string) (ent.Value, bool) {
-	switch name {
-	case serviceprovider.FieldHost:
-		return m.Host()
-	case serviceprovider.FieldDestinationIP:
-		return m.DestinationIP()
-	}
-	return nil, false
-}
-
-// OldField returns the old value of the field from the database. An error is
-// returned if the mutation operation is not UpdateOne, or the query to the
-// database failed.
-func (m *ServiceProviderMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
-	switch name {
-	case serviceprovider.FieldHost:
-		return m.OldHost(ctx)
-	case serviceprovider.FieldDestinationIP:
-		return m.OldDestinationIP(ctx)
-	}
-	return nil, fmt.Errorf("unknown ServiceProvider field %s", name)
-}
-
-// SetField sets the value of a field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *ServiceProviderMutation) SetField(name string, value ent.Value) error {
-	switch name {
-	case serviceprovider.FieldHost:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetHost(v)
-		return nil
-	case serviceprovider.FieldDestinationIP:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDestinationIP(v)
-		return nil
-	}
-	return fmt.Errorf("unknown ServiceProvider field %s", name)
-}
-
-// AddedFields returns all numeric fields that were incremented/decremented during
-// this mutation.
-func (m *ServiceProviderMutation) AddedFields() []string {
-	return nil
-}
-
-// AddedField returns the numeric value that was incremented/decremented on a field
-// with the given name. The second boolean return value indicates that this field
-// was not set, or was not defined in the schema.
-func (m *ServiceProviderMutation) AddedField(name string) (ent.Value, bool) {
-	return nil, false
-}
-
-// AddField adds the value to the field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *ServiceProviderMutation) AddField(name string, value ent.Value) error {
-	switch name {
-	}
-	return fmt.Errorf("unknown ServiceProvider numeric field %s", name)
-}
-
-// ClearedFields returns all nullable fields that were cleared during this
-// mutation.
-func (m *ServiceProviderMutation) ClearedFields() []string {
-	return nil
-}
-
-// FieldCleared returns a boolean indicating if a field with the given name was
-// cleared in this mutation.
-func (m *ServiceProviderMutation) FieldCleared(name string) bool {
-	_, ok := m.clearedFields[name]
-	return ok
-}
-
-// ClearField clears the value of the field with the given name. It returns an
-// error if the field is not defined in the schema.
-func (m *ServiceProviderMutation) ClearField(name string) error {
-	return fmt.Errorf("unknown ServiceProvider nullable field %s", name)
-}
-
-// ResetField resets all changes in the mutation for the field with the given name.
-// It returns an error if the field is not defined in the schema.
-func (m *ServiceProviderMutation) ResetField(name string) error {
-	switch name {
-	case serviceprovider.FieldHost:
-		m.ResetHost()
-		return nil
-	case serviceprovider.FieldDestinationIP:
-		m.ResetDestinationIP()
-		return nil
-	}
-	return fmt.Errorf("unknown ServiceProvider field %s", name)
-}
-
-// AddedEdges returns all edge names that were set/added in this mutation.
-func (m *ServiceProviderMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
-	if m.whitelists != nil {
-		edges = append(edges, serviceprovider.EdgeWhitelists)
-	}
-	if m.authorization_codes != nil {
-		edges = append(edges, serviceprovider.EdgeAuthorizationCodes)
-	}
-	return edges
-}
-
-// AddedIDs returns all IDs (to other nodes) that were added for the given edge
-// name in this mutation.
-func (m *ServiceProviderMutation) AddedIDs(name string) []ent.Value {
-	switch name {
-	case serviceprovider.EdgeWhitelists:
-		ids := make([]ent.Value, 0, len(m.whitelists))
-		for id := range m.whitelists {
-			ids = append(ids, id)
-		}
-		return ids
-	case serviceprovider.EdgeAuthorizationCodes:
-		ids := make([]ent.Value, 0, len(m.authorization_codes))
-		for id := range m.authorization_codes {
-			ids = append(ids, id)
-		}
-		return ids
-	}
-	return nil
-}
-
-// RemovedEdges returns all edge names that were removed in this mutation.
-func (m *ServiceProviderMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
-	if m.removedwhitelists != nil {
-		edges = append(edges, serviceprovider.EdgeWhitelists)
-	}
-	if m.removedauthorization_codes != nil {
-		edges = append(edges, serviceprovider.EdgeAuthorizationCodes)
-	}
-	return edges
-}
-
-// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
-// the given name in this mutation.
-func (m *ServiceProviderMutation) RemovedIDs(name string) []ent.Value {
-	switch name {
-	case serviceprovider.EdgeWhitelists:
-		ids := make([]ent.Value, 0, len(m.removedwhitelists))
-		for id := range m.removedwhitelists {
-			ids = append(ids, id)
-		}
-		return ids
-	case serviceprovider.EdgeAuthorizationCodes:
-		ids := make([]ent.Value, 0, len(m.removedauthorization_codes))
-		for id := range m.removedauthorization_codes {
-			ids = append(ids, id)
-		}
-		return ids
-	}
-	return nil
-}
-
-// ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *ServiceProviderMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
-	if m.clearedwhitelists {
-		edges = append(edges, serviceprovider.EdgeWhitelists)
-	}
-	if m.clearedauthorization_codes {
-		edges = append(edges, serviceprovider.EdgeAuthorizationCodes)
-	}
-	return edges
-}
-
-// EdgeCleared returns a boolean which indicates if the edge with the given name
-// was cleared in this mutation.
-func (m *ServiceProviderMutation) EdgeCleared(name string) bool {
-	switch name {
-	case serviceprovider.EdgeWhitelists:
-		return m.clearedwhitelists
-	case serviceprovider.EdgeAuthorizationCodes:
-		return m.clearedauthorization_codes
-	}
-	return false
-}
-
-// ClearEdge clears the value of the edge with the given name. It returns an error
-// if that edge is not defined in the schema.
-func (m *ServiceProviderMutation) ClearEdge(name string) error {
-	switch name {
-	}
-	return fmt.Errorf("unknown ServiceProvider unique edge %s", name)
-}
-
-// ResetEdge resets all changes to the edge with the given name in this mutation.
-// It returns an error if the edge is not defined in the schema.
-func (m *ServiceProviderMutation) ResetEdge(name string) error {
-	switch name {
-	case serviceprovider.EdgeWhitelists:
-		m.ResetWhitelists()
-		return nil
-	case serviceprovider.EdgeAuthorizationCodes:
-		m.ResetAuthorizationCodes()
-		return nil
-	}
-	return fmt.Errorf("unknown ServiceProvider edge %s", name)
-}
-
-// WhiteListMutation represents an operation that mutates the WhiteList nodes in the graph.
-type WhiteListMutation struct {
-	config
-	op            Op
-	typ           string
-	id            *int
-	_path         *string
-	clearedFields map[string]struct{}
-	owner         *int
-	clearedowner  bool
-	done          bool
-	oldValue      func(context.Context) (*WhiteList, error)
-	predicates    []predicate.WhiteList
-}
-
-var _ ent.Mutation = (*WhiteListMutation)(nil)
-
-// whitelistOption allows management of the mutation configuration using functional options.
-type whitelistOption func(*WhiteListMutation)
-
-// newWhiteListMutation creates new mutation for the WhiteList entity.
-func newWhiteListMutation(c config, op Op, opts ...whitelistOption) *WhiteListMutation {
-	m := &WhiteListMutation{
-		config:        c,
-		op:            op,
-		typ:           TypeWhiteList,
-		clearedFields: make(map[string]struct{}),
-	}
-	for _, opt := range opts {
-		opt(m)
-	}
-	return m
-}
-
-// withWhiteListID sets the ID field of the mutation.
-func withWhiteListID(id int) whitelistOption {
-	return func(m *WhiteListMutation) {
-		var (
-			err   error
-			once  sync.Once
-			value *WhiteList
-		)
-		m.oldValue = func(ctx context.Context) (*WhiteList, error) {
-			once.Do(func() {
-				if m.done {
-					err = errors.New("querying old values post mutation is not allowed")
-				} else {
-					value, err = m.Client().WhiteList.Get(ctx, id)
-				}
-			})
-			return value, err
-		}
-		m.id = &id
-	}
-}
-
-// withWhiteList sets the old WhiteList of the mutation.
-func withWhiteList(node *WhiteList) whitelistOption {
-	return func(m *WhiteListMutation) {
-		m.oldValue = func(context.Context) (*WhiteList, error) {
-			return node, nil
-		}
-		m.id = &node.ID
-	}
-}
-
-// Client returns a new `ent.Client` from the mutation. If the mutation was
-// executed in a transaction (ent.Tx), a transactional client is returned.
-func (m WhiteListMutation) Client() *Client {
-	client := &Client{config: m.config}
-	client.init()
-	return client
-}
-
-// Tx returns an `ent.Tx` for mutations that were executed in transactions;
-// it returns an error otherwise.
-func (m WhiteListMutation) Tx() (*Tx, error) {
-	if _, ok := m.driver.(*txDriver); !ok {
-		return nil, errors.New("ent: mutation is not running in a transaction")
-	}
-	tx := &Tx{config: m.config}
-	tx.init()
-	return tx, nil
-}
-
-// ID returns the ID value in the mutation. Note that the ID is only available
-// if it was provided to the builder or after it was returned from the database.
-func (m *WhiteListMutation) ID() (id int, exists bool) {
-	if m.id == nil {
-		return
-	}
-	return *m.id, true
-}
-
-// IDs queries the database and returns the entity ids that match the mutation's predicate.
-// That means, if the mutation is applied within a transaction with an isolation level such
-// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
-// or updated by the mutation.
-func (m *WhiteListMutation) IDs(ctx context.Context) ([]int, error) {
-	switch {
-	case m.op.Is(OpUpdateOne | OpDeleteOne):
-		id, exists := m.ID()
-		if exists {
-			return []int{id}, nil
-		}
-		fallthrough
-	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().WhiteList.Query().Where(m.predicates...).IDs(ctx)
-	default:
-		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
-	}
-}
-
-// SetPath sets the "path" field.
-func (m *WhiteListMutation) SetPath(s string) {
-	m._path = &s
-}
-
-// Path returns the value of the "path" field in the mutation.
-func (m *WhiteListMutation) Path() (r string, exists bool) {
-	v := m._path
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldPath returns the old "path" field's value of the WhiteList entity.
-// If the WhiteList object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *WhiteListMutation) OldPath(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldPath is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldPath requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldPath: %w", err)
-	}
-	return oldValue.Path, nil
-}
-
-// ResetPath resets all changes to the "path" field.
-func (m *WhiteListMutation) ResetPath() {
-	m._path = nil
-}
-
-// SetOwnerID sets the "owner" edge to the ServiceProvider entity by id.
-func (m *WhiteListMutation) SetOwnerID(id int) {
-	m.owner = &id
-}
-
-// ClearOwner clears the "owner" edge to the ServiceProvider entity.
-func (m *WhiteListMutation) ClearOwner() {
-	m.clearedowner = true
-}
-
-// OwnerCleared reports if the "owner" edge to the ServiceProvider entity was cleared.
-func (m *WhiteListMutation) OwnerCleared() bool {
-	return m.clearedowner
-}
-
-// OwnerID returns the "owner" edge ID in the mutation.
-func (m *WhiteListMutation) OwnerID() (id int, exists bool) {
-	if m.owner != nil {
-		return *m.owner, true
-	}
-	return
-}
-
-// OwnerIDs returns the "owner" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// OwnerID instead. It exists only for internal usage by the builders.
-func (m *WhiteListMutation) OwnerIDs() (ids []int) {
-	if id := m.owner; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetOwner resets all changes to the "owner" edge.
-func (m *WhiteListMutation) ResetOwner() {
-	m.owner = nil
-	m.clearedowner = false
-}
-
-// Where appends a list predicates to the WhiteListMutation builder.
-func (m *WhiteListMutation) Where(ps ...predicate.WhiteList) {
-	m.predicates = append(m.predicates, ps...)
-}
-
-// Op returns the operation name.
-func (m *WhiteListMutation) Op() Op {
-	return m.op
-}
-
-// Type returns the node type of this mutation (WhiteList).
-func (m *WhiteListMutation) Type() string {
-	return m.typ
-}
-
-// Fields returns all fields that were changed during this mutation. Note that in
-// order to get all numeric fields that were incremented/decremented, call
-// AddedFields().
-func (m *WhiteListMutation) Fields() []string {
-	fields := make([]string, 0, 1)
-	if m._path != nil {
-		fields = append(fields, whitelist.FieldPath)
-	}
-	return fields
-}
-
-// Field returns the value of a field with the given name. The second boolean
-// return value indicates that this field was not set, or was not defined in the
-// schema.
-func (m *WhiteListMutation) Field(name string) (ent.Value, bool) {
-	switch name {
-	case whitelist.FieldPath:
-		return m.Path()
-	}
-	return nil, false
-}
-
-// OldField returns the old value of the field from the database. An error is
-// returned if the mutation operation is not UpdateOne, or the query to the
-// database failed.
-func (m *WhiteListMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
-	switch name {
-	case whitelist.FieldPath:
-		return m.OldPath(ctx)
-	}
-	return nil, fmt.Errorf("unknown WhiteList field %s", name)
-}
-
-// SetField sets the value of a field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *WhiteListMutation) SetField(name string, value ent.Value) error {
-	switch name {
-	case whitelist.FieldPath:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetPath(v)
-		return nil
-	}
-	return fmt.Errorf("unknown WhiteList field %s", name)
-}
-
-// AddedFields returns all numeric fields that were incremented/decremented during
-// this mutation.
-func (m *WhiteListMutation) AddedFields() []string {
-	return nil
-}
-
-// AddedField returns the numeric value that was incremented/decremented on a field
-// with the given name. The second boolean return value indicates that this field
-// was not set, or was not defined in the schema.
-func (m *WhiteListMutation) AddedField(name string) (ent.Value, bool) {
-	return nil, false
-}
-
-// AddField adds the value to the field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *WhiteListMutation) AddField(name string, value ent.Value) error {
-	switch name {
-	}
-	return fmt.Errorf("unknown WhiteList numeric field %s", name)
-}
-
-// ClearedFields returns all nullable fields that were cleared during this
-// mutation.
-func (m *WhiteListMutation) ClearedFields() []string {
-	return nil
-}
-
-// FieldCleared returns a boolean indicating if a field with the given name was
-// cleared in this mutation.
-func (m *WhiteListMutation) FieldCleared(name string) bool {
-	_, ok := m.clearedFields[name]
-	return ok
-}
-
-// ClearField clears the value of the field with the given name. It returns an
-// error if the field is not defined in the schema.
-func (m *WhiteListMutation) ClearField(name string) error {
-	return fmt.Errorf("unknown WhiteList nullable field %s", name)
-}
-
-// ResetField resets all changes in the mutation for the field with the given name.
-// It returns an error if the field is not defined in the schema.
-func (m *WhiteListMutation) ResetField(name string) error {
-	switch name {
-	case whitelist.FieldPath:
-		m.ResetPath()
-		return nil
-	}
-	return fmt.Errorf("unknown WhiteList field %s", name)
-}
-
-// AddedEdges returns all edge names that were set/added in this mutation.
-func (m *WhiteListMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.owner != nil {
-		edges = append(edges, whitelist.EdgeOwner)
-	}
-	return edges
-}
-
-// AddedIDs returns all IDs (to other nodes) that were added for the given edge
-// name in this mutation.
-func (m *WhiteListMutation) AddedIDs(name string) []ent.Value {
-	switch name {
-	case whitelist.EdgeOwner:
-		if id := m.owner; id != nil {
-			return []ent.Value{*id}
-		}
-	}
-	return nil
-}
-
-// RemovedEdges returns all edge names that were removed in this mutation.
-func (m *WhiteListMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
-	return edges
-}
-
-// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
-// the given name in this mutation.
-func (m *WhiteListMutation) RemovedIDs(name string) []ent.Value {
-	return nil
-}
-
-// ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *WhiteListMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.clearedowner {
-		edges = append(edges, whitelist.EdgeOwner)
-	}
-	return edges
-}
-
-// EdgeCleared returns a boolean which indicates if the edge with the given name
-// was cleared in this mutation.
-func (m *WhiteListMutation) EdgeCleared(name string) bool {
-	switch name {
-	case whitelist.EdgeOwner:
-		return m.clearedowner
-	}
-	return false
-}
-
-// ClearEdge clears the value of the edge with the given name. It returns an error
-// if that edge is not defined in the schema.
-func (m *WhiteListMutation) ClearEdge(name string) error {
-	switch name {
-	case whitelist.EdgeOwner:
-		m.ClearOwner()
-		return nil
-	}
-	return fmt.Errorf("unknown WhiteList unique edge %s", name)
-}
-
-// ResetEdge resets all changes to the edge with the given name in this mutation.
-// It returns an error if the edge is not defined in the schema.
-func (m *WhiteListMutation) ResetEdge(name string) error {
-	switch name {
-	case whitelist.EdgeOwner:
-		m.ResetOwner()
-		return nil
-	}
-	return fmt.Errorf("unknown WhiteList edge %s", name)
+func (m *CommunicationLogMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown CommunicationLog edge %s", name)
 }

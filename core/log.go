@@ -6,9 +6,9 @@ import (
 	"github.com/ochanoco/proxy/ent"
 )
 
-func logRawCommunication(header string, body []byte, proxy *OchanocoProxy) (*ent.ServiceLog, error) {
+func logRawCommunication(_type string, header string, body []byte, proxy *OchanocoProxy) (*ent.CommunicationLog, error) {
 	time := time.Now()
 
-	l := proxy.Database.CreateServiceLog(time, header, body)
-	return proxy.Database.SaveServiceLog(l)
+	l := proxy.Database.CommunicationLog(_type, time, header, body)
+	return proxy.Database.SaveCommunicateLog(l)
 }

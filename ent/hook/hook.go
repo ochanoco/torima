@@ -9,67 +9,15 @@ import (
 	"github.com/ochanoco/proxy/ent"
 )
 
-// The AuthorizationCodeFunc type is an adapter to allow the use of ordinary
-// function as AuthorizationCode mutator.
-type AuthorizationCodeFunc func(context.Context, *ent.AuthorizationCodeMutation) (ent.Value, error)
+// The CommunicationLogFunc type is an adapter to allow the use of ordinary
+// function as CommunicationLog mutator.
+type CommunicationLogFunc func(context.Context, *ent.CommunicationLogMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f AuthorizationCodeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.AuthorizationCodeMutation)
+func (f CommunicationLogFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.CommunicationLogMutation)
 	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AuthorizationCodeMutation", m)
-	}
-	return f(ctx, mv)
-}
-
-// The HashChainFunc type is an adapter to allow the use of ordinary
-// function as HashChain mutator.
-type HashChainFunc func(context.Context, *ent.HashChainMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f HashChainFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.HashChainMutation)
-	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.HashChainMutation", m)
-	}
-	return f(ctx, mv)
-}
-
-// The ServiceLogFunc type is an adapter to allow the use of ordinary
-// function as ServiceLog mutator.
-type ServiceLogFunc func(context.Context, *ent.ServiceLogMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f ServiceLogFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.ServiceLogMutation)
-	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ServiceLogMutation", m)
-	}
-	return f(ctx, mv)
-}
-
-// The ServiceProviderFunc type is an adapter to allow the use of ordinary
-// function as ServiceProvider mutator.
-type ServiceProviderFunc func(context.Context, *ent.ServiceProviderMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f ServiceProviderFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.ServiceProviderMutation)
-	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ServiceProviderMutation", m)
-	}
-	return f(ctx, mv)
-}
-
-// The WhiteListFunc type is an adapter to allow the use of ordinary
-// function as WhiteList mutator.
-type WhiteListFunc func(context.Context, *ent.WhiteListMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f WhiteListFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.WhiteListMutation)
-	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.WhiteListMutation", m)
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CommunicationLogMutation", m)
 	}
 	return f(ctx, mv)
 }
