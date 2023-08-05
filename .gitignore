@@ -147,14 +147,15 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-backend/proxy
-backend/sqlite3.db
-backend/test.sqlite3
-backend/secret.env
-data/db.sqlite3
-backend/private.der
+proxy
+sqlite3.db
+test.sqlite3
+secret.env
+db.sqlite3
+private.der
 .gitignore
-backend/cert.der
+cert.der
 
 data/
-backend/config.yaml
+config.yaml
+example/main
