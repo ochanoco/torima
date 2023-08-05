@@ -1,4 +1,4 @@
-package example
+package main
 
 import (
 	"fmt"
@@ -6,10 +6,19 @@ import (
 	"net/http/httptest"
 	"net/url"
 
+	"github.com/ochanoco/proxy/core"
 	"github.com/ochanoco/proxy/serv"
 )
 
-func Main() {
+func targetServ(w http.ResponseWriter, r *http.Request) {
+	userId := r.Header.Get("X-Ochanoco-UserID")
+	fmt.Fprintf(w,
+		"<p>Hello! %v</p><br><a href='%v'>link</a>",
+		userId,
+		"/ochanoco/login?callback_path=/hello")
+}
+
+func main() {
 	h := http.HandlerFunc(targetServ)
 	server := httptest.NewServer(h)
 
@@ -20,10 +29,10 @@ func Main() {
 		panic(err)
 	}
 
+	core.STATIC_FOLDER = "../static"
+
 	proxyServ.Config.DefaultOrigin = servUrl.Host
 
 	port := fmt.Sprintf(":%d", proxyServ.Config.Port)
 	proxyServ.Engine.Run(port)
 }
-
-const LINE_NAME = "line_example"
