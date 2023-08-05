@@ -9,3 +9,4 @@ accepted_origins:
 ignored_origins:
   - cdn.jsdelivr.net
 
+port: 8080
