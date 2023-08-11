@@ -15,6 +15,7 @@ var DEFAULT_DIRECTORS = []OchanocoDirector{
 }
 
 var DEFAULT_MODIFY_RESPONSES = []OchanocoModifyResponse{
+	InjectResponse,
 	LogModifyResponse,
 }
 
