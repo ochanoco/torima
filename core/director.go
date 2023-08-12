@@ -1,10 +1,12 @@
 package core
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"net/http/httputil"
 	"strings"
+	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -17,7 +19,7 @@ func RouteDirector(host string, proxy *OchanocoProxy, req *http.Request, c *gin.
 	req.Header.Set("User-Agent", "ochanoco")
 	req.Header.Set("X-Ochanoco-Proxy-Token", "<proxy_token>")
 
-	// req.URL.Scheme = "https"
+	req.URL.Scheme = "https"
 
 	return CONTINUE, nil
 }
@@ -89,9 +91,29 @@ func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool
 
 func LogDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool, error) {
 	request, err := httputil.DumpRequest(req, true)
+
+	if err != nil {
+		err = makeError(err, "failed to dump headers to json: %v")
+		return FINISHED, err
+	}
+
 	fmt.Printf("%v\n", string(request))
-	err = makeError(err, "failed to dump headers to json: %v")
-	logRawCommunication("request", request, proxy)
+
+	time := time.Now()
+	splited := bytes.Split(request, []byte("\r\n\r\n"))
+
+	header := splited[0]
+	headerLen := len(header)
+
+	body := request[headerLen:]
+
+	l := proxy.Database.CommunicationLog("resp", time, string(header), body)
+	_, err = proxy.Database.SaveCommunicateLog(l)
+
+	if err != nil {
+		err = makeError(err, "failed to save request: %v")
+		return FINISHED, err
+	}
 
 	return CONTINUE, err
 }

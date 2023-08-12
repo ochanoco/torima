@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"net/http/httputil"
 	"strconv"
 
 	"github.com/PuerkitoBio/goquery"
@@ -15,16 +14,6 @@ import (
 
 func MainModifyResponse(proxy *OchanocoProxy, res *http.Response) {
 	fmt.Printf("=> %v\n", res.Request.URL)
-}
-
-func LogModifyResponse(proxy *OchanocoProxy, res *http.Response, c *gin.Context) (bool, error) {
-	response, err := httputil.DumpResponse(res, true)
-	fmt.Printf("%v\n", string(response))
-
-	err = makeError(err, "failed to dump response: ")
-	logRawCommunication("response", response, proxy)
-
-	return CONTINUE, err
 }
 
 func InjectHTMLModifyResponse(html string, proxy *OchanocoProxy, res *http.Response, c *gin.Context) (bool, error) {
