@@ -1,84 +1,72 @@
-const PROXY_ORIGIN = "https://127.0.0.1:8080"
+// https://127.0.0.1:8080/
+let PROTECTION_SCOPE = []
 
-const toProxiedUrl = (input, currentOrigin, currentPath, targetOrigin) => {
-    console.log({ currentPath, currentOrigin });
-    let path = "";
-
-    // input is type of either string or Request
-    path = typeof input === "string" ? input : input.url;
-
-    console.log("original url: " + path);
-
-    if (!path.startsWith(currentOrigin)) {
-        console.log(
-            "proxying a request to an external origin is not supported yet"
-        );
-        return path;
-    }
-
-    if (/^https?:\/\//.exec(path).length > 0) {
-        const url = new URL(path);
-        path = url.pathname;
-    }
-
-    if (!path.startsWith("/")) {
-        // if it is relative path, first make it absolute
-
-        // /path/to/hoge/foo.html
-        //              ^ Get this indexproxy.example.com
-        const slashIndex = currentPath.lastIndexOf("/");
-        // fuga/piyo -> /path/to/hoge/fuga/piyo
-        path = `${currentPath.slice(0, slashIndex + 1)}${path}`;
-    }
-
-    // if it is absolute path in the origin, convert it to URL
-    if (path.startsWith("/"))
-        path = `${targetOrigin}${path}`;
-
-    console.log(`proxy to ${path}`);
-
-    return path;
+const init = async () => {
+    const resp = await fetch("/ochanoco/config.json")
+    const scope = await resp.json()
+    PROTECTION_SCOPE = scope
 }
+
+const channel = new BroadcastChannel('sw-messages')
 
 
 const customFetch = async (input, init = {}) => {
-    console.log("fetch called");
-    console.log(input)
+    let url;
 
-    if (input.mode === "navigate") {
-        console.log("navigate mode");
-        return fetch(input, init);
+    if (typeof input === "string") {
+        if (input[0] === "/")
+            input = `${input.slice(1, input.length)}`;
+
+        if (!input.startsWith("https://")) {
+            input = location.host + "/" + input
+        }
+
+        url = new URL(input)
+        input = new Request(url, init)
+    }
+    else {
+        url = new URL(input.url)
     }
 
-    init.mode = "cors";
 
-    const url = toProxiedUrl(
-        input,
-        location.origin,
-        location.pathname,
-        PROXY_ORIGIN
-    );
+    const isProxyOrigin = url.host === location.host
+    const isInProtectionScope = PROTECTION_SCOPE.includes(url.host)
 
-    if (input instanceof Request) {
-        // a Request's properties are read-only, so we need to create new one
-        input = new Request(input.url, { ...input });
-    } else {
-        input = url;
+    console.log("protection_scope: ", PROTECTION_SCOPE)
+    console.log("host: ", url.host)
+
+    if (!isProxyOrigin && !isInProtectionScope || input.mode === "navigate") {
+        console.log("unmodify to proxy")
+        return fetch(input, init)
     }
 
-    const resp = fetch(input, init)
-    await resp
-    console.log({ resp, input, init });
+    if (!isProxyOrigin) {
+        console.log("modify to proxy")
 
-    // const channel = new BroadcastChannel('sw-messages');
-    // channel.postMessage({ title: 'Hello from SW' });
+        url.pathname = `/ochanoco/redirect/${url.host}/${url.pathname}`
+        url.host = location.host
+        input.url = url
 
-    // await sleep(5000)
+    }
 
-    return resp
+    input = new Request(input.url, { ...input })
+
+
+    let fetching = fetch(input, init)
+    const resp = await fetching
+
+    if (resp.status === 500) {
+        channel.postMessage({ title: 'Hello from SW' })
+    }
+
+    return fetching
 }
 
 
 self.addEventListener("fetch", async event => {
-    event.respondWith(customFetch(event.request));
+    event.respondWith(
+        customFetch(event.request)
+    );
 });
+
+init()
