@@ -8,12 +8,11 @@ import (
 )
 
 type OchanocoConfig struct {
-	DefaultOrigin   string   `yaml:"default_origin"`
-	Port            int      `yaml:"port"`
-	WhiteListPath   []string `yaml:"white_list_path"`
-	WhiteListDirs   []string `yaml:"white_list_dirs"`
-	AcceptedOrigins []string `yaml:"accepted_origins"`
-	IgnoredOrigins  []string `yaml:"ignored_origins"`
+	DefaultOrigin string   `yaml:"default_origin"`
+	Port          int      `yaml:"port"`
+	WhiteListPath []string `yaml:"white_list_path"`
+	WhiteListDirs []string `yaml:"white_list_dirs"`
+	ProtectionScope []string `yaml:"protection_scope"`
 }
 
 func readConfig() (OchanocoConfig, error) {

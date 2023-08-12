@@ -4,7 +4,7 @@ import "github.com/ochanoco/proxy/core"
 
 var DEFAULT_PROXYWEB_PAGES = []core.OchanocoProxyWebPage{
 	ProxyDirectLineLogin,
-	core.IgnoreListWeb,
+	core.ConfigWeb,
 	core.StaticWeb,
 }
 
