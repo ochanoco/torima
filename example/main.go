@@ -19,6 +19,9 @@ func targetServ(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	core.CONFIG_FILE = "../config.yaml"
+	core.STATIC_FOLDER = "../static"
+
 	h := http.HandlerFunc(targetServ)
 	server := httptest.NewServer(h)
 
@@ -29,10 +32,8 @@ func main() {
 		panic(err)
 	}
 
-	core.STATIC_FOLDER = "../static"
-
 	proxyServ.Config.DefaultOrigin = servUrl.Host
 
 	port := fmt.Sprintf(":%d", proxyServ.Config.Port)
-	proxyServ.Engine.Run(port)
+	proxyServ.Engine.RunTLS(port, "./sample_keys/cert.pem", "./sample_keys/key.pem")
 }

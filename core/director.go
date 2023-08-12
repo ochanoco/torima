@@ -45,7 +45,7 @@ func ThirdPartyDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context)
 		return CONTINUE, nil
 	}
 
-	for _, origin := range proxy.Config.AcceptedOrigins {
+	for _, origin := range proxy.Config.ProtectionScope {
 		if origin == path[3] {
 			req.Host = origin
 			req.URL.Host = origin

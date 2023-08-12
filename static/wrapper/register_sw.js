@@ -1,9 +1,9 @@
-importScripts('import.js', 'other.js');
+const SERVICE_WORKER_PATH = "https://127.0.0.1:8080/ochanoco/static/sw/service_worker.js"
 
 const registerServiceWorker = async () => {
   if ("serviceWorker" in navigator) {
     try {
-      const registration = await navigator.serviceWorker.register("/service_worker.js", {
+      const registration = await navigator.serviceWorker.register(SERVICE_WORKER_PATH, {
         scope: "/",
       })
       if (registration.installing) {

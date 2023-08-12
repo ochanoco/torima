@@ -5,7 +5,7 @@ const CONTENTS_TEXT = {
         TODO: Add content here.`,
     },
     'JA': {
-        'title': '最初のポップアップ',
+        'title': '５秒後にジャンプします',
         'content': `
         このサイトでは、セキュリティのためにLINEログインをお願いしています。
         あと5秒でログインサイトにジャンプします。
