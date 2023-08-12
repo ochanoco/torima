@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"strings"
-	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -97,9 +96,6 @@ func LogDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool,
 		return FINISHED, err
 	}
 
-	fmt.Printf("%v\n", string(request))
-
-	time := time.Now()
 	splited := bytes.Split(request, []byte("\r\n\r\n"))
 
 	header := splited[0]
@@ -107,8 +103,8 @@ func LogDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool,
 
 	body := request[headerLen:]
 
-	l := proxy.Database.CommunicationLog("resp", time, string(header), body)
-	_, err = proxy.Database.SaveCommunicateLog(l)
+	l := proxy.Database.CreateRequestLog(string(header), body)
+	_, err = l.Save(proxy.Database.Ctx)
 
 	if err != nil {
 		err = makeError(err, "failed to save request: %v")
