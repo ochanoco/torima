@@ -9,8 +9,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ochanoco/proxy/ent/communicationlog"
 	"github.com/ochanoco/proxy/ent/predicate"
+	"github.com/ochanoco/proxy/ent/requestlog"
 
 	"entgo.io/ent"
 )
@@ -24,36 +24,35 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeCommunicationLog = "CommunicationLog"
+	TypeRequestLog = "RequestLog"
 )
 
-// CommunicationLogMutation represents an operation that mutates the CommunicationLog nodes in the graph.
-type CommunicationLogMutation struct {
+// RequestLogMutation represents an operation that mutates the RequestLog nodes in the graph.
+type RequestLogMutation struct {
 	config
 	op            Op
 	typ           string
 	id            *int
-	_type         *string
 	time          *time.Time
 	headers       *string
 	body          *[]byte
 	clearedFields map[string]struct{}
 	done          bool
-	oldValue      func(context.Context) (*CommunicationLog, error)
-	predicates    []predicate.CommunicationLog
+	oldValue      func(context.Context) (*RequestLog, error)
+	predicates    []predicate.RequestLog
 }
 
-var _ ent.Mutation = (*CommunicationLogMutation)(nil)
+var _ ent.Mutation = (*RequestLogMutation)(nil)
 
-// communicationlogOption allows management of the mutation configuration using functional options.
-type communicationlogOption func(*CommunicationLogMutation)
+// requestlogOption allows management of the mutation configuration using functional options.
+type requestlogOption func(*RequestLogMutation)
 
-// newCommunicationLogMutation creates new mutation for the CommunicationLog entity.
-func newCommunicationLogMutation(c config, op Op, opts ...communicationlogOption) *CommunicationLogMutation {
-	m := &CommunicationLogMutation{
+// newRequestLogMutation creates new mutation for the RequestLog entity.
+func newRequestLogMutation(c config, op Op, opts ...requestlogOption) *RequestLogMutation {
+	m := &RequestLogMutation{
 		config:        c,
 		op:            op,
-		typ:           TypeCommunicationLog,
+		typ:           TypeRequestLog,
 		clearedFields: make(map[string]struct{}),
 	}
 	for _, opt := range opts {
@@ -62,20 +61,20 @@ func newCommunicationLogMutation(c config, op Op, opts ...communicationlogOption
 	return m
 }
 
-// withCommunicationLogID sets the ID field of the mutation.
-func withCommunicationLogID(id int) communicationlogOption {
-	return func(m *CommunicationLogMutation) {
+// withRequestLogID sets the ID field of the mutation.
+func withRequestLogID(id int) requestlogOption {
+	return func(m *RequestLogMutation) {
 		var (
 			err   error
 			once  sync.Once
-			value *CommunicationLog
+			value *RequestLog
 		)
-		m.oldValue = func(ctx context.Context) (*CommunicationLog, error) {
+		m.oldValue = func(ctx context.Context) (*RequestLog, error) {
 			once.Do(func() {
 				if m.done {
 					err = errors.New("querying old values post mutation is not allowed")
 				} else {
-					value, err = m.Client().CommunicationLog.Get(ctx, id)
+					value, err = m.Client().RequestLog.Get(ctx, id)
 				}
 			})
 			return value, err
@@ -84,10 +83,10 @@ func withCommunicationLogID(id int) communicationlogOption {
 	}
 }
 
-// withCommunicationLog sets the old CommunicationLog of the mutation.
-func withCommunicationLog(node *CommunicationLog) communicationlogOption {
-	return func(m *CommunicationLogMutation) {
-		m.oldValue = func(context.Context) (*CommunicationLog, error) {
+// withRequestLog sets the old RequestLog of the mutation.
+func withRequestLog(node *RequestLog) requestlogOption {
+	return func(m *RequestLogMutation) {
+		m.oldValue = func(context.Context) (*RequestLog, error) {
 			return node, nil
 		}
 		m.id = &node.ID
@@ -96,7 +95,7 @@ func withCommunicationLog(node *CommunicationLog) communicationlogOption {
 
 // Client returns a new `ent.Client` from the mutation. If the mutation was
 // executed in a transaction (ent.Tx), a transactional client is returned.
-func (m CommunicationLogMutation) Client() *Client {
+func (m RequestLogMutation) Client() *Client {
 	client := &Client{config: m.config}
 	client.init()
 	return client
@@ -104,7 +103,7 @@ func (m CommunicationLogMutation) Client() *Client {
 
 // Tx returns an `ent.Tx` for mutations that were executed in transactions;
 // it returns an error otherwise.
-func (m CommunicationLogMutation) Tx() (*Tx, error) {
+func (m RequestLogMutation) Tx() (*Tx, error) {
 	if _, ok := m.driver.(*txDriver); !ok {
 		return nil, errors.New("ent: mutation is not running in a transaction")
 	}
@@ -115,7 +114,7 @@ func (m CommunicationLogMutation) Tx() (*Tx, error) {
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *CommunicationLogMutation) ID() (id int, exists bool) {
+func (m *RequestLogMutation) ID() (id int, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -126,7 +125,7 @@ func (m *CommunicationLogMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *CommunicationLogMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *RequestLogMutation) IDs(ctx context.Context) ([]int, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
@@ -135,55 +134,19 @@ func (m *CommunicationLogMutation) IDs(ctx context.Context) ([]int, error) {
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().CommunicationLog.Query().Where(m.predicates...).IDs(ctx)
+		return m.Client().RequestLog.Query().Where(m.predicates...).IDs(ctx)
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
 }
 
-// SetType sets the "type" field.
-func (m *CommunicationLogMutation) SetType(s string) {
-	m._type = &s
-}
-
-// GetType returns the value of the "type" field in the mutation.
-func (m *CommunicationLogMutation) GetType() (r string, exists bool) {
-	v := m._type
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldType returns the old "type" field's value of the CommunicationLog entity.
-// If the CommunicationLog object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CommunicationLogMutation) OldType(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldType is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldType requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldType: %w", err)
-	}
-	return oldValue.Type, nil
-}
-
-// ResetType resets all changes to the "type" field.
-func (m *CommunicationLogMutation) ResetType() {
-	m._type = nil
-}
-
 // SetTime sets the "time" field.
-func (m *CommunicationLogMutation) SetTime(t time.Time) {
+func (m *RequestLogMutation) SetTime(t time.Time) {
 	m.time = &t
 }
 
 // Time returns the value of the "time" field in the mutation.
-func (m *CommunicationLogMutation) Time() (r time.Time, exists bool) {
+func (m *RequestLogMutation) Time() (r time.Time, exists bool) {
 	v := m.time
 	if v == nil {
 		return
@@ -191,10 +154,10 @@ func (m *CommunicationLogMutation) Time() (r time.Time, exists bool) {
 	return *v, true
 }
 
-// OldTime returns the old "time" field's value of the CommunicationLog entity.
-// If the CommunicationLog object wasn't provided to the builder, the object is fetched from the database.
+// OldTime returns the old "time" field's value of the RequestLog entity.
+// If the RequestLog object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CommunicationLogMutation) OldTime(ctx context.Context) (v time.Time, err error) {
+func (m *RequestLogMutation) OldTime(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldTime is only allowed on UpdateOne operations")
 	}
@@ -209,17 +172,17 @@ func (m *CommunicationLogMutation) OldTime(ctx context.Context) (v time.Time, er
 }
 
 // ResetTime resets all changes to the "time" field.
-func (m *CommunicationLogMutation) ResetTime() {
+func (m *RequestLogMutation) ResetTime() {
 	m.time = nil
 }
 
 // SetHeaders sets the "headers" field.
-func (m *CommunicationLogMutation) SetHeaders(s string) {
+func (m *RequestLogMutation) SetHeaders(s string) {
 	m.headers = &s
 }
 
 // Headers returns the value of the "headers" field in the mutation.
-func (m *CommunicationLogMutation) Headers() (r string, exists bool) {
+func (m *RequestLogMutation) Headers() (r string, exists bool) {
 	v := m.headers
 	if v == nil {
 		return
@@ -227,10 +190,10 @@ func (m *CommunicationLogMutation) Headers() (r string, exists bool) {
 	return *v, true
 }
 
-// OldHeaders returns the old "headers" field's value of the CommunicationLog entity.
-// If the CommunicationLog object wasn't provided to the builder, the object is fetched from the database.
+// OldHeaders returns the old "headers" field's value of the RequestLog entity.
+// If the RequestLog object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CommunicationLogMutation) OldHeaders(ctx context.Context) (v string, err error) {
+func (m *RequestLogMutation) OldHeaders(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldHeaders is only allowed on UpdateOne operations")
 	}
@@ -245,17 +208,17 @@ func (m *CommunicationLogMutation) OldHeaders(ctx context.Context) (v string, er
 }
 
 // ResetHeaders resets all changes to the "headers" field.
-func (m *CommunicationLogMutation) ResetHeaders() {
+func (m *RequestLogMutation) ResetHeaders() {
 	m.headers = nil
 }
 
 // SetBody sets the "body" field.
-func (m *CommunicationLogMutation) SetBody(b []byte) {
+func (m *RequestLogMutation) SetBody(b []byte) {
 	m.body = &b
 }
 
 // Body returns the value of the "body" field in the mutation.
-func (m *CommunicationLogMutation) Body() (r []byte, exists bool) {
+func (m *RequestLogMutation) Body() (r []byte, exists bool) {
 	v := m.body
 	if v == nil {
 		return
@@ -263,10 +226,10 @@ func (m *CommunicationLogMutation) Body() (r []byte, exists bool) {
 	return *v, true
 }
 
-// OldBody returns the old "body" field's value of the CommunicationLog entity.
-// If the CommunicationLog object wasn't provided to the builder, the object is fetched from the database.
+// OldBody returns the old "body" field's value of the RequestLog entity.
+// If the RequestLog object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CommunicationLogMutation) OldBody(ctx context.Context) (v []byte, err error) {
+func (m *RequestLogMutation) OldBody(ctx context.Context) (v []byte, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldBody is only allowed on UpdateOne operations")
 	}
@@ -281,54 +244,51 @@ func (m *CommunicationLogMutation) OldBody(ctx context.Context) (v []byte, err e
 }
 
 // ClearBody clears the value of the "body" field.
-func (m *CommunicationLogMutation) ClearBody() {
+func (m *RequestLogMutation) ClearBody() {
 	m.body = nil
-	m.clearedFields[communicationlog.FieldBody] = struct{}{}
+	m.clearedFields[requestlog.FieldBody] = struct{}{}
 }
 
 // BodyCleared returns if the "body" field was cleared in this mutation.
-func (m *CommunicationLogMutation) BodyCleared() bool {
-	_, ok := m.clearedFields[communicationlog.FieldBody]
+func (m *RequestLogMutation) BodyCleared() bool {
+	_, ok := m.clearedFields[requestlog.FieldBody]
 	return ok
 }
 
 // ResetBody resets all changes to the "body" field.
-func (m *CommunicationLogMutation) ResetBody() {
+func (m *RequestLogMutation) ResetBody() {
 	m.body = nil
-	delete(m.clearedFields, communicationlog.FieldBody)
+	delete(m.clearedFields, requestlog.FieldBody)
 }
 
-// Where appends a list predicates to the CommunicationLogMutation builder.
-func (m *CommunicationLogMutation) Where(ps ...predicate.CommunicationLog) {
+// Where appends a list predicates to the RequestLogMutation builder.
+func (m *RequestLogMutation) Where(ps ...predicate.RequestLog) {
 	m.predicates = append(m.predicates, ps...)
 }
 
 // Op returns the operation name.
-func (m *CommunicationLogMutation) Op() Op {
+func (m *RequestLogMutation) Op() Op {
 	return m.op
 }
 
-// Type returns the node type of this mutation (CommunicationLog).
-func (m *CommunicationLogMutation) Type() string {
+// Type returns the node type of this mutation (RequestLog).
+func (m *RequestLogMutation) Type() string {
 	return m.typ
 }
 
 // Fields returns all fields that were changed during this mutation. Note that in
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
-func (m *CommunicationLogMutation) Fields() []string {
-	fields := make([]string, 0, 4)
-	if m._type != nil {
-		fields = append(fields, communicationlog.FieldType)
-	}
+func (m *RequestLogMutation) Fields() []string {
+	fields := make([]string, 0, 3)
 	if m.time != nil {
-		fields = append(fields, communicationlog.FieldTime)
+		fields = append(fields, requestlog.FieldTime)
 	}
 	if m.headers != nil {
-		fields = append(fields, communicationlog.FieldHeaders)
+		fields = append(fields, requestlog.FieldHeaders)
 	}
 	if m.body != nil {
-		fields = append(fields, communicationlog.FieldBody)
+		fields = append(fields, requestlog.FieldBody)
 	}
 	return fields
 }
@@ -336,15 +296,13 @@ func (m *CommunicationLogMutation) Fields() []string {
 // Field returns the value of a field with the given name. The second boolean
 // return value indicates that this field was not set, or was not defined in the
 // schema.
-func (m *CommunicationLogMutation) Field(name string) (ent.Value, bool) {
+func (m *RequestLogMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case communicationlog.FieldType:
-		return m.GetType()
-	case communicationlog.FieldTime:
+	case requestlog.FieldTime:
 		return m.Time()
-	case communicationlog.FieldHeaders:
+	case requestlog.FieldHeaders:
 		return m.Headers()
-	case communicationlog.FieldBody:
+	case requestlog.FieldBody:
 		return m.Body()
 	}
 	return nil, false
@@ -353,47 +311,38 @@ func (m *CommunicationLogMutation) Field(name string) (ent.Value, bool) {
 // OldField returns the old value of the field from the database. An error is
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
-func (m *CommunicationLogMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+func (m *RequestLogMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case communicationlog.FieldType:
-		return m.OldType(ctx)
-	case communicationlog.FieldTime:
+	case requestlog.FieldTime:
 		return m.OldTime(ctx)
-	case communicationlog.FieldHeaders:
+	case requestlog.FieldHeaders:
 		return m.OldHeaders(ctx)
-	case communicationlog.FieldBody:
+	case requestlog.FieldBody:
 		return m.OldBody(ctx)
 	}
-	return nil, fmt.Errorf("unknown CommunicationLog field %s", name)
+	return nil, fmt.Errorf("unknown RequestLog field %s", name)
 }
 
 // SetField sets the value of a field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
-func (m *CommunicationLogMutation) SetField(name string, value ent.Value) error {
+func (m *RequestLogMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case communicationlog.FieldType:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetType(v)
-		return nil
-	case communicationlog.FieldTime:
+	case requestlog.FieldTime:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetTime(v)
 		return nil
-	case communicationlog.FieldHeaders:
+	case requestlog.FieldHeaders:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetHeaders(v)
 		return nil
-	case communicationlog.FieldBody:
+	case requestlog.FieldBody:
 		v, ok := value.([]byte)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
@@ -401,123 +350,120 @@ func (m *CommunicationLogMutation) SetField(name string, value ent.Value) error 
 		m.SetBody(v)
 		return nil
 	}
-	return fmt.Errorf("unknown CommunicationLog field %s", name)
+	return fmt.Errorf("unknown RequestLog field %s", name)
 }
 
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
-func (m *CommunicationLogMutation) AddedFields() []string {
+func (m *RequestLogMutation) AddedFields() []string {
 	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
-func (m *CommunicationLogMutation) AddedField(name string) (ent.Value, bool) {
+func (m *RequestLogMutation) AddedField(name string) (ent.Value, bool) {
 	return nil, false
 }
 
 // AddField adds the value to the field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
-func (m *CommunicationLogMutation) AddField(name string, value ent.Value) error {
+func (m *RequestLogMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	}
-	return fmt.Errorf("unknown CommunicationLog numeric field %s", name)
+	return fmt.Errorf("unknown RequestLog numeric field %s", name)
 }
 
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
-func (m *CommunicationLogMutation) ClearedFields() []string {
+func (m *RequestLogMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(communicationlog.FieldBody) {
-		fields = append(fields, communicationlog.FieldBody)
+	if m.FieldCleared(requestlog.FieldBody) {
+		fields = append(fields, requestlog.FieldBody)
 	}
 	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
 // cleared in this mutation.
-func (m *CommunicationLogMutation) FieldCleared(name string) bool {
+func (m *RequestLogMutation) FieldCleared(name string) bool {
 	_, ok := m.clearedFields[name]
 	return ok
 }
 
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
-func (m *CommunicationLogMutation) ClearField(name string) error {
+func (m *RequestLogMutation) ClearField(name string) error {
 	switch name {
-	case communicationlog.FieldBody:
+	case requestlog.FieldBody:
 		m.ClearBody()
 		return nil
 	}
-	return fmt.Errorf("unknown CommunicationLog nullable field %s", name)
+	return fmt.Errorf("unknown RequestLog nullable field %s", name)
 }
 
 // ResetField resets all changes in the mutation for the field with the given name.
 // It returns an error if the field is not defined in the schema.
-func (m *CommunicationLogMutation) ResetField(name string) error {
+func (m *RequestLogMutation) ResetField(name string) error {
 	switch name {
-	case communicationlog.FieldType:
-		m.ResetType()
-		return nil
-	case communicationlog.FieldTime:
+	case requestlog.FieldTime:
 		m.ResetTime()
 		return nil
-	case communicationlog.FieldHeaders:
+	case requestlog.FieldHeaders:
 		m.ResetHeaders()
 		return nil
-	case communicationlog.FieldBody:
+	case requestlog.FieldBody:
 		m.ResetBody()
 		return nil
 	}
-	return fmt.Errorf("unknown CommunicationLog field %s", name)
+	return fmt.Errorf("unknown RequestLog field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
-func (m *CommunicationLogMutation) AddedEdges() []string {
+func (m *RequestLogMutation) AddedEdges() []string {
 	edges := make([]string, 0, 0)
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
-func (m *CommunicationLogMutation) AddedIDs(name string) []ent.Value {
+func (m *RequestLogMutation) AddedIDs(name string) []ent.Value {
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
-func (m *CommunicationLogMutation) RemovedEdges() []string {
+func (m *RequestLogMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 0)
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
-func (m *CommunicationLogMutation) RemovedIDs(name string) []ent.Value {
+func (m *RequestLogMutation) RemovedIDs(name string) []ent.Value {
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *CommunicationLogMutation) ClearedEdges() []string {
+func (m *RequestLogMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 0)
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
-func (m *CommunicationLogMutation) EdgeCleared(name string) bool {
+func (m *RequestLogMutation) EdgeCleared(name string) bool {
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
-func (m *CommunicationLogMutation) ClearEdge(name string) error {
-	return fmt.Errorf("unknown CommunicationLog unique edge %s", name)
+func (m *RequestLogMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown RequestLog unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
-func (m *CommunicationLogMutation) ResetEdge(name string) error {
-	return fmt.Errorf("unknown CommunicationLog edge %s", name)
+func (m *RequestLogMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown RequestLog edge %s", name)
 }

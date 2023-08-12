@@ -6,5 +6,5 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// CommunicationLog is the predicate function for communicationlog builders.
-type CommunicationLog func(*sql.Selector)
+// RequestLog is the predicate function for requestlog builders.
+type RequestLog func(*sql.Selector)
