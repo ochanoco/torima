@@ -5,14 +5,13 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-type CommunicationLog struct {
+type RequestLog struct {
 	ent.Schema
 }
 
 // Fields of the User.
-func (CommunicationLog) Fields() []ent.Field {
+func (RequestLog) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("type"),
 		field.Time("time"),
 		field.String("headers"),
 		field.Bytes("body").Optional(),

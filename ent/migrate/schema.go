@@ -8,23 +8,22 @@ import (
 )
 
 var (
-	// CommunicationLogsColumns holds the columns for the "communication_logs" table.
-	CommunicationLogsColumns = []*schema.Column{
+	// RequestLogsColumns holds the columns for the "request_logs" table.
+	RequestLogsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "type", Type: field.TypeString},
 		{Name: "time", Type: field.TypeTime},
 		{Name: "headers", Type: field.TypeString},
 		{Name: "body", Type: field.TypeBytes, Nullable: true},
 	}
-	// CommunicationLogsTable holds the schema information for the "communication_logs" table.
-	CommunicationLogsTable = &schema.Table{
-		Name:       "communication_logs",
-		Columns:    CommunicationLogsColumns,
-		PrimaryKey: []*schema.Column{CommunicationLogsColumns[0]},
+	// RequestLogsTable holds the schema information for the "request_logs" table.
+	RequestLogsTable = &schema.Table{
+		Name:       "request_logs",
+		Columns:    RequestLogsColumns,
+		PrimaryKey: []*schema.Column{RequestLogsColumns[0]},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		CommunicationLogsTable,
+		RequestLogsTable,
 	}
 )
 

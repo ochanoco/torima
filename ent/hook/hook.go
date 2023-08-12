@@ -9,15 +9,15 @@ import (
 	"github.com/ochanoco/proxy/ent"
 )
 
-// The CommunicationLogFunc type is an adapter to allow the use of ordinary
-// function as CommunicationLog mutator.
-type CommunicationLogFunc func(context.Context, *ent.CommunicationLogMutation) (ent.Value, error)
+// The RequestLogFunc type is an adapter to allow the use of ordinary
+// function as RequestLog mutator.
+type RequestLogFunc func(context.Context, *ent.RequestLogMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f CommunicationLogFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.CommunicationLogMutation)
+func (f RequestLogFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.RequestLogMutation)
 	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CommunicationLogMutation", m)
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RequestLogMutation", m)
 	}
 	return f(ctx, mv)
 }

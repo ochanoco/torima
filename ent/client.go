@@ -10,7 +10,7 @@ import (
 
 	"github.com/ochanoco/proxy/ent/migrate"
 
-	"github.com/ochanoco/proxy/ent/communicationlog"
+	"github.com/ochanoco/proxy/ent/requestlog"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
@@ -21,8 +21,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
-	// CommunicationLog is the client for interacting with the CommunicationLog builders.
-	CommunicationLog *CommunicationLogClient
+	// RequestLog is the client for interacting with the RequestLog builders.
+	RequestLog *RequestLogClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -36,7 +36,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
-	c.CommunicationLog = NewCommunicationLogClient(c.config)
+	c.RequestLog = NewRequestLogClient(c.config)
 }
 
 // Open opens a database/sql.DB specified by the driver name and
@@ -68,9 +68,9 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:              ctx,
-		config:           cfg,
-		CommunicationLog: NewCommunicationLogClient(cfg),
+		ctx:        ctx,
+		config:     cfg,
+		RequestLog: NewRequestLogClient(cfg),
 	}, nil
 }
 
@@ -88,16 +88,16 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:              ctx,
-		config:           cfg,
-		CommunicationLog: NewCommunicationLogClient(cfg),
+		ctx:        ctx,
+		config:     cfg,
+		RequestLog: NewRequestLogClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		CommunicationLog.
+//		RequestLog.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -119,87 +119,87 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.CommunicationLog.Use(hooks...)
+	c.RequestLog.Use(hooks...)
 }
 
-// CommunicationLogClient is a client for the CommunicationLog schema.
-type CommunicationLogClient struct {
+// RequestLogClient is a client for the RequestLog schema.
+type RequestLogClient struct {
 	config
 }
 
-// NewCommunicationLogClient returns a client for the CommunicationLog from the given config.
-func NewCommunicationLogClient(c config) *CommunicationLogClient {
-	return &CommunicationLogClient{config: c}
+// NewRequestLogClient returns a client for the RequestLog from the given config.
+func NewRequestLogClient(c config) *RequestLogClient {
+	return &RequestLogClient{config: c}
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `communicationlog.Hooks(f(g(h())))`.
-func (c *CommunicationLogClient) Use(hooks ...Hook) {
-	c.hooks.CommunicationLog = append(c.hooks.CommunicationLog, hooks...)
+// A call to `Use(f, g, h)` equals to `requestlog.Hooks(f(g(h())))`.
+func (c *RequestLogClient) Use(hooks ...Hook) {
+	c.hooks.RequestLog = append(c.hooks.RequestLog, hooks...)
 }
 
-// Create returns a builder for creating a CommunicationLog entity.
-func (c *CommunicationLogClient) Create() *CommunicationLogCreate {
-	mutation := newCommunicationLogMutation(c.config, OpCreate)
-	return &CommunicationLogCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Create returns a builder for creating a RequestLog entity.
+func (c *RequestLogClient) Create() *RequestLogCreate {
+	mutation := newRequestLogMutation(c.config, OpCreate)
+	return &RequestLogCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// CreateBulk returns a builder for creating a bulk of CommunicationLog entities.
-func (c *CommunicationLogClient) CreateBulk(builders ...*CommunicationLogCreate) *CommunicationLogCreateBulk {
-	return &CommunicationLogCreateBulk{config: c.config, builders: builders}
+// CreateBulk returns a builder for creating a bulk of RequestLog entities.
+func (c *RequestLogClient) CreateBulk(builders ...*RequestLogCreate) *RequestLogCreateBulk {
+	return &RequestLogCreateBulk{config: c.config, builders: builders}
 }
 
-// Update returns an update builder for CommunicationLog.
-func (c *CommunicationLogClient) Update() *CommunicationLogUpdate {
-	mutation := newCommunicationLogMutation(c.config, OpUpdate)
-	return &CommunicationLogUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Update returns an update builder for RequestLog.
+func (c *RequestLogClient) Update() *RequestLogUpdate {
+	mutation := newRequestLogMutation(c.config, OpUpdate)
+	return &RequestLogUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *CommunicationLogClient) UpdateOne(cl *CommunicationLog) *CommunicationLogUpdateOne {
-	mutation := newCommunicationLogMutation(c.config, OpUpdateOne, withCommunicationLog(cl))
-	return &CommunicationLogUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *RequestLogClient) UpdateOne(rl *RequestLog) *RequestLogUpdateOne {
+	mutation := newRequestLogMutation(c.config, OpUpdateOne, withRequestLog(rl))
+	return &RequestLogUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *CommunicationLogClient) UpdateOneID(id int) *CommunicationLogUpdateOne {
-	mutation := newCommunicationLogMutation(c.config, OpUpdateOne, withCommunicationLogID(id))
-	return &CommunicationLogUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *RequestLogClient) UpdateOneID(id int) *RequestLogUpdateOne {
+	mutation := newRequestLogMutation(c.config, OpUpdateOne, withRequestLogID(id))
+	return &RequestLogUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Delete returns a delete builder for CommunicationLog.
-func (c *CommunicationLogClient) Delete() *CommunicationLogDelete {
-	mutation := newCommunicationLogMutation(c.config, OpDelete)
-	return &CommunicationLogDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Delete returns a delete builder for RequestLog.
+func (c *RequestLogClient) Delete() *RequestLogDelete {
+	mutation := newRequestLogMutation(c.config, OpDelete)
+	return &RequestLogDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *CommunicationLogClient) DeleteOne(cl *CommunicationLog) *CommunicationLogDeleteOne {
-	return c.DeleteOneID(cl.ID)
+func (c *RequestLogClient) DeleteOne(rl *RequestLog) *RequestLogDeleteOne {
+	return c.DeleteOneID(rl.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *CommunicationLogClient) DeleteOneID(id int) *CommunicationLogDeleteOne {
-	builder := c.Delete().Where(communicationlog.ID(id))
+func (c *RequestLogClient) DeleteOneID(id int) *RequestLogDeleteOne {
+	builder := c.Delete().Where(requestlog.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
-	return &CommunicationLogDeleteOne{builder}
+	return &RequestLogDeleteOne{builder}
 }
 
-// Query returns a query builder for CommunicationLog.
-func (c *CommunicationLogClient) Query() *CommunicationLogQuery {
-	return &CommunicationLogQuery{
+// Query returns a query builder for RequestLog.
+func (c *RequestLogClient) Query() *RequestLogQuery {
+	return &RequestLogQuery{
 		config: c.config,
 	}
 }
 
-// Get returns a CommunicationLog entity by its id.
-func (c *CommunicationLogClient) Get(ctx context.Context, id int) (*CommunicationLog, error) {
-	return c.Query().Where(communicationlog.ID(id)).Only(ctx)
+// Get returns a RequestLog entity by its id.
+func (c *RequestLogClient) Get(ctx context.Context, id int) (*RequestLog, error) {
+	return c.Query().Where(requestlog.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *CommunicationLogClient) GetX(ctx context.Context, id int) *CommunicationLog {
+func (c *RequestLogClient) GetX(ctx context.Context, id int) *RequestLog {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -208,6 +208,6 @@ func (c *CommunicationLogClient) GetX(ctx context.Context, id int) *Communicatio
 }
 
 // Hooks returns the client hooks.
-func (c *CommunicationLogClient) Hooks() []Hook {
-	return c.hooks.CommunicationLog
+func (c *RequestLogClient) Hooks() []Hook {
+	return c.hooks.RequestLog
 }
