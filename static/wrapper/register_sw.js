@@ -1,6 +1,4 @@
-// importScripts('import.js', 'other.js');
-
-const SERVICE_WORKER_PATH = "/ochanoco/static/sw/service_worker.js"
+const SERVICE_WORKER_PATH = "https://127.0.0.1:8080/ochanoco/static/sw/service_worker.js"
 
 const registerServiceWorker = async () => {
   if ("serviceWorker" in navigator) {
