@@ -11,4 +11,7 @@ channel.addEventListener('message', event => {
     console.log('Received', event.data);
     popup.show()
 
+    setTimeout(() => {
+        location.href = "/ochanoco/login"
+    }, 5000)
 });
