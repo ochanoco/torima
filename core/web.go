@@ -5,6 +5,12 @@ import (
 )
 
 func StaticWeb(proxy *OchanocoProxy, r *gin.RouterGroup) {
+	r.Use(func() gin.HandlerFunc {
+		return func(c *gin.Context) {
+			c.Writer.Header().Set("Service-Worker-Allowed", "/")
+		}
+	}())
+
 	r.Static("/static", STATIC_FOLDER)
 }
 
