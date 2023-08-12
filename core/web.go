@@ -14,8 +14,8 @@ func StaticWeb(proxy *OchanocoProxy, r *gin.RouterGroup) {
 	r.Static("/static", STATIC_FOLDER)
 }
 
-func IgnoreListWeb(proxy *OchanocoProxy, r *gin.RouterGroup) {
-	r.GET("/ignores.json", func(c *gin.Context) {
-		c.JSON(200, proxy.Config.IgnoredOrigins)
+func ConfigWeb(proxy *OchanocoProxy, r *gin.RouterGroup) {
+	r.GET("/config.json", func(c *gin.Context) {
+		c.JSON(200, proxy.Config.ProtectionScope)
 	})
 }
