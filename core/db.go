@@ -2,7 +2,6 @@ package core
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"time"
 
@@ -36,23 +35,14 @@ func InitDB(path string) (*Database, error) {
 	return dbl, err
 }
 
-func (db *Database) CommunicationLog(_type string, t time.Time, header string, body []byte) *ent.CommunicationLogCreate {
-	sl := db.Client.CommunicationLog.
+func (db *Database) CreateRequestLog(header string, body []byte) *ent.RequestLogCreate {
+	t := time.Now()
+
+	sl := db.Client.RequestLog.
 		Create().
-		SetType(_type).
 		SetTime(t).
 		SetHeaders(header).
 		SetBody(body)
 
 	return sl
-}
-
-func (db *Database) SaveCommunicateLog(l *ent.CommunicationLogCreate) (*ent.CommunicationLog, error) {
-	code, err := l.Save(db.Ctx)
-
-	if err != nil {
-		return nil, fmt.Errorf("failed to save save log: %v", err)
-	}
-
-	return code, err
 }
