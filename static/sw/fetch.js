@@ -1,3 +1,5 @@
+const PROXY_ORIGIN = "https://127.0.0.1:8080"
+
 const toProxiedUrl = (input, currentOrigin, currentPath, targetOrigin) => {
     console.log({ currentPath, currentOrigin });
     let path = "";
@@ -23,16 +25,15 @@ const toProxiedUrl = (input, currentOrigin, currentPath, targetOrigin) => {
         // if it is relative path, first make it absolute
 
         // /path/to/hoge/foo.html
-        //              ^ Get this index
+        //              ^ Get this indexproxy.example.com
         const slashIndex = currentPath.lastIndexOf("/");
         // fuga/piyo -> /path/to/hoge/fuga/piyo
         path = `${currentPath.slice(0, slashIndex + 1)}${path}`;
     }
 
     // if it is absolute path in the origin, convert it to URL
-    if (path.startsWith("/")) {
+    if (path.startsWith("/"))
         path = `${targetOrigin}${path}`;
-    }
 
     console.log(`proxy to ${path}`);
 
@@ -43,6 +44,11 @@ const toProxiedUrl = (input, currentOrigin, currentPath, targetOrigin) => {
 const customFetch = async (input, init = {}) => {
     console.log("fetch called");
     console.log(input)
+
+    if (input.mode === "navigate") {
+        console.log("navigate mode");
+        return fetch(input, init);
+    }
 
     init.mode = "cors";
 
@@ -64,10 +70,10 @@ const customFetch = async (input, init = {}) => {
     await resp
     console.log({ resp, input, init });
 
-    const channel = new BroadcastChannel('sw-messages');
-    channel.postMessage({ title: 'Hello from SW' });
+    // const channel = new BroadcastChannel('sw-messages');
+    // channel.postMessage({ title: 'Hello from SW' });
 
-    await sleep(5000)
+    // await sleep(5000)
 
     return resp
 }
