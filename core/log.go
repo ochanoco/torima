@@ -1,22 +1,55 @@
 package core
 
 import (
-	"bytes"
-	"time"
-
-	"github.com/ochanoco/proxy/ent"
+	"fmt"
+	"log"
+	"net/http"
+	"reflect"
+	"runtime"
 )
 
-func logRawCommunication(_type string, message []byte, proxy *OchanocoProxy) (*ent.CommunicationLog, error) {
-	time := time.Now()
+type FlowLog struct {
+	name   string
+	result bool
+}
 
-	splited := bytes.Split(message, []byte("\r\n\r\n"))
+type FlowLogger struct {
+	logs []FlowLog
+}
 
-	header := splited[0]
-	headerLen := len(header)
+func NewFlowLogger() FlowLogger {
+	return FlowLogger{
+		logs: []FlowLog{},
+	}
+}
 
-	body := message[headerLen:]
+func (logger *FlowLogger) Add(f any, result bool) {
+	rv := reflect.ValueOf(f)
+	ptr := rv.Pointer()
+	name := runtime.FuncForPC(ptr).Name()
 
-	l := proxy.Database.CommunicationLog(_type, time, string(header), body)
-	return proxy.Database.SaveCommunicateLog(l)
+	newLog := FlowLog{
+		name,
+		result,
+	}
+
+	logger.logs = append(logger.logs, newLog)
+}
+
+func (flowLogs *FlowLogger) Show() {
+	log.Println("\n--- start ----")
+
+	for _, v := range flowLogs.logs {
+		log.Printf("name: %v\n", v.name)
+		log.Printf("result: %v\n", v.result)
+	}
+
+	fmt.Println("---  end  ----")
+}
+
+/**
+ * LogReq is the function that logs the request.
+**/
+func LogReq(req *http.Request) {
+	fmt.Printf("[%s] %s%s\n=> %s%s\n\n", req.Method, req.Host, req.RequestURI, req.URL.Host, req.URL.Path)
 }

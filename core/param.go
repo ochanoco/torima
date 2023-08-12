@@ -16,7 +16,6 @@ var DEFAULT_DIRECTORS = []OchanocoDirector{
 
 var DEFAULT_MODIFY_RESPONSES = []OchanocoModifyResponse{
 	InjectServiceWorkerModifyResponse,
-	LogModifyResponse,
 }
 
 var DEFAULT_PROXYWEB_PAGES = []OchanocoProxyWebPage{
