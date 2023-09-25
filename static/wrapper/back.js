@@ -1,5 +1,1 @@
-window.onload = () => {
-    const history = localStorage.getItem('history')
-
-    location.pathname = history
-}
+history.back()

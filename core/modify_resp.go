@@ -47,7 +47,7 @@ func InjectServiceWorkerModifyResponse(proxy *OchanocoProxy, res *http.Response,
 		return CONTINUE, nil
 	}
 
-	html := scripts + "\n" + saveHistory
+	html := scripts + "\n"
 
 	return InjectHTMLModifyResponse(html, proxy, res, c)
 }

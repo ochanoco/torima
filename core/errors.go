@@ -56,6 +56,7 @@ func abordGin(proxy *OchanocoProxy, err error, c *gin.Context) {
 
 	c.Status(statusCode)
 	c.Writer.WriteString(scripts)
-	c.Writer.WriteString(backHistory)
+	c.Writer.WriteString(saveHistoryHTML)
+	c.Writer.WriteString(backHTML)
 	c.Abort()
 }
