@@ -18,7 +18,7 @@ func RouteDirector(host string, proxy *OchanocoProxy, req *http.Request, c *gin.
 	req.Header.Set("User-Agent", "ochanoco")
 	req.Header.Set("X-Ochanoco-Proxy-Token", "<proxy_token>")
 
-	req.URL.Scheme = "https"
+	req.URL.Scheme = SCHEME
 
 	return CONTINUE, nil
 }
@@ -78,14 +78,14 @@ func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool
 			return CONTINUE, nil
 		}
 
-		for _, whitelist := range proxy.Config.WhiteListDirs {
-			if strings.HasPrefix(req.URL.Path, whitelist) {
-				return CONTINUE, nil
-			}
-		}
+		// for _, whitelist := range proxy.Config.WhiteListDirs {
+		// 	if strings.HasPrefix(req.URL.Path, whitelist) {
+		// 		return CONTINUE, nil
+		// 	}
+		// }
 	}
 
-	return FINISHED, fmt.Errorf("failed to authenticate user")
+	return FINISHED, makeError(fmt.Errorf(""), unauthorizedErrorTag)
 }
 
 func LogDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool, error) {

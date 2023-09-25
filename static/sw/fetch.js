@@ -1,15 +1,21 @@
 // https://127.0.0.1:8080/
 let PROTECTION_SCOPE = []
+let LOCAL_WHITELIST = [
+    '/ochanoco/login',
+    '/ochanoco/auth/callback'
+]
+
+const SLEEP_TIME = 3000
 
 const init = async () => {
-    const resp = await fetch(location.origin + `/ochanoco/config.json`)
-    const scope = await resp.json()
-    PROTECTION_SCOPE = scope
+    const resp = await fetch(location.origin + `/ochanoco/status`)
+    const data = await resp.json()
+    PROTECTION_SCOPE = data.protection_scope
 }
 
 const channel = new BroadcastChannel('sw-messages')
 
-const customFetch = async (input, init = {}) => {
+const normalizeURL = (input, init) => {
     let url;
 
     if (typeof input === "string") {
@@ -27,9 +33,17 @@ const customFetch = async (input, init = {}) => {
         url = new URL(input.url)
     }
 
+    return { url, input }
+}
+
+const customFetch = async (input, init = {}) => {
+    console.log("input: ", input)
+    var { url, input } = normalizeURL(input, init)
+
 
     const isProxyOrigin = url.host === location.host
     const isInProtectionScope = PROTECTION_SCOPE.includes(url.host)
+    const isInLocalWhitelist = LOCAL_WHITELIST.includes(url.pathname)
     const isNavigate = input.mode === "navigate"
 
     console.log("target: ", url)
@@ -38,29 +52,39 @@ const customFetch = async (input, init = {}) => {
     console.log("mode:", input.mode, input.mode == "navigate")
     console.log(!isProxyOrigin && !isInProtectionScope || isNavigate)
 
-    if ((!isProxyOrigin && !isInProtectionScope) || isNavigate) {
-        console.log("unmodify to proxy")
+    if (!isProxyOrigin && !isInProtectionScope) {
+        console.log("unmodify to proxy because not in protection scope")
         return fetch(input, init)
     }
 
-    if (!isProxyOrigin) {
+    if (!isProxyOrigin && isInProtectionScope) {
         console.log("modify to proxy")
 
         url.pathname = `/ochanoco/redirect/${url.host}/${url.pathname}`
         url.host = location.host
         input.url = url
-
     }
 
-    input = new Request(input.url, { ...input })
+    if (isInLocalWhitelist) {
+        console.log("unmodify to check authorized")
+        return fetch(input, init)
+    }
 
+
+    console.log("modify to check authorized")
+
+
+    input = new Request(input.url, { ...input })
 
     let fetching = fetch(input, init)
     const resp = await fetching
 
     if (resp.status === 401) {
-        console.log("Authentication needed")
-        channel.postMessage({ title: 'Authentication needed' })
+        setTimeout(() => {
+            console.log("Authentication needed")
+            channel.postMessage({ title: 'Authentication needed' })
+
+        }, SLEEP_TIME)
     }
 
     return fetching

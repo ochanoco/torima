@@ -25,7 +25,6 @@ func NewOchancoProxy(
 	r *gin.Engine,
 	directors []OchanocoDirector,
 	modifyResponses []OchanocoModifyResponse,
-	errorHandler *gin.HandlerFunc,
 	proxyWebPages []OchanocoProxyWebPage,
 	config *OchanocoConfig,
 	database *Database,
@@ -34,12 +33,10 @@ func NewOchancoProxy(
 
 	proxy.Directors = directors
 	proxy.ModifyResponses = modifyResponses
-	proxy.ErrorHandler = errorHandler
 
 	proxy.ProxyWebPages = proxyWebPages
 	proxy.Database = database
 
-	r.Use(*errorHandler)
 	proxy.Engine = r
 
 	specialPath := r.Group("/ochanoco")
