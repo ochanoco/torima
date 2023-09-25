@@ -1,0 +1,1 @@
+localStorage.setItem('history', location.pathname);

@@ -47,12 +47,7 @@ func InjectServiceWorkerModifyResponse(proxy *OchanocoProxy, res *http.Response,
 		return CONTINUE, nil
 	}
 
-	html := `
-<script src="https://cdn.jsdelivr.net/npm/@simondmc/popup-js@1.4.2/popup.min.js"></script>
-<script src="/ochanoco/static/wrapper/lang.js"></script>
-<script src="/ochanoco/static/wrapper/popup.js"></script>
-<script src="/ochanoco/static/wrapper/register_sw.js"></script>
-`
+	html := scripts + "\n" + saveHistory
 
 	return InjectHTMLModifyResponse(html, proxy, res, c)
 }
