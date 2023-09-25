@@ -7,6 +7,14 @@ var scripts = `
 <script src="/ochanoco/static/wrapper/register_sw.js"></script>
 `
 
-var forceOpenPopup = `
-<script src="/ochanoco/static/wrapper/open.js"></script>
+var saveHistoryHTML = `
+<script src="/ochanoco/static/wrapper/save_history.js"></script>
+`
+
+var backHistoryHTML = `
+<script src="/ochanoco/static/wrapper/back_history.js"></script>
+`
+
+var backHTML = `
+<script src="/ochanoco/static/wrapper/back.js"></script>
 `
