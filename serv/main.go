@@ -10,8 +10,6 @@ const NAME = "line"
 
 func Run() (*core.OchanocoProxy, error) {
 	secret := "testest"
-	core.DEFAULT_PROXYWEB_PAGES = DEFAULT_PROXYWEB_PAGES
-
 	proxyServ, err := core.ProxyServer(secret)
 	return proxyServ, err
 }

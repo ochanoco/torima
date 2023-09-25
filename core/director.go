@@ -77,12 +77,6 @@ func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool
 		if slices.Contains(proxy.Config.WhiteListPath, req.URL.Path) {
 			return CONTINUE, nil
 		}
-
-		// for _, whitelist := range proxy.Config.WhiteListDirs {
-		// 	if strings.HasPrefix(req.URL.Path, whitelist) {
-		// 		return CONTINUE, nil
-		// 	}
-		// }
 	}
 
 	return FINISHED, makeError(fmt.Errorf(""), unauthorizedErrorTag)
