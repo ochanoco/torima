@@ -1,6 +1,7 @@
 package core
 
 import (
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,7 +16,14 @@ func StaticWeb(proxy *OchanocoProxy, r *gin.RouterGroup) {
 }
 
 func ConfigWeb(proxy *OchanocoProxy, r *gin.RouterGroup) {
-	r.GET("/config.json", func(c *gin.Context) {
-		c.JSON(200, proxy.Config.ProtectionScope)
+	r.GET("/status", func(c *gin.Context) {
+		session := sessions.Default(c)
+		userId := session.Get("userId")
+
+		c.JSON(200, gin.H{
+			"protection_scope": proxy.Config.ProtectionScope,
+			"white_list_path":  proxy.Config.WhiteListPath,
+			"is_authenticated": userId != nil, // is it needed?
+		})
 	})
 }
