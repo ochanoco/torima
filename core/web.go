@@ -1,6 +1,8 @@
 package core
 
 import (
+	"gin_line_login"
+
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
@@ -29,8 +31,35 @@ func ConfigWeb(proxy *OchanocoProxy, r *gin.RouterGroup) {
 }
 
 func BackWeb(proxy *OchanocoProxy, r *gin.RouterGroup) {
-	r.GET("/status", func(c *gin.Context) {
-		c.Writer.Write([]byte(backHistory))
+	r.GET("/back", func(c *gin.Context) {
+		c.Writer.Write([]byte(backHistoryHTML))
 		c.Status(200)
+	})
+}
+
+func LoginWebs(proxy *OchanocoProxy, r *gin.RouterGroup) {
+	lineLogin, err := gin_line_login.NewLineLoginWithEnvironment(r, "/ochanoco/auth/login", "/auth/callback", "/ochanoco/back")
+	if err != nil {
+		panic(err)
+	}
+
+	r.GET("/login", func(c *gin.Context) {
+		lineLogin.Login(c)
+	})
+
+	r.GET("/auth/logout", func(c *gin.Context) {
+		lineLogin.Logout(c)
+		c.JSON(200, gin.H{"message": "logout"})
+	})
+
+	r.GET("/auth/status", lineLogin.AuthMiddleware(), func(c *gin.Context) {
+		c.JSON(200, gin.H{"message": "loggined!"})
+	})
+
+	r.GET("/auth/redirect", lineLogin.AuthMiddleware(), func(c *gin.Context) {
+		session := sessions.Default(c)
+		userId := session.Get("userId")
+
+		c.JSON(200, gin.H{"user_id": userId})
 	})
 }
