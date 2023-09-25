@@ -1,4 +1,4 @@
-const SERVICE_WORKER_PATH = "https://127.0.0.1:8080/ochanoco/static/sw/service_worker.js"
+const SERVICE_WORKER_PATH = location.origin + '/ochanoco/static/sw/service_worker.js'
 
 const registerServiceWorker = async () => {
   if ("serviceWorker" in navigator) {
@@ -6,6 +6,8 @@ const registerServiceWorker = async () => {
       const registration = await navigator.serviceWorker.register(SERVICE_WORKER_PATH, {
         scope: "/",
       })
+      registration.update()
+
       if (registration.installing) {
         console.log("Service worker installing")
       } else if (registration.waiting) {

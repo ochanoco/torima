@@ -2,13 +2,12 @@
 let PROTECTION_SCOPE = []
 
 const init = async () => {
-    const resp = await fetch("/ochanoco/config.json")
+    const resp = await fetch(location.origin + `/ochanoco/config.json`)
     const scope = await resp.json()
     PROTECTION_SCOPE = scope
 }
 
 const channel = new BroadcastChannel('sw-messages')
-
 
 const customFetch = async (input, init = {}) => {
     let url;
@@ -31,11 +30,15 @@ const customFetch = async (input, init = {}) => {
 
     const isProxyOrigin = url.host === location.host
     const isInProtectionScope = PROTECTION_SCOPE.includes(url.host)
+    const isNavigate = input.mode === "navigate"
 
-    console.log("protection_scope: ", PROTECTION_SCOPE)
-    console.log("host: ", url.host)
+    console.log("target: ", url)
+    console.log("protection_scope: ", PROTECTION_SCOPE, isProxyOrigin)
+    console.log("host: ", url.host, isInProtectionScope)
+    console.log("mode:", input.mode, input.mode == "navigate")
+    console.log(!isProxyOrigin && !isInProtectionScope || isNavigate)
 
-    if (!isProxyOrigin && !isInProtectionScope || input.mode === "navigate") {
+    if ((!isProxyOrigin && !isInProtectionScope) || isNavigate) {
         console.log("unmodify to proxy")
         return fetch(input, init)
     }
@@ -55,8 +58,9 @@ const customFetch = async (input, init = {}) => {
     let fetching = fetch(input, init)
     const resp = await fetching
 
-    if (resp.status === 500) {
-        channel.postMessage({ title: 'Hello from SW' })
+    if (resp.status === 401) {
+        console.log("Authentication needed")
+        channel.postMessage({ title: 'Authentication needed' })
     }
 
     return fetching
