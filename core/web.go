@@ -27,3 +27,10 @@ func ConfigWeb(proxy *OchanocoProxy, r *gin.RouterGroup) {
 		})
 	})
 }
+
+func BackWeb(proxy *OchanocoProxy, r *gin.RouterGroup) {
+	r.GET("/status", func(c *gin.Context) {
+		c.Writer.Write([]byte(backHistory))
+		c.Status(200)
+	})
+}
