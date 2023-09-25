@@ -23,7 +23,7 @@ var DEFAULT_PROXYWEB_PAGES = []OchanocoProxyWebPage{
 	StaticWeb,
 }
 
-var DEFAULT_ERROR_HANDLER = errorMiddleware()
-
 var CONFIG_FILE = "./config.yaml"
 var STATIC_FOLDER = "./static"
+
+var SCHEME = "https"

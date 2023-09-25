@@ -22,7 +22,7 @@ func ProxyServer(secret string) (*OchanocoProxy, error) {
 	config, err := readConfig()
 	err = makeError(err, "failed to read whitelist file")
 
-	proxy := NewOchancoProxy(r, DEFAULT_DIRECTORS, DEFAULT_MODIFY_RESPONSES, &DEFAULT_ERROR_HANDLER, DEFAULT_PROXYWEB_PAGES, &config, db)
+	proxy := NewOchancoProxy(r, DEFAULT_DIRECTORS, DEFAULT_MODIFY_RESPONSES, DEFAULT_PROXYWEB_PAGES, &config, db)
 
 	return &proxy, err
 }
