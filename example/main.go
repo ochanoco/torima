@@ -15,10 +15,11 @@ func targetServ(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w,
 		"<p>Hello! %v</p><br><a href='%v'>link</a>",
 		userId,
-		"/ochanoco/login?callback_path=/hello")
+		"/aaa?callback_path=/hello")
 }
 
 func main() {
+	core.SCHEME = "http"
 	core.CONFIG_FILE = "../config.yaml"
 	core.STATIC_FOLDER = "../static"
 
