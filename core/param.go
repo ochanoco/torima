@@ -19,7 +19,6 @@ var DEFAULT_MODIFY_RESPONSES = []OchanocoModifyResponse{
 }
 
 var DEFAULT_PROXYWEB_PAGES = []OchanocoProxyWebPage{
-	BackWeb,
 	ConfigWeb,
 	StaticWeb,
 	LoginWebs,
@@ -27,5 +26,3 @@ var DEFAULT_PROXYWEB_PAGES = []OchanocoProxyWebPage{
 
 var CONFIG_FILE = "./config.yaml"
 var STATIC_FOLDER = "./static"
-
-var SCHEME = "https"

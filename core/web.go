@@ -30,15 +30,8 @@ func ConfigWeb(proxy *OchanocoProxy, r *gin.RouterGroup) {
 	})
 }
 
-func BackWeb(proxy *OchanocoProxy, r *gin.RouterGroup) {
-	r.GET("/back", func(c *gin.Context) {
-		c.Writer.Write([]byte(backHistoryHTML))
-		c.Status(200)
-	})
-}
-
 func LoginWebs(proxy *OchanocoProxy, r *gin.RouterGroup) {
-	lineLogin, err := gin_line_login.NewLineLoginWithEnvironment(r, "/ochanoco/auth/login", "/auth/callback", "/ochanoco/back")
+	lineLogin, err := gin_line_login.NewLineLoginWithEnvironment(r, "/ochanoco/auth/login", "/auth/callback", "/_ochanoco/back")
 	if err != nil {
 		panic(err)
 	}

@@ -74,7 +74,7 @@ const customFetch = async (input, init = {}) => {
     console.log("modify to check authorized")
 
 
-    input = new Request(input.url, { ...input })
+    // input = new Request(input.url, { ...input })
 
     let fetching = fetch(input, init)
     const resp = await fetching

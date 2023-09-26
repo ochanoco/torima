@@ -18,7 +18,7 @@ func RouteDirector(host string, proxy *OchanocoProxy, req *http.Request, c *gin.
 	req.Header.Set("User-Agent", "ochanoco")
 	req.Header.Set("X-Ochanoco-Proxy-Token", "<proxy_token>")
 
-	req.URL.Scheme = SCHEME
+	req.URL.Scheme = proxy.Config.Scheme
 
 	return CONTINUE, nil
 }
@@ -54,6 +54,7 @@ func ThirdPartyDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context)
 			p := strings.Join(path[4:], "/")
 			req.URL.Path = "/" + p
 
+			req.URL.Scheme = "https"
 			return RouteDirector(origin, proxy, req, c)
 		}
 	}
@@ -66,6 +67,7 @@ func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool
 	userId := session.Get("userId")
 
 	if userId != nil {
+		req.Header.Set("X-Ochanoco-UserID", userId.(string))
 		return CONTINUE, nil
 	}
 
