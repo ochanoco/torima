@@ -10,6 +10,7 @@ import (
 type OchanocoConfig struct {
 	DefaultOrigin   string   `yaml:"default_origin"`
 	Port            int      `yaml:"port"`
+	Scheme          string   `yaml:"scheme"`
 	WhiteListPath   []string `yaml:"white_list_path"`
 	ProtectionScope []string `yaml:"protection_scope"`
 }
