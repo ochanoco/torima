@@ -1,19 +1,27 @@
-FROM nixos/nix
-
-ARG HOST_FOLDER="../"
+FROM nixos/nix as builder
 
 # update
 RUN nix-channel --update
 
 # build nix
-RUN mkdir /workspace
-COPY ./go.nix /workspace/default.nix 
-WORKDIR /workspace
+RUN mkdir -p /docker
+WORKDIR /docker
+COPY ./docker/go.nix default.nix 
 RUN nix-build default.nix
 
-WORKDIR /workspace/serv
+# download packages
+RUN mkdir -p /workspace
+COPY go.mod go.sum /workspace
+COPY ./thirdparty /workspace/thirdparty
+WORKDIR /workspace
+RUN nix-shell /docker/default.nix --command "go mod download"
 
-# copy project files
 # build serv
-COPY ../ /workspace/serv
-CMD nix-shell ../default.nix --command "go build"
+COPY ./core /workspace/core
+COPY ./serv /workspace/serv
+COPY ./ent /workspace/ent
+COPY main.go /workspace
+RUN nix-shell /docker/default.nix --command "go build"
+
+COPY ./static /workspace/static
+CMD ["/workspace/proxy"]

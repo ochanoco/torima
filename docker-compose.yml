@@ -2,15 +2,12 @@ version: "3"
 services:
   proxy:
     build:
-      context: ./
+      context: .
       dockerfile: ./docker/Dockerfile
     volumes:
-      - "./data:/workspace/serv/data"
-      - "./proxy:/workspace/serv"
+      - "./data:/workspace/data"
+      - "./config.yaml:/workspace/config.yaml"
     ports:
-      - 8000:8000
       - 8080:8080
-      - 9000:9000
     env_file:
-      - ./backend/basic.env
-      - ./backend/secret.env
+      - ./secret.env
