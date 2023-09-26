@@ -8,7 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ProxyServer(secret string) (*OchanocoProxy, error) {
+func ProxyServer() (*OchanocoProxy, error) {
+	secret := randomString(64)
 	r := gin.Default()
 
 	store := cookie.NewStore([]byte(secret))

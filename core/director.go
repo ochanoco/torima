@@ -16,7 +16,7 @@ func RouteDirector(host string, proxy *OchanocoProxy, req *http.Request, c *gin.
 	req.URL.Host = host
 
 	req.Header.Set("User-Agent", "ochanoco")
-	req.Header.Set("X-Ochanoco-Proxy-Token", "<proxy_token>")
+	req.Header.Set("X-Ochanoco-Proxy-Token", SECRET)
 
 	req.URL.Scheme = proxy.Config.Scheme
 
