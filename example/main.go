@@ -19,7 +19,6 @@ func targetServ(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	core.SCHEME = "http"
 	core.CONFIG_FILE = "../config.yaml"
 	core.STATIC_FOLDER = "../static"
 
