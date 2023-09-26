@@ -1,9 +1,0 @@
-default_origin: 127.0.0.1:8080
-
-white_list_path:
-  - /favicon.ico
-
-protection_scope:
-  - example.com
-
-port: 8080

@@ -1,0 +1,11 @@
+port: 8080
+
+white_list_path:
+  - /favicon.ico
+
+# default_origin: 127.0.0.1:8080
+
+# protection_scope:
+#   - example.com
+
+# scheme: https
