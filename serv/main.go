@@ -9,8 +9,7 @@ import (
 const NAME = "line"
 
 func Run() (*core.OchanocoProxy, error) {
-	secret := "testest"
-	proxyServ, err := core.ProxyServer(secret)
+	proxyServ, err := core.ProxyServer()
 	return proxyServ, err
 }
 
