@@ -3,6 +3,8 @@ package core
 import (
 	"errors"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // test for splitErrorTagfunc TestSplitErrorTag() {
@@ -10,12 +12,8 @@ func TestSplitErrorTag(t *testing.T) {
 	err := errors.New("test error: this is test error")
 	tag, err := splitErrorTag(err)
 
-	if err != nil {
-		t.Errorf("splitErrorTag() is failed: %v", err)
-	}
-	if tag != "test error" {
-		t.Errorf("splitErrorTag() is failed: %v", err)
-	}
+	assert.NoError(t, err)
+	assert.Equal(t, "test error", tag)
 }
 
 // test for findStatusCodeByErr
@@ -27,13 +25,8 @@ func TestFindStatusCodeByErr(t *testing.T) {
 	unauthorizedErrStatusCode := findStatusCodeByErr(&unauthorizedErr)
 	unexpectedError := findStatusCodeByErr(&unexpectedErr)
 
-	if unauthorizedErrStatusCode != 401 {
-		t.Errorf("findStatusCodeByErr() is failed: %v", err)
-	}
-
-	if unexpectedError != 500 {
-		t.Errorf("findStatusCodeByErr() is failed: %v", err)
-	}
+	assert.Equal(t, 401, unauthorizedErrStatusCode)
+	assert.Equal(t, 500, unexpectedError)
 }
 
 // test for abordGin
