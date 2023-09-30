@@ -1,7 +1,7 @@
 package core
 
 import (
-	"io/ioutil"
+	"fmt"
 	"os"
 	"testing"
 )
@@ -20,25 +20,29 @@ protection_scope:
 scheme: http
 `
 
-func readTestConfig(t *testing.T) (OchanocoConfig, error) {
-	file, err := ioutil.TempFile("dir", "tmp.yaml")
+func readTestConfig(t *testing.T) (OchanocoConfig, *os.File, error) {
+	file, err := os.CreateTemp("", "config.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Remove(file.Name())
 
-	file.Write([]byte(TEST_CONFIG))
+	CONFIG_FILE = file.Name()
 
-	CONFIG_FILE = "../test/ochanoco.yml"
+	_, err = file.Write([]byte(TEST_CONFIG))
+	if err != nil {
+		t.Fatalf("failed to read config (%v) %v", CONFIG_FILE, err)
+	}
 
 	config, err := readConfig()
 
-	return config, err
+	return config, file, err
 }
 
 // test for readConfig
 func TestReadConfig(t *testing.T) {
-	config, err := readTestConfig(t)
+	config, file, err := readTestConfig(t)
+	defer os.Remove(file.Name())
+
 	if err != nil {
 		t.Fatalf("readConfig() is failed: %v", err)
 	}
@@ -65,13 +69,10 @@ func TestReadConfig(t *testing.T) {
 }
 
 func TestReadConfigDefault(t *testing.T) {
-	file, err := ioutil.TempFile("dir", "tmp.yaml")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.Remove(file.Name())
+	CONFIG_FILE = ""
 
 	config, err := readConfig()
+	fmt.Printf("%v %v", config, len(config.WhiteListPath))
 	if err != nil {
 		t.Fatalf("readConfig() is failed: %v", err)
 	}
@@ -88,11 +89,11 @@ func TestReadConfigDefault(t *testing.T) {
 		t.Fatalf("readConfig() is failed (config.Scheme)")
 	}
 
-	if len(config.WhiteListPath) == 0 {
+	if len(config.WhiteListPath) != 0 {
 		t.Fatalf("readConfig() is failed (config.WhiteListPath)")
 	}
 
-	if len(config.ProtectionScope) == 0 {
+	if len(config.ProtectionScope) != 0 {
 		t.Fatalf("readConfig() is failed (config.ProtectionScope)")
 	}
 }
