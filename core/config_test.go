@@ -1,9 +1,10 @@
 package core
 
 import (
-	"fmt"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 var TEST_CONFIG = `
@@ -22,16 +23,12 @@ scheme: http
 
 func readTestConfig(t *testing.T) (OchanocoConfig, *os.File, error) {
 	file, err := os.CreateTemp("", "config.yaml")
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, err)
 
 	CONFIG_FILE = file.Name()
 
 	_, err = file.Write([]byte(TEST_CONFIG))
-	if err != nil {
-		t.Fatalf("failed to read config (%v) %v", CONFIG_FILE, err)
-	}
+	assert.NoError(t, err)
 
 	config, err := readConfig()
 
@@ -43,59 +40,26 @@ func TestReadConfig(t *testing.T) {
 	config, file, err := readTestConfig(t)
 	defer os.Remove(file.Name())
 
-	if err != nil {
-		t.Fatalf("readConfig() is failed: %v", err)
-	}
+	assert.NoError(t, err)
 
-	if config.Port != 9000 {
-		t.Fatalf("readConfig() is failed")
-	}
-
-	if config.DefaultOrigin != "127.0.0.1:9000" {
-		t.Fatalf("readConfig() is failed (config.DefaultOrigin)")
-	}
-
-	if config.Scheme != "http" {
-		t.Fatalf("readConfig() is failed (config.Scheme)")
-	}
-
-	if config.WhiteListPath[0] != "/favicon.ico" {
-		t.Fatalf("readConfig() is failed (config.WhiteListPath)")
-	}
-
-	if config.ProtectionScope[0] != "example.com" {
-		t.Fatalf("readConfig() is failed (config.ProtectionScope)")
-	}
+	assert.Equal(t, 9000, config.Port)
+	assert.Equal(t, "127.0.0.1:9000", config.DefaultOrigin)
+	assert.Equal(t, "http", config.Scheme)
+	assert.Equal(t, "/favicon.ico", config.WhiteListPath[0])
+	assert.Equal(t, "example.com", config.ProtectionScope[0])
 }
 
 func TestReadConfigDefault(t *testing.T) {
 	CONFIG_FILE = ""
 
 	config, err := readConfig()
-	fmt.Printf("%v %v", config, len(config.WhiteListPath))
-	if err != nil {
-		t.Fatalf("readConfig() is failed: %v", err)
-	}
 
-	if config.DefaultOrigin != "127.0.0.1:8080" {
-		t.Fatalf("readConfig() is failed (config.DefaultOrigin)")
-	}
-
-	if config.Port != 8080 {
-		t.Fatalf("readConfig() is failed (config.Port)")
-	}
-
-	if config.Scheme != "https" {
-		t.Fatalf("readConfig() is failed (config.Scheme)")
-	}
-
-	if len(config.WhiteListPath) != 0 {
-		t.Fatalf("readConfig() is failed (config.WhiteListPath)")
-	}
-
-	if len(config.ProtectionScope) != 0 {
-		t.Fatalf("readConfig() is failed (config.ProtectionScope)")
-	}
+	assert.NoError(t, err)
+	assert.Equal(t, "127.0.0.1:8080", config.DefaultOrigin)
+	assert.Equal(t, 8080, config.Port)
+	assert.Equal(t, "https", config.Scheme)
+	assert.Equal(t, 0, len(config.WhiteListPath))
+	assert.Equal(t, 0, len(config.ProtectionScope))
 }
 
 // test for readEnv
@@ -103,14 +67,8 @@ func TestReadEnv(t *testing.T) {
 	os.Setenv("OCHANOCO_TEST1", "TEST")
 
 	env := readEnv("OCHANOCO_TEST1", "TEST")
-
-	if env != "TEST" {
-		t.Fatalf("readEnv() is failed")
-	}
+	assert.Equal(t, "TEST", env)
 
 	env = readEnv("OCHANOCO_TEST2", "TEST")
-
-	if env != "TEST" {
-		t.Fatalf("readEnv() is failed")
-	}
+	assert.Equal(t, "TEST", env)
 }
