@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gin-contrib/sessions"
+
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/slices"
 )
@@ -65,6 +66,8 @@ func ThirdPartyDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context)
 func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool, error) {
 	session := sessions.Default(c)
 	userId := session.Get("userId")
+
+	fmt.Printf("userId: %v", userId)
 
 	if userId != nil {
 		req.Header.Set("X-Ochanoco-UserID", userId.(string))
