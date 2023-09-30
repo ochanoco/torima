@@ -95,3 +95,7 @@ Deploy the server using the following command:
 docker-compose up
 ```
 
+## Example
+
+This repository shows the [example](https://github.com/ochanoco/proxy-demo).
+
