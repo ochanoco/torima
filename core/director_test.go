@@ -38,6 +38,20 @@ func directorSample(t *testing.T) (*http.Request, *TestResponseRecorder, *gin.Co
 	return req, recorder, context, &proxy
 }
 
+func setupMockServer(handler http.HandlerFunc, req *http.Request, t *testing.T) (*httptest.Server, *url.URL) {
+	h := http.HandlerFunc(handler)
+
+	ts := httptest.NewServer(h)
+	u, err := url.Parse(ts.URL)
+	assert.NoError(t, err)
+
+	req.URL.Path = "/hello"
+	req.URL.Host = u.Host
+	req.Host = u.Host
+
+	return ts, u
+}
+
 // test for RouteDirector
 func TestRouteDirector(t *testing.T) {
 	req, _, context, proxy := directorSample(t)
@@ -103,10 +117,10 @@ func TestThirdPartyDirectorNoParmit(t *testing.T) {
 
 // test for AuthDirector
 func TestAuthDirector(t *testing.T) {
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "1", r.Header.Get("X-Ochanoco-UserID"))
 		fmt.Fprintln(w, "Hello, client")
-	})
+	}
 
 	testDirector := func(proxy *OchanocoProxy, req *http.Request, context *gin.Context) (bool, error) {
 		session := sessions.Default(context)
@@ -127,44 +141,31 @@ func TestAuthDirector(t *testing.T) {
 	}
 
 	req, recorder, _, proxy := directorSample(t)
-
-	ts := httptest.NewServer(h)
-	defer ts.Close()
-
-	u, err := url.Parse(ts.URL)
-	assert.NoError(t, err)
+	mockServer, _ := setupMockServer(h, req, t)
+	defer mockServer.Close()
 
 	req.URL.Path = "/hello?hoge"
-	req.URL.Host = u.Host
-	req.Host = u.Host
 
 	proxy.Engine.ServeHTTP(recorder, req)
 	assert.Equal(t, http.StatusOK, recorder.Result().StatusCode)
 }
 
 func TestAuthDirectorWithWhiteList(t *testing.T) {
-	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Hello, client")
-	})
-
-	ts := httptest.NewServer(h)
-	defer ts.Close()
-
-	u, err := url.Parse(ts.URL)
-	assert.NoError(t, err)
+	}
 
 	DEFAULT_DIRECTORS = []OchanocoDirector{
 		AuthDirector,
 	}
 
 	req, recorder, _, proxy := directorSample(t)
+	mockServer, _ := setupMockServer(h, req, t)
+	defer mockServer.Close()
+
 	proxy.Config.WhiteListPath = []string{
 		"/hello",
 	}
-
-	req.URL.Path = "/hello"
-	req.URL.Host = u.Host
-	req.Host = u.Host
 
 	proxy.Engine.ServeHTTP(recorder, req)
 	assert.Equal(t, http.StatusOK, recorder.Result().StatusCode)
@@ -177,7 +178,6 @@ func TestAuthDirectorNoPermit(t *testing.T) {
 	}
 
 	req, recorder, _, proxy := directorSample(t)
-
 	req.URL.Path = "/hello"
 
 	proxy.Engine.ServeHTTP(recorder, req)

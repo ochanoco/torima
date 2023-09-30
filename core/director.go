@@ -67,8 +67,6 @@ func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool
 	session := sessions.Default(c)
 	userId := session.Get("userId")
 
-	fmt.Printf("userId: %v", userId)
-
 	if userId != nil {
 		req.Header.Set("X-Ochanoco-UserID", userId.(string))
 		return CONTINUE, nil
