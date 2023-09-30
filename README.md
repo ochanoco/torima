@@ -31,20 +31,25 @@ services:
       - "./data:/workspace/data"
       - "./config.yaml:/workspace/config.yaml"
     ports:
-      - 8443:8443
+      - 8080:8080
     env_file:
       - ./secret.env
+    environment:
+      - LINE_LOGIN_BASE=http://127.0.0.1:8080/ochanoco # https://<DOMAIN>/ochanoco
+      - OCHANOCO_DB_TYPE=sqlite3 # Your DB type
+      - OCHANOCO_DB_CONFIG=file:./data/db.sqlite3?_fk=1 # Your db configuration 
 
   app:
   # your front-end server...
+  # we assume the server uses port 5000.
 
   api:
   # your API server...
-
+  # we assume the server uses port 5001.
 ```
 
 We **strongly recommend deploying your application server using the identical docker-compose.yaml** because of security reasons.
-  Note that ports of the application server should not be exposed.
+  Just so you know, ports of the application server should not be exposed.
 
 ### 3. Fill secret.env
 
@@ -53,10 +58,8 @@ Make `secret.env` file and fill parameters below.
 ```sh
 LINE_LOGIN_CLIENT_ID="Channel ID"
 LINE_LOGIN_CLIENT_SECRET="Channel Secret"
-OCHANOCO_SECRET="this-is-token"
 
-OCHANOCO_DB_TYPE="sqlite3" # Your DB type
-OCHANOCO_DB_CONFIG="file:./data/db.sqlite3?_fk=1" # Your db configuration 
+OCHANOCO_SECRET="this-is-token"
 OCHANOCO_SECRET="Your secret" # It will be shared between your application and this proxy and use for authentication.
 ```
 
@@ -65,6 +68,8 @@ OCHANOCO_SECRET="Your secret" # It will be shared between your application and t
 Create the configuration file and save it as `config.yaml`.
 
 ```sh
+port: 8080
+
 default_origin: app:5000 # your front-end server
 
 protection_scope 
