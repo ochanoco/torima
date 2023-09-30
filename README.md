@@ -97,5 +97,5 @@ docker-compose up
 
 ## Example
 
-This repository shows the [example](https://github.com/ochanoco/proxy-demo).
+[This repository](https://github.com/ochanoco/proxy-demo) shows the example.
 
