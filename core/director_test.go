@@ -203,3 +203,28 @@ func CreateTestResponseRecorder() *TestResponseRecorder {
 		make(chan bool, 1),
 	}
 }
+
+func TestLogDirector(t *testing.T) {
+	req, recorder, context, proxy := directorSample(t)
+
+	before, err := proxy.Database.Client.RequestLog.Query().Count(proxy.Database.Ctx)
+	assert.NoError(t, err)
+
+	req.URL.Path = "/"
+
+	LogDirector(proxy, req, context)
+
+	assert.Equal(t, http.StatusOK, recorder.Result().StatusCode)
+
+	after, err := proxy.Database.Client.RequestLog.Query().Count(proxy.Database.Ctx)
+	assert.NoError(t, err)
+
+	assert.Equal(t, before+1, after)
+
+	all, err := proxy.Database.Client.RequestLog.Query().All(proxy.Database.Ctx)
+	assert.NoError(t, err)
+
+	requestLog := all[after-1]
+	t.Log("--- HEADER ---")
+	t.Log(requestLog.Headers)
+}
