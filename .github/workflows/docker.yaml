@@ -4,6 +4,10 @@ on:
   push:
     branches: ['main', 'develop', 'release', 'feature/publish-docker']
 
+defaults:
+  run:
+    working-directory: ./docker
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
