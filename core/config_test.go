@@ -20,8 +20,7 @@ protection_scope:
 scheme: http
 `
 
-// test for readConfig
-func TestReadConfig(t *testing.T) {
+func readTestConfig(t *testing.T) (OchanocoConfig, error) {
 	file, err := ioutil.TempFile("dir", "tmp.yaml")
 	if err != nil {
 		t.Fatal(err)
@@ -33,6 +32,13 @@ func TestReadConfig(t *testing.T) {
 	CONFIG_FILE = "../test/ochanoco.yml"
 
 	config, err := readConfig()
+
+	return config, err
+}
+
+// test for readConfig
+func TestReadConfig(t *testing.T) {
+	config, err := readTestConfig(t)
 	if err != nil {
 		t.Fatalf("readConfig() is failed: %v", err)
 	}
