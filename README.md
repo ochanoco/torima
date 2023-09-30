@@ -81,7 +81,13 @@ white_list_path:
 scheme: http # not recommended, and should use https
 ```
 
-### 5. Deploy
+### 5. Implement validation of the token
+
+Update your servers to check the token.
+
+The token is on the HTTP header at `X-Ochanoco-Proxy-Token` so validate it on your source code.
+
+### 6. Deploy
 
 Deploy the server using the following command:
 
