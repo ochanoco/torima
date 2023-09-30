@@ -142,6 +142,34 @@ func TestAuthDirector(t *testing.T) {
 	assert.Equal(t, http.StatusOK, recorder.Result().StatusCode)
 }
 
+func TestAuthDirectorWithWhiteList(t *testing.T) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, "Hello, client")
+	})
+
+	ts := httptest.NewServer(h)
+	defer ts.Close()
+
+	u, err := url.Parse(ts.URL)
+	assert.NoError(t, err)
+
+	DEFAULT_DIRECTORS = []OchanocoDirector{
+		AuthDirector,
+	}
+
+	req, recorder, _, proxy := directorSample(t)
+	proxy.Config.WhiteListPath = []string{
+		"/hello",
+	}
+
+	req.URL.Path = "/hello"
+	req.URL.Host = u.Host
+	req.Host = u.Host
+
+	proxy.Engine.ServeHTTP(recorder, req)
+	assert.Equal(t, http.StatusOK, recorder.Result().StatusCode)
+}
+
 // test for AuthDirector
 func TestAuthDirectorNoPermit(t *testing.T) {
 	DEFAULT_DIRECTORS = []OchanocoDirector{
