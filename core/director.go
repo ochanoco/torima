@@ -71,7 +71,7 @@ func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool
 		return CONTINUE, nil
 	}
 
-	if req.Method == "GET" {
+	if req.Method == "GET" && req.URL.RawQuery == "" {
 		if req.URL.Path == "/" {
 			return CONTINUE, nil
 		}
