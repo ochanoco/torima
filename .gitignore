@@ -156,7 +156,7 @@ private.der
 .gitignore
 cert.der
 
-data/
 example/main
-
+*.db
 tmp
+
