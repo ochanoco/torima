@@ -22,17 +22,4 @@ jobs:
       run: sh .github/workflows/run.sh build
 
     - name: Test
-      run: sh .github/workflows/run.sh test ./tests
-      env: 
-        OCHANOCO_PROTOCOL: "http://"
-        OCHANOCO_PROXYWEB_PORT: ":3000"
-        OCHANOCO_AUTHWEB_PORT: ":3001"
-        OCHANOCO_PROXY_PORT: ":8080"
-        OCHANOCO_AUTH_PORT: ":8081"
-        OCHANOCO_PROXYWEB_HOST: "127.0.0.1:3000"
-        OCHANOCO_AUTHWEB_HOST: "127.0.0.1:3001"
-        OCHANOCO_PROXY_HOST: "127.0.0.1:8080"
-        OCHANOCO_AUTH_HOST: "127.0.0.1:8081"
-        OCHANOCO_DB_TYPE: "sqlite3"
-        OCHANOCO_DB_CONFIG: "file::memory:?_fk=1"
-        OCHANOCO_WHITE_LIST: "./tests/whitelist.json"
+      run: sh .github/workflows/run.sh test ./core
