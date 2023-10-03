@@ -22,13 +22,17 @@ func ProxyServer() (*OchanocoProxy, error) {
 	}
 
 	config, err := readConfig()
+	if config == nil {
+		panic("failed to read config: " + err.Error())
+	}
+
 	if err != nil {
 		fmt.Printf("failed to read config file, so set default parameters: %v", err)
 	}
 
-	printConfig(&config)
+	printConfig(config)
 
-	proxy := NewOchancoProxy(r, DEFAULT_DIRECTORS, DEFAULT_MODIFY_RESPONSES, DEFAULT_PROXYWEB_PAGES, &config, db)
+	proxy := NewOchancoProxy(r, DEFAULT_DIRECTORS, DEFAULT_MODIFY_RESPONSES, DEFAULT_PROXYWEB_PAGES, config, db)
 
 	return &proxy, err
 }

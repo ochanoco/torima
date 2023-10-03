@@ -16,25 +16,26 @@ type OchanocoConfig struct {
 	ProtectionScope []string `yaml:"protection_scope" default:"[]"`
 }
 
-func readConfig() (OchanocoConfig, error) {
+func readConfig() (*OchanocoConfig, error) {
 	var m OchanocoConfig
+	var def OchanocoConfig // default config
+
+	if err := defaults.Set(&def); err != nil {
+		return nil, err
+	}
 
 	f, err := os.Open(CONFIG_FILE)
 	if err != nil {
-		err = defaults.Set(&m)
-		return m, err
+		return &def, err
 	}
 	defer f.Close()
 
 	d := yaml.NewDecoder(f)
-	err = defaults.Set(&m)
-
 	if err := d.Decode(&m); err != nil {
-		err = defaults.Set(&m)
-		return m, err
+		return &def, err
 	}
 
-	return m, err
+	return &m, err
 }
 
 func printConfig(config *OchanocoConfig) {

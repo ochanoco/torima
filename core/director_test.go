@@ -32,7 +32,7 @@ func directorSample(t *testing.T) (*http.Request, *TestResponseRecorder, *gin.Co
 	assert.NoError(t, err)
 	defer os.Remove(file.Name())
 
-	proxy := NewOchancoProxy(r, DEFAULT_DIRECTORS, DEFAULT_MODIFY_RESPONSES, DEFAULT_PROXYWEB_PAGES, &config, db)
+	proxy := NewOchancoProxy(r, DEFAULT_DIRECTORS, DEFAULT_MODIFY_RESPONSES, DEFAULT_PROXYWEB_PAGES, config, db)
 	req := httptest.NewRequest("GET", "http://localhost:8080/", nil)
 
 	return req, recorder, context, &proxy
