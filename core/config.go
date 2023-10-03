@@ -37,6 +37,14 @@ func readConfig() (OchanocoConfig, error) {
 	return m, err
 }
 
+func printConfig(config *OchanocoConfig) {
+	fmt.Println("default_origin:", config.DefaultOrigin)
+	fmt.Println("port:", config.Port)
+	fmt.Println("scheme:", config.Scheme)
+	fmt.Println("white_list_path:", config.WhiteListPath)
+	fmt.Println("protection_scope:", config.ProtectionScope)
+}
+
 func readEnv(name, def string) string {
 	value := os.Getenv(name)
 
