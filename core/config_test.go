@@ -21,7 +21,7 @@ protection_scope:
 scheme: http
 `
 
-func readTestConfig(t *testing.T) (OchanocoConfig, *os.File, error) {
+func readTestConfig(t *testing.T) (*OchanocoConfig, *os.File, error) {
 	file, err := os.CreateTemp("", "config.yaml")
 	assert.NoError(t, err)
 
@@ -54,7 +54,8 @@ func TestReadConfigDefault(t *testing.T) {
 
 	config, err := readConfig()
 
-	assert.NoError(t, err)
+	assert.Error(t, err)
+	assert.NotNil(t, config)
 	assert.Equal(t, "127.0.0.1:8080", config.DefaultOrigin)
 	assert.Equal(t, 8080, config.Port)
 	assert.Equal(t, "https", config.Scheme)
