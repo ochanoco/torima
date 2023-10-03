@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/gin-contrib/sessions"
@@ -21,7 +22,11 @@ func ProxyServer() (*OchanocoProxy, error) {
 	}
 
 	config, err := readConfig()
-	err = makeError(err, "failed to read whitelist file")
+	if err != nil {
+		fmt.Printf("failed to read config file, so set default parameters: %v", err)
+	}
+
+	printConfig(&config)
 
 	proxy := NewOchancoProxy(r, DEFAULT_DIRECTORS, DEFAULT_MODIFY_RESPONSES, DEFAULT_PROXYWEB_PAGES, &config, db)
 
