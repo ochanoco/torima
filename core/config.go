@@ -20,6 +20,10 @@ func readConfig() (*OchanocoConfig, error) {
 	var m OchanocoConfig
 	var def OchanocoConfig // default config
 
+	if err := defaults.Set(&m); err != nil {
+		return nil, err
+	}
+
 	if err := defaults.Set(&def); err != nil {
 		return nil, err
 	}
