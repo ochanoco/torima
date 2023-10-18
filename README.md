@@ -1,3 +1,4 @@
+
 # ochanoco proxy
 
 [![Go](https://github.com/ochanoco/ochano.co-projs/actions/workflows/go.yml/badge.svg)](https://github.com/ochanoco/ochano.co-projs/actions/workflows/go.yml)
@@ -51,16 +52,16 @@ services:
 We **strongly recommend deploying your application server using the identical docker-compose.yaml** because of security reasons.
   Just so you know, ports of the application server should not be exposed.
 
-### 3. Fill secret.env
+### 3. Fill out secret.env
 
-Make `secret.env` file and fill parameters below.
+Make a `secret.env` file and fill in the parameters below.
 
 ```sh
-LINE_LOGIN_CLIENT_ID="Channel ID"
-LINE_LOGIN_CLIENT_SECRET="Channel Secret"
+OCHANOCO_CLIENT_ID="Channel ID"
+OCHANOCO_CLIENT_SECRET="Channel Secret"
 
-OCHANOCO_SECRET="this-is-token"
-OCHANOCO_SECRET="Your secret" # It will be shared between your application and this proxy and use for authentication.
+# It will be shared between your application and this proxy and used for authentication.
+# OCHANOCO_SECRET="this-is-token" 
 ```
 
 ### 4. Set up the configuration file
@@ -85,7 +86,7 @@ scheme: http # not recommended, and should use https
 
 Update your servers to check the token.
 
-The token is on the HTTP header at `X-Ochanoco-Proxy-Token` so validate it on your source code.
+The token is on the HTTP header at `X-Ochanoco-Proxy-Token`, so validate it on your source code.
 
 ### 6. Deploy
 
