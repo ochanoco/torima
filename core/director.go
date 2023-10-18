@@ -7,7 +7,8 @@ import (
 	"net/http/httputil"
 	"strings"
 
-	"github.com/gin-contrib/sessions"
+	"github.com/ochanoco/ninsho"
+	gin_ninsho "github.com/ochanoco/ninsho/extension/gin"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/slices"
@@ -64,11 +65,15 @@ func ThirdPartyDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context)
 }
 
 func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool, error) {
-	session := sessions.Default(c)
-	userId := session.Get("userId")
+	user, err := gin_ninsho.GetUser[ninsho.LINE_USER](c)
 
-	if userId != nil {
-		req.Header.Set("X-Ochanoco-UserID", userId.(string))
+	if err != nil {
+		err = makeError(err, "failed to get user from session: ")
+		return FINISHED, err
+	}
+
+	if user != nil {
+		req.Header.Set("X-Ochanoco-UserID", user.Sub)
 		return CONTINUE, nil
 	}
 
@@ -89,7 +94,7 @@ func LogDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool,
 	request, err := httputil.DumpRequest(req, true)
 
 	if err != nil {
-		err = makeError(err, "failed to dump headers to json: %v")
+		err = makeError(err, "failed to dump headers to json: ")
 		return FINISHED, err
 	}
 
@@ -104,7 +109,7 @@ func LogDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool,
 	_, err = l.Save(proxy.Database.Ctx)
 
 	if err != nil {
-		err = makeError(err, "failed to save request: %v")
+		err = makeError(err, "failed to save request: ")
 		return FINISHED, err
 	}
 

@@ -5,8 +5,7 @@ import (
 	"log"
 	"time"
 
-	_ "sqlite3"
-
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/ochanoco/proxy/ent"
 )
 
