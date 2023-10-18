@@ -10,11 +10,13 @@ import (
 )
 
 type OchanocoConfig struct {
-	DefaultOrigin   string   `yaml:"default_origin" default:"127.0.0.1:8080"`
+	DefaultOrigin   string   `yaml:"default_origin" default:"127.0.0.1:5000"`
+	Host            string   `yaml:"host" default:"http://127.0.0.1:8080"`
 	Port            int      `yaml:"port" default:"8080" `
 	Scheme          string   `yaml:"scheme" default:"https"`
 	WhiteListPath   []string `yaml:"white_list_path" default:"[]"`
 	ProtectionScope []string `yaml:"protection_scope" default:"[]"`
+	WebRoot         string   `yaml:"web_root" default:"/ochanoco"`
 }
 
 func readConfig() (*OchanocoConfig, error) {
@@ -45,10 +47,12 @@ func readConfig() (*OchanocoConfig, error) {
 
 func printConfig(config *OchanocoConfig) {
 	fmt.Println("default_origin:", config.DefaultOrigin)
+	fmt.Println("host:", config.Host)
 	fmt.Println("port:", config.Port)
 	fmt.Println("scheme:", config.Scheme)
 	fmt.Println("white_list_path:", config.WhiteListPath)
 	fmt.Println("protection_scope:", config.ProtectionScope)
+	fmt.Println("web_root:", config.WebRoot)
 }
 
 func readEnv(name, def string) string {
