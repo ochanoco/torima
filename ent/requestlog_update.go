@@ -52,6 +52,20 @@ func (rlu *RequestLogUpdate) ClearBody() *RequestLogUpdate {
 	return rlu
 }
 
+// SetFlag sets the "flag" field.
+func (rlu *RequestLogUpdate) SetFlag(s string) *RequestLogUpdate {
+	rlu.mutation.SetFlag(s)
+	return rlu
+}
+
+// SetNillableFlag sets the "flag" field if the given value is not nil.
+func (rlu *RequestLogUpdate) SetNillableFlag(s *string) *RequestLogUpdate {
+	if s != nil {
+		rlu.SetFlag(*s)
+	}
+	return rlu
+}
+
 // Mutation returns the RequestLogMutation object of the builder.
 func (rlu *RequestLogUpdate) Mutation() *RequestLogMutation {
 	return rlu.mutation
@@ -141,6 +155,9 @@ func (rlu *RequestLogUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if rlu.mutation.BodyCleared() {
 		_spec.ClearField(requestlog.FieldBody, field.TypeBytes)
 	}
+	if value, ok := rlu.mutation.Flag(); ok {
+		_spec.SetField(requestlog.FieldFlag, field.TypeString, value)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, rlu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{requestlog.Label}
@@ -181,6 +198,20 @@ func (rluo *RequestLogUpdateOne) SetBody(b []byte) *RequestLogUpdateOne {
 // ClearBody clears the value of the "body" field.
 func (rluo *RequestLogUpdateOne) ClearBody() *RequestLogUpdateOne {
 	rluo.mutation.ClearBody()
+	return rluo
+}
+
+// SetFlag sets the "flag" field.
+func (rluo *RequestLogUpdateOne) SetFlag(s string) *RequestLogUpdateOne {
+	rluo.mutation.SetFlag(s)
+	return rluo
+}
+
+// SetNillableFlag sets the "flag" field if the given value is not nil.
+func (rluo *RequestLogUpdateOne) SetNillableFlag(s *string) *RequestLogUpdateOne {
+	if s != nil {
+		rluo.SetFlag(*s)
+	}
 	return rluo
 }
 
@@ -302,6 +333,9 @@ func (rluo *RequestLogUpdateOne) sqlSave(ctx context.Context) (_node *RequestLog
 	}
 	if rluo.mutation.BodyCleared() {
 		_spec.ClearField(requestlog.FieldBody, field.TypeBytes)
+	}
+	if value, ok := rluo.mutation.Flag(); ok {
+		_spec.SetField(requestlog.FieldFlag, field.TypeString, value)
 	}
 	_node = &RequestLog{config: rluo.config}
 	_spec.Assign = _node.assignValues

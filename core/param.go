@@ -11,10 +11,11 @@ var SECRET = readEnv("OCHANOCO_SECRET", randomString(32))
 
 /* other */
 var DEFAULT_DIRECTORS = []OchanocoDirector{
+	BeforeLogDirector,
 	AuthDirector,
 	DefaultRouteDirector,
 	ThirdPartyDirector,
-	LogDirector,
+	AfterLogDirector,
 }
 
 var DEFAULT_MODIFY_RESPONSES = []OchanocoModifyResponse{

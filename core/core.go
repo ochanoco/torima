@@ -19,6 +19,7 @@ type OchanocoProxy struct {
 	Database        *Database
 	ErrorHandler    *gin.HandlerFunc
 	Config          *OchanocoConfig
+	RequestCount    int
 }
 
 func NewOchancoProxy(

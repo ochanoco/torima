@@ -38,6 +38,20 @@ func (rlc *RequestLogCreate) SetBody(b []byte) *RequestLogCreate {
 	return rlc
 }
 
+// SetFlag sets the "flag" field.
+func (rlc *RequestLogCreate) SetFlag(s string) *RequestLogCreate {
+	rlc.mutation.SetFlag(s)
+	return rlc
+}
+
+// SetNillableFlag sets the "flag" field if the given value is not nil.
+func (rlc *RequestLogCreate) SetNillableFlag(s *string) *RequestLogCreate {
+	if s != nil {
+		rlc.SetFlag(*s)
+	}
+	return rlc
+}
+
 // Mutation returns the RequestLogMutation object of the builder.
 func (rlc *RequestLogCreate) Mutation() *RequestLogMutation {
 	return rlc.mutation
@@ -49,6 +63,7 @@ func (rlc *RequestLogCreate) Save(ctx context.Context) (*RequestLog, error) {
 		err  error
 		node *RequestLog
 	)
+	rlc.defaults()
 	if len(rlc.hooks) == 0 {
 		if err = rlc.check(); err != nil {
 			return nil, err
@@ -112,6 +127,14 @@ func (rlc *RequestLogCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (rlc *RequestLogCreate) defaults() {
+	if _, ok := rlc.mutation.Flag(); !ok {
+		v := requestlog.DefaultFlag
+		rlc.mutation.SetFlag(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (rlc *RequestLogCreate) check() error {
 	if _, ok := rlc.mutation.Time(); !ok {
@@ -119,6 +142,9 @@ func (rlc *RequestLogCreate) check() error {
 	}
 	if _, ok := rlc.mutation.Headers(); !ok {
 		return &ValidationError{Name: "headers", err: errors.New(`ent: missing required field "RequestLog.headers"`)}
+	}
+	if _, ok := rlc.mutation.Flag(); !ok {
+		return &ValidationError{Name: "flag", err: errors.New(`ent: missing required field "RequestLog.flag"`)}
 	}
 	return nil
 }
@@ -159,6 +185,10 @@ func (rlc *RequestLogCreate) createSpec() (*RequestLog, *sqlgraph.CreateSpec) {
 		_spec.SetField(requestlog.FieldBody, field.TypeBytes, value)
 		_node.Body = value
 	}
+	if value, ok := rlc.mutation.Flag(); ok {
+		_spec.SetField(requestlog.FieldFlag, field.TypeString, value)
+		_node.Flag = value
+	}
 	return _node, _spec
 }
 
@@ -176,6 +206,7 @@ func (rlcb *RequestLogCreateBulk) Save(ctx context.Context) ([]*RequestLog, erro
 	for i := range rlcb.builders {
 		func(i int, root context.Context) {
 			builder := rlcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*RequestLogMutation)
 				if !ok {
