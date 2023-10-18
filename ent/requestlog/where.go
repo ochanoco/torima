@@ -101,6 +101,13 @@ func Body(v []byte) predicate.RequestLog {
 	})
 }
 
+// Flag applies equality check predicate on the "flag" field. It's identical to FlagEQ.
+func Flag(v string) predicate.RequestLog {
+	return predicate.RequestLog(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldFlag), v))
+	})
+}
+
 // TimeEQ applies the EQ predicate on the "time" field.
 func TimeEQ(v time.Time) predicate.RequestLog {
 	return predicate.RequestLog(func(s *sql.Selector) {
@@ -339,6 +346,105 @@ func BodyIsNil() predicate.RequestLog {
 func BodyNotNil() predicate.RequestLog {
 	return predicate.RequestLog(func(s *sql.Selector) {
 		s.Where(sql.NotNull(s.C(FieldBody)))
+	})
+}
+
+// FlagEQ applies the EQ predicate on the "flag" field.
+func FlagEQ(v string) predicate.RequestLog {
+	return predicate.RequestLog(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldFlag), v))
+	})
+}
+
+// FlagNEQ applies the NEQ predicate on the "flag" field.
+func FlagNEQ(v string) predicate.RequestLog {
+	return predicate.RequestLog(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldFlag), v))
+	})
+}
+
+// FlagIn applies the In predicate on the "flag" field.
+func FlagIn(vs ...string) predicate.RequestLog {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.RequestLog(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldFlag), v...))
+	})
+}
+
+// FlagNotIn applies the NotIn predicate on the "flag" field.
+func FlagNotIn(vs ...string) predicate.RequestLog {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.RequestLog(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldFlag), v...))
+	})
+}
+
+// FlagGT applies the GT predicate on the "flag" field.
+func FlagGT(v string) predicate.RequestLog {
+	return predicate.RequestLog(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldFlag), v))
+	})
+}
+
+// FlagGTE applies the GTE predicate on the "flag" field.
+func FlagGTE(v string) predicate.RequestLog {
+	return predicate.RequestLog(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldFlag), v))
+	})
+}
+
+// FlagLT applies the LT predicate on the "flag" field.
+func FlagLT(v string) predicate.RequestLog {
+	return predicate.RequestLog(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldFlag), v))
+	})
+}
+
+// FlagLTE applies the LTE predicate on the "flag" field.
+func FlagLTE(v string) predicate.RequestLog {
+	return predicate.RequestLog(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldFlag), v))
+	})
+}
+
+// FlagContains applies the Contains predicate on the "flag" field.
+func FlagContains(v string) predicate.RequestLog {
+	return predicate.RequestLog(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldFlag), v))
+	})
+}
+
+// FlagHasPrefix applies the HasPrefix predicate on the "flag" field.
+func FlagHasPrefix(v string) predicate.RequestLog {
+	return predicate.RequestLog(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldFlag), v))
+	})
+}
+
+// FlagHasSuffix applies the HasSuffix predicate on the "flag" field.
+func FlagHasSuffix(v string) predicate.RequestLog {
+	return predicate.RequestLog(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldFlag), v))
+	})
+}
+
+// FlagEqualFold applies the EqualFold predicate on the "flag" field.
+func FlagEqualFold(v string) predicate.RequestLog {
+	return predicate.RequestLog(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldFlag), v))
+	})
+}
+
+// FlagContainsFold applies the ContainsFold predicate on the "flag" field.
+func FlagContainsFold(v string) predicate.RequestLog {
+	return predicate.RequestLog(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldFlag), v))
 	})
 }
 

@@ -220,7 +220,7 @@ func TestLogDirector(t *testing.T) {
 
 	req.URL.Path = "/"
 
-	LogDirector(proxy, req, context)
+	BeforeLogDirector(proxy, req, context)
 
 	assert.Equal(t, http.StatusOK, recorder.Result().StatusCode)
 
@@ -235,4 +235,6 @@ func TestLogDirector(t *testing.T) {
 	requestLog := all[after-1]
 	t.Log("--- HEADER ---")
 	t.Log(requestLog.Headers)
+
+	assert.Equal(t, "before", requestLog.Flag)
 }

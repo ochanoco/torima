@@ -15,5 +15,6 @@ func (RequestLog) Fields() []ent.Field {
 		field.Time("time"),
 		field.String("headers"),
 		field.Bytes("body").Optional(),
+		field.String("flag").Default(""),
 	}
 }

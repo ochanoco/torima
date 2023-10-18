@@ -14,6 +14,7 @@ var (
 		{Name: "time", Type: field.TypeTime},
 		{Name: "headers", Type: field.TypeString},
 		{Name: "body", Type: field.TypeBytes, Nullable: true},
+		{Name: "flag", Type: field.TypeString, Default: ""},
 	}
 	// RequestLogsTable holds the schema information for the "request_logs" table.
 	RequestLogsTable = &schema.Table{
