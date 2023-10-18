@@ -1,10 +1,10 @@
 package core
 
 import (
-	"gin_line_login"
-
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/ochanoco/ninsho"
+	gin_ninsho "github.com/ochanoco/ninsho/extension/gin"
 )
 
 func StaticWeb(proxy *OchanocoProxy, r *gin.RouterGroup) {
@@ -31,28 +31,31 @@ func ConfigWeb(proxy *OchanocoProxy, r *gin.RouterGroup) {
 }
 
 func LoginWebs(proxy *OchanocoProxy, r *gin.RouterGroup) {
-	lineLogin, err := gin_line_login.NewLineLoginWithEnvironment(r, "/ochanoco/auth/login", "/auth/callback", "/_ochanoco/back")
+	login, err := gin_ninsho.NewNinshoGin(r, &provider, &ninsho.LINE_LOGIN, OCHANOCO_BASE, &AUTH_PATH)
 	if err != nil {
 		panic(err)
 	}
 
 	r.GET("/login", func(c *gin.Context) {
-		lineLogin.Login(c)
+		login.Login(c)
 	})
 
 	r.GET("/auth/logout", func(c *gin.Context) {
-		lineLogin.Logout(c)
+		login.Logout(c)
 		c.JSON(200, gin.H{"message": "logout"})
 	})
 
-	r.GET("/auth/status", lineLogin.AuthMiddleware(), func(c *gin.Context) {
+	r.GET("/auth/status", login.AuthMiddleware(), func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "loggined!"})
 	})
 
-	r.GET("/auth/redirect", lineLogin.AuthMiddleware(), func(c *gin.Context) {
-		session := sessions.Default(c)
-		userId := session.Get("userId")
+	r.GET("/auth/redirect", login.AuthMiddleware(), func(c *gin.Context) {
+		user, err := gin_ninsho.GetUser[ninsho.LINE_USER](c)
 
-		c.JSON(200, gin.H{"user_id": userId})
+		if err != nil {
+			panic(err)
+		}
+
+		c.JSON(200, gin.H{"user_id": user.Sub})
 	})
 }
