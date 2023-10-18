@@ -1,6 +1,7 @@
 package core
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -11,6 +12,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
+	"github.com/ochanoco/ninsho"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -124,7 +126,13 @@ func TestAuthDirector(t *testing.T) {
 
 	testDirector := func(proxy *OchanocoProxy, req *http.Request, context *gin.Context) (bool, error) {
 		session := sessions.Default(context)
-		session.Set("userId", "1")
+
+		user := ninsho.LINE_USER{
+			Sub: "1",
+		}
+		json, _ := json.Marshal(user)
+
+		session.Set("user", string(json))
 		err := session.Save()
 		assert.NoError(t, err)
 
