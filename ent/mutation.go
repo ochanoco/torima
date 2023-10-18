@@ -36,6 +36,7 @@ type RequestLogMutation struct {
 	time          *time.Time
 	headers       *string
 	body          *[]byte
+	flag          *string
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*RequestLog, error)
@@ -261,6 +262,42 @@ func (m *RequestLogMutation) ResetBody() {
 	delete(m.clearedFields, requestlog.FieldBody)
 }
 
+// SetFlag sets the "flag" field.
+func (m *RequestLogMutation) SetFlag(s string) {
+	m.flag = &s
+}
+
+// Flag returns the value of the "flag" field in the mutation.
+func (m *RequestLogMutation) Flag() (r string, exists bool) {
+	v := m.flag
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFlag returns the old "flag" field's value of the RequestLog entity.
+// If the RequestLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RequestLogMutation) OldFlag(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFlag is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFlag requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFlag: %w", err)
+	}
+	return oldValue.Flag, nil
+}
+
+// ResetFlag resets all changes to the "flag" field.
+func (m *RequestLogMutation) ResetFlag() {
+	m.flag = nil
+}
+
 // Where appends a list predicates to the RequestLogMutation builder.
 func (m *RequestLogMutation) Where(ps ...predicate.RequestLog) {
 	m.predicates = append(m.predicates, ps...)
@@ -280,7 +317,7 @@ func (m *RequestLogMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *RequestLogMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 4)
 	if m.time != nil {
 		fields = append(fields, requestlog.FieldTime)
 	}
@@ -289,6 +326,9 @@ func (m *RequestLogMutation) Fields() []string {
 	}
 	if m.body != nil {
 		fields = append(fields, requestlog.FieldBody)
+	}
+	if m.flag != nil {
+		fields = append(fields, requestlog.FieldFlag)
 	}
 	return fields
 }
@@ -304,6 +344,8 @@ func (m *RequestLogMutation) Field(name string) (ent.Value, bool) {
 		return m.Headers()
 	case requestlog.FieldBody:
 		return m.Body()
+	case requestlog.FieldFlag:
+		return m.Flag()
 	}
 	return nil, false
 }
@@ -319,6 +361,8 @@ func (m *RequestLogMutation) OldField(ctx context.Context, name string) (ent.Val
 		return m.OldHeaders(ctx)
 	case requestlog.FieldBody:
 		return m.OldBody(ctx)
+	case requestlog.FieldFlag:
+		return m.OldFlag(ctx)
 	}
 	return nil, fmt.Errorf("unknown RequestLog field %s", name)
 }
@@ -348,6 +392,13 @@ func (m *RequestLogMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetBody(v)
+		return nil
+	case requestlog.FieldFlag:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFlag(v)
 		return nil
 	}
 	return fmt.Errorf("unknown RequestLog field %s", name)
@@ -415,6 +466,9 @@ func (m *RequestLogMutation) ResetField(name string) error {
 		return nil
 	case requestlog.FieldBody:
 		m.ResetBody()
+		return nil
+	case requestlog.FieldFlag:
+		m.ResetFlag()
 		return nil
 	}
 	return fmt.Errorf("unknown RequestLog field %s", name)
