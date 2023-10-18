@@ -1,6 +1,8 @@
 package core
 
 import (
+	"fmt"
+
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/ochanoco/ninsho"
@@ -31,7 +33,17 @@ func ConfigWeb(proxy *OchanocoProxy, r *gin.RouterGroup) {
 }
 
 func LoginWebs(proxy *OchanocoProxy, r *gin.RouterGroup) {
-	login, err := gin_ninsho.NewNinshoGin(r, &provider, &ninsho.LINE_LOGIN, OCHANOCO_BASE, &AUTH_PATH)
+	var redirectUri = proxy.Config.Host + proxy.Config.WebRoot + AUTH_PATH.Callback
+
+	fmt.Printf("please set '%v' to redirect uri\n", redirectUri)
+
+	var provider = ninsho.Provider{
+		ClientID:     CLIENT_ID,
+		ClientSecret: CLIENT_SECRET,
+		RedirectUri:  redirectUri,
+	}
+
+	login, err := gin_ninsho.NewNinshoGin(r, &provider, &ninsho.LINE_LOGIN, proxy.Config.WebRoot, &AUTH_PATH)
 	if err != nil {
 		panic(err)
 	}
