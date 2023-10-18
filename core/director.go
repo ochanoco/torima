@@ -90,28 +90,33 @@ func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool
 	return FINISHED, makeError(fmt.Errorf(""), unauthorizedErrorTag)
 }
 
-func LogDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool, error) {
-	request, err := httputil.DumpRequest(req, true)
+func MakeLogDirector(flag string) OchanocoDirector {
+	return func(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool, error) {
+		request, err := httputil.DumpRequest(req, true)
 
-	if err != nil {
-		err = makeError(err, "failed to dump headers to json: ")
-		return FINISHED, err
+		if err != nil {
+			err = makeError(err, "failed to dump headers to json: ")
+			return FINISHED, err
+		}
+
+		splited := bytes.Split(request, []byte("\r\n\r\n"))
+
+		header := splited[0]
+		headerLen := len(header)
+
+		body := request[headerLen:]
+
+		l := proxy.Database.CreateRequestLog(string(header), body, flag)
+		_, err = l.Save(proxy.Database.Ctx)
+
+		if err != nil {
+			err = makeError(err, "failed to save request: ")
+			return FINISHED, err
+		}
+
+		return CONTINUE, err
 	}
-
-	splited := bytes.Split(request, []byte("\r\n\r\n"))
-
-	header := splited[0]
-	headerLen := len(header)
-
-	body := request[headerLen:]
-
-	l := proxy.Database.CreateRequestLog(string(header), body)
-	_, err = l.Save(proxy.Database.Ctx)
-
-	if err != nil {
-		err = makeError(err, "failed to save request: ")
-		return FINISHED, err
-	}
-
-	return CONTINUE, err
 }
+
+var BeforeLogDirector = MakeLogDirector("before")
+var AfterLogDirector = MakeLogDirector("after")
