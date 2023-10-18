@@ -78,7 +78,7 @@ protection_scope
 white_list_path: 
 - /favicon.ico
 
-scheme: http # not recommended, and should use https
+scheme: http 
 ```
 
 ### 5. Implement validation of the token
