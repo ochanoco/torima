@@ -34,14 +34,15 @@ func InitDB(path string) (*Database, error) {
 	return dbl, err
 }
 
-func (db *Database) CreateRequestLog(header string, body []byte) *ent.RequestLogCreate {
+func (db *Database) CreateRequestLog(header string, body []byte, flag string) *ent.RequestLogCreate {
 	t := time.Now()
 
 	sl := db.Client.RequestLog.
 		Create().
 		SetTime(t).
 		SetHeaders(header).
-		SetBody(body)
+		SetBody(body).
+		SetFlag(flag)
 
 	return sl
 }
