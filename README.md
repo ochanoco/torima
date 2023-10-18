@@ -36,7 +36,6 @@ services:
     env_file:
       - ./secret.env
     environment:
-      - OCHANOCO_BASE=http://127.0.0.1:8080/ochanoco # https://<DOMAIN>/ochanoco
       - OCHANOCO_DB_TYPE=sqlite3 # Your DB type
       - OCHANOCO_DB_CONFIG=file:./data/db.sqlite3?_fk=1 # Your db configuration 
 
