@@ -56,11 +56,13 @@ func TestReadConfigDefault(t *testing.T) {
 
 	assert.Error(t, err)
 	assert.NotNil(t, config)
-	assert.Equal(t, "127.0.0.1:8080", config.DefaultOrigin)
+	assert.Equal(t, "127.0.0.1:5000", config.DefaultOrigin)
+	assert.Equal(t, "http://127.0.0.1:8080", config.Host)
 	assert.Equal(t, 8080, config.Port)
-	assert.Equal(t, "https", config.Scheme)
+	assert.Equal(t, "http", config.Scheme)
 	assert.Equal(t, 0, len(config.WhiteListPath))
 	assert.Equal(t, 0, len(config.ProtectionScope))
+	assert.Equal(t, "/ochanoco", config.WebRoot)
 }
 
 // test for readEnv

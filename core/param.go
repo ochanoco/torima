@@ -1,7 +1,6 @@
 package core
 
 import (
-	"github.com/ochanoco/ninsho"
 	gin_ninsho "github.com/ochanoco/ninsho/extension/gin"
 )
 
@@ -37,10 +36,5 @@ var AUTH_PATH = gin_ninsho.NinshoGinPath{
 	AfterAuth:    "/_ochanoco/back",
 }
 
-var OCHANOCO_BASE = readEnv("OCHANOCO_BASE", "https://127.0.0.1:8080/ochanoco")
-
-var provider = ninsho.Provider{
-	ClientID:     readEnvOrPanic("OCHANOCO_CLIENT_ID"),
-	ClientSecret: readEnvOrPanic("OCHANOCO_CLIENT_SECRET"),
-	RedirectUri:  OCHANOCO_BASE + AUTH_PATH.Callback,
-}
+var CLIENT_ID = readEnvOrPanic("OCHANOCO_CLIENT_ID")
+var CLIENT_SECRET = readEnvOrPanic("OCHANOCO_CLIENT_SECRET")

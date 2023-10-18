@@ -36,7 +36,6 @@ services:
     env_file:
       - ./secret.env
     environment:
-      - LINE_LOGIN_BASE=http://127.0.0.1:8080/ochanoco # https://<DOMAIN>/ochanoco
       - OCHANOCO_DB_TYPE=sqlite3 # Your DB type
       - OCHANOCO_DB_CONFIG=file:./data/db.sqlite3?_fk=1 # Your db configuration 
 
@@ -79,7 +78,7 @@ protection_scope
 white_list_path: 
 - /favicon.ico
 
-scheme: http # not recommended, and should use https
+scheme: http 
 ```
 
 ### 5. Implement validation of the token
