@@ -38,6 +38,7 @@ func NewOchancoProxy(
 	proxy.Database = database
 
 	proxy.Engine = r
+	proxy.Config = config
 
 	specialPath := r.Group("/ochanoco")
 	for _, webPage := range proxy.ProxyWebPages {
@@ -60,8 +61,6 @@ func NewOchancoProxy(
 
 		proxy.ServeHTTP(c.Writer, c.Request)
 	})
-
-	proxy.Config = config
 
 	return proxy
 }
