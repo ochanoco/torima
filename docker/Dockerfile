@@ -14,7 +14,6 @@ ENV CGO_ENABLED=1
 # download packages
 RUN mkdir -p /workspace
 COPY go.mod go.sum /workspace
-COPY ./thirdparty /workspace/thirdparty
 WORKDIR /workspace
 RUN nix-shell /docker/default.nix --command "go mod download"
 
