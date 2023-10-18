@@ -13,6 +13,8 @@ const (
 	FieldHeaders = "headers"
 	// FieldBody holds the string denoting the body field in the database.
 	FieldBody = "body"
+	// FieldFlag holds the string denoting the flag field in the database.
+	FieldFlag = "flag"
 	// Table holds the table name of the requestlog in the database.
 	Table = "request_logs"
 )
@@ -23,6 +25,7 @@ var Columns = []string{
 	FieldTime,
 	FieldHeaders,
 	FieldBody,
+	FieldFlag,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -34,3 +37,8 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+var (
+	// DefaultFlag holds the default value on creation for the "flag" field.
+	DefaultFlag string
+)

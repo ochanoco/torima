@@ -22,6 +22,8 @@ type RequestLog struct {
 	Headers string `json:"headers,omitempty"`
 	// Body holds the value of the "body" field.
 	Body []byte `json:"body,omitempty"`
+	// Flag holds the value of the "flag" field.
+	Flag string `json:"flag,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -33,7 +35,7 @@ func (*RequestLog) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case requestlog.FieldID:
 			values[i] = new(sql.NullInt64)
-		case requestlog.FieldHeaders:
+		case requestlog.FieldHeaders, requestlog.FieldFlag:
 			values[i] = new(sql.NullString)
 		case requestlog.FieldTime:
 			values[i] = new(sql.NullTime)
@@ -76,6 +78,12 @@ func (rl *RequestLog) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				rl.Body = *value
 			}
+		case requestlog.FieldFlag:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field flag", values[i])
+			} else if value.Valid {
+				rl.Flag = value.String
+			}
 		}
 	}
 	return nil
@@ -112,6 +120,9 @@ func (rl *RequestLog) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("body=")
 	builder.WriteString(fmt.Sprintf("%v", rl.Body))
+	builder.WriteString(", ")
+	builder.WriteString("flag=")
+	builder.WriteString(rl.Flag)
 	builder.WriteByte(')')
 	return builder.String()
 }
