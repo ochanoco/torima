@@ -29,7 +29,7 @@ func InjectHTMLModifyResponse(html string, proxy *TorimaProxy, res *http.Respons
 		return FINISHED, err
 	}
 
-	fmt.Printf("%v", html)
+	// fmt.Printf("%v", html)
 
 	b := []byte(html)
 	res.Body = ioutil.NopCloser(bytes.NewReader(b))
