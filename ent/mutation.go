@@ -9,8 +9,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ochanoco/proxy/ent/predicate"
-	"github.com/ochanoco/proxy/ent/requestlog"
+	"github.com/ochanoco/torima/ent/predicate"
+	"github.com/ochanoco/torima/ent/requestlog"
 
 	"entgo.io/ent"
 )

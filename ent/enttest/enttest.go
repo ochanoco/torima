@@ -5,12 +5,12 @@ package enttest
 import (
 	"context"
 
-	"github.com/ochanoco/proxy/ent"
+	"github.com/ochanoco/torima/ent"
 	// required by schema hooks.
-	_ "github.com/ochanoco/proxy/ent/runtime"
+	_ "github.com/ochanoco/torima/ent/runtime"
 
 	"entgo.io/ent/dialect/sql/schema"
-	"github.com/ochanoco/proxy/ent/migrate"
+	"github.com/ochanoco/torima/ent/migrate"
 )
 
 type (

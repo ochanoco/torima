@@ -3,8 +3,8 @@
 package ent
 
 import (
-	"github.com/ochanoco/proxy/ent/requestlog"
-	"github.com/ochanoco/proxy/ent/schema"
+	"github.com/ochanoco/torima/ent/requestlog"
+	"github.com/ochanoco/torima/ent/schema"
 )
 
 // The init function reads all schema descriptors with runtime code

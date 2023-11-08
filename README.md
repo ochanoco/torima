@@ -1,7 +1,7 @@
 
-# ochanoco proxy
+# torima
 
-[![Go](https://github.com/ochanoco/ochano.co-projs/actions/workflows/go.yml/badge.svg)](https://github.com/ochanoco/ochano.co-projs/actions/workflows/go.yml)
+[![Go](https://github.com/ochanoco/torima/actions/workflows/go.yml/badge.svg)](https://github.com/ochanoco/torima/actions/workflows/go.yml)
 
 ## Dependencies
 
@@ -14,7 +14,7 @@
 Make a LINE Login account at [this site](https://developers.line.biz/console/), and register as a Provider of LINE Developer.
 Then obtain `Channel ID ` and `Channel secret`.
 
-Finally, set the `https://<DOMAIN>/ochanoco/auth/callback` to `Callback URL`.
+Finally, set the `https://<DOMAIN>/torima/auth/callback` to `Callback URL`.
   The `<DOMAIN>` is the domain that is accessed by end users.
 
 See [details](https://developers.line.biz/en/services/line-login/).
@@ -27,7 +27,7 @@ Set up the docker-compose configuration as follows:
 version: "3"
 services:
   proxy:
-    image: ghcr.io/ochanoco/proxy:develop
+    image: ghcr.io/ochanoco/torima:develop
     volumes:
       - "./data:/workspace/data"
       - "./config.yaml:/workspace/config.yaml"
@@ -36,8 +36,8 @@ services:
     env_file:
       - ./secret.env
     environment:
-      - OCHANOCO_DB_TYPE=sqlite3 # Your DB type
-      - OCHANOCO_DB_CONFIG=file:./data/db.sqlite3?_fk=1 # Your db configuration 
+      - TORIMA_DB_TYPE=sqlite3 # Your DB type
+      - TORIMA_DB_CONFIG=file:./data/db.sqlite3?_fk=1 # Your db configuration 
 
   app:
   # your front-end server...
@@ -56,11 +56,11 @@ We **strongly recommend deploying your application server using the identical do
 Make a `secret.env` file and fill in the parameters below.
 
 ```sh
-OCHANOCO_CLIENT_ID="Channel ID"
-OCHANOCO_CLIENT_SECRET="Channel Secret"
+TORIMA_CLIENT_ID="Channel ID"
+TORIMA_CLIENT_SECRET="Channel Secret"
 
 # It will be shared between your application and this proxy and used for authentication.
-# OCHANOCO_SECRET="this-is-token" 
+# TORIMA_SECRET="this-is-token" 
 ```
 
 ### 4. Set up the configuration file
@@ -85,7 +85,7 @@ scheme: http
 
 Update your servers to check the token.
 
-The token is on the HTTP header at `X-Ochanoco-Proxy-Token`, so validate it on your source code.
+The token is on the HTTP header at `X-Torima-Proxy-Token`, so validate it on your source code.
 
 ### 6. Deploy
 
@@ -97,5 +97,5 @@ docker-compose up
 
 ## Example
 
-[This repository](https://github.com/ochanoco/proxy-demo) shows the example.
+[This repository](https://github.com/ochanoco/torima-demo) shows the example.
 

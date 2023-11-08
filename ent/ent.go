@@ -10,7 +10,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/ochanoco/proxy/ent/requestlog"
+	"github.com/ochanoco/torima/ent/requestlog"
 )
 
 // ent aliases to avoid import conflicts in user's code.

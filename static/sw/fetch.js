@@ -1,14 +1,14 @@
 // https://127.0.0.1:8080/
 let PROTECTION_SCOPE = []
 let LOCAL_WHITELIST = [
-    '/ochanoco/login',
-    '/ochanoco/auth/callback'
+    '/torima/login',
+    '/torima/auth/callback'
 ]
 
 const SLEEP_TIME = 3000
 
 const init = async () => {
-    const resp = await fetch(location.origin + `/ochanoco/status`)
+    const resp = await fetch(location.origin + `/torima/status`)
     const data = await resp.json()
     PROTECTION_SCOPE = data.protection_scope
 }
@@ -60,7 +60,7 @@ const customFetch = async (input, init = {}) => {
     if (!isProxyOrigin && isInProtectionScope) {
         console.log("modify to proxy")
 
-        url.pathname = `/ochanoco/redirect/${url.host}/${url.pathname}`
+        url.pathname = `/torima/redirect/${url.host}/${url.pathname}`
         url.host = location.host
         input.url = url
     }

@@ -7,30 +7,30 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type OchanocoDirector = func(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool, error)
-type OchanocoModifyResponse = func(proxy *OchanocoProxy, req *http.Response, c *gin.Context) (bool, error)
-type OchanocoProxyWebPage = func(proxy *OchanocoProxy, c *gin.RouterGroup)
+type TorimaDirector = func(proxy *TorimaProxy, req *http.Request, c *gin.Context) (bool, error)
+type TorimaModifyResponse = func(proxy *TorimaProxy, req *http.Response, c *gin.Context) (bool, error)
+type TorimaProxyWebPage = func(proxy *TorimaProxy, c *gin.RouterGroup)
 
-type OchanocoProxy struct {
-	Directors       []OchanocoDirector
-	ModifyResponses []OchanocoModifyResponse
-	ProxyWebPages   []OchanocoProxyWebPage
+type TorimaProxy struct {
+	Directors       []TorimaDirector
+	ModifyResponses []TorimaModifyResponse
+	ProxyWebPages   []TorimaProxyWebPage
 	Engine          *gin.Engine
 	Database        *Database
 	ErrorHandler    *gin.HandlerFunc
-	Config          *OchanocoConfig
+	Config          *TorimaConfig
 	RequestCount    int
 }
 
 func NewOchancoProxy(
 	r *gin.Engine,
-	directors []OchanocoDirector,
-	modifyResponses []OchanocoModifyResponse,
-	proxyWebPages []OchanocoProxyWebPage,
-	config *OchanocoConfig,
+	directors []TorimaDirector,
+	modifyResponses []TorimaModifyResponse,
+	proxyWebPages []TorimaProxyWebPage,
+	config *TorimaConfig,
 	database *Database,
-) OchanocoProxy {
-	proxy := OchanocoProxy{}
+) TorimaProxy {
+	proxy := TorimaProxy{}
 
 	proxy.Directors = directors
 	proxy.ModifyResponses = modifyResponses
@@ -41,7 +41,7 @@ func NewOchancoProxy(
 	proxy.Engine = r
 	proxy.Config = config
 
-	specialPath := r.Group("/ochanoco")
+	specialPath := r.Group("/torima")
 	for _, webPage := range proxy.ProxyWebPages {
 		webPage(&proxy, specialPath)
 	}

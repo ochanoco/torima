@@ -1,4 +1,4 @@
-const SERVICE_WORKER_PATH = location.origin + '/ochanoco/static/sw/service_worker.js'
+const SERVICE_WORKER_PATH = location.origin + '/torima/static/sw/service_worker.js'
 
 const registerServiceWorker = async () => {
   if ("serviceWorker" in navigator) {

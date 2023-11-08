@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ochanoco/proxy/ent"
+	"github.com/ochanoco/torima/ent"
 )
 
 // The RequestLogFunc type is an adapter to allow the use of ordinary
