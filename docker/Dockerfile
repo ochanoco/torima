@@ -25,4 +25,4 @@ COPY main.go /workspace
 RUN nix-shell /docker/default.nix --command "go build"
 
 COPY ./static /workspace/static
-CMD ["/workspace/proxy"]
+CMD ["/workspace/torima"]

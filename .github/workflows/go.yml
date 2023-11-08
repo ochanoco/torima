@@ -7,8 +7,8 @@ on:
     branches: [ "develop" ]
 
 env:
-  OCHANOCO_CLIENT_ID: "test_id"
-  OCHANOCO_CLIENT_SECRET: "test_secret"
+  TORIMA_CLIENT_ID: "test_id"
+  TORIMA_CLIENT_SECRET: "test_secret"
 
 jobs:
 

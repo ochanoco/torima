@@ -9,12 +9,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ProxyServer() (*OchanocoProxy, error) {
+func ProxyServer() (*TorimaProxy, error) {
 	secret := randomString(64)
 	r := gin.Default()
 
 	store := cookie.NewStore([]byte(secret))
-	r.Use(sessions.Sessions("ochanoco-session", store))
+	r.Use(sessions.Sessions("torima-session", store))
 
 	db, err := InitDB(DB_CONFIG)
 	if err != nil {

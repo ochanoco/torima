@@ -6,7 +6,7 @@ import (
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/ochanoco/proxy/ent"
+	"github.com/ochanoco/torima/ent"
 )
 
 type Database struct {
