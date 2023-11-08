@@ -9,11 +9,11 @@ import (
 const CONTINUE = true
 const FINISHED = false
 
-type OchanocoPackageArgument interface{ *http.Request | *http.Response }
+type TorimaPackageArgument interface{ *http.Request | *http.Response }
 
-func runAllPackage[T OchanocoPackageArgument](
-	pkgs []func(*OchanocoProxy, T, *gin.Context) (bool, error),
-	args T, proxy *OchanocoProxy, c *gin.Context) {
+func runAllPackage[T TorimaPackageArgument](
+	pkgs []func(*TorimaProxy, T, *gin.Context) (bool, error),
+	args T, proxy *TorimaProxy, c *gin.Context) {
 
 	logger := NewFlowLogger()
 
@@ -37,7 +37,7 @@ func runAllPackage[T OchanocoPackageArgument](
  * Directors is a list of functions that modify the
  * request before it is sent to the target server.
  **/
-func (proxy *OchanocoProxy) Director(req *http.Request, c *gin.Context) {
+func (proxy *TorimaProxy) Director(req *http.Request, c *gin.Context) {
 	runAllPackage(proxy.Directors, req, proxy, c)
 
 	LogReq(req)
@@ -47,7 +47,7 @@ func (proxy *OchanocoProxy) Director(req *http.Request, c *gin.Context) {
   * ModifyResponses is a list of functions that modify the
   * response before it is sent to the client.
 **/
-func (proxy *OchanocoProxy) ModifyResponse(res *http.Response, c *gin.Context) error {
+func (proxy *TorimaProxy) ModifyResponse(res *http.Response, c *gin.Context) error {
 	runAllPackage(proxy.ModifyResponses, res, proxy, c)
 	return nil
 }

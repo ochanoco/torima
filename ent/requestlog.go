@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/ochanoco/proxy/ent/requestlog"
+	"github.com/ochanoco/torima/ent/requestlog"
 )
 
 // RequestLog is the model entity for the RequestLog schema.

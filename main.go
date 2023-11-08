@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/ochanoco/proxy/serv"
+	"github.com/ochanoco/torima/serv"
 )
 
 func main() {

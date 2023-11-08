@@ -3,12 +3,12 @@ package serv
 import (
 	"fmt"
 
-	"github.com/ochanoco/proxy/core"
+	"github.com/ochanoco/torima/core"
 )
 
 const NAME = "line"
 
-func Run() (*core.OchanocoProxy, error) {
+func Run() (*core.TorimaProxy, error) {
 	proxyServ, err := core.ProxyServer()
 	return proxyServ, err
 }

@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func directorSample(t *testing.T) (*http.Request, *TestResponseRecorder, *gin.Context, *OchanocoProxy) {
+func directorSample(t *testing.T) (*http.Request, *TestResponseRecorder, *gin.Context, *TorimaProxy) {
 	DB_TYPE = "sqlite3"
 	DB_CONFIG = "../data/test.db?_fk=1"
 	SECRET = "test_secret"
@@ -25,7 +25,7 @@ func directorSample(t *testing.T) (*http.Request, *TestResponseRecorder, *gin.Co
 	context, r := gin.CreateTestContext(recorder)
 
 	store := cookie.NewStore([]byte("test"))
-	r.Use(sessions.Sessions("ochanoco-session", store))
+	r.Use(sessions.Sessions("torima-session", store))
 
 	db, err := InitDB(DB_CONFIG)
 	assert.NoError(t, err)
@@ -63,8 +63,8 @@ func TestRouteDirector(t *testing.T) {
 	assert.Equal(t, CONTINUE, c)
 	assert.Equal(t, "example.com", req.URL.Host)
 	assert.Equal(t, "http", req.URL.Scheme)
-	assert.Equal(t, "ochanoco", req.Header.Get("User-Agent"))
-	assert.Equal(t, SECRET, req.Header.Get("X-Ochanoco-Proxy-Token"))
+	assert.Equal(t, "torima", req.Header.Get("User-Agent"))
+	assert.Equal(t, SECRET, req.Header.Get("X-Torima-Proxy-Token"))
 }
 
 // test for DefaultRouteDirector
@@ -83,7 +83,7 @@ func TestThirdPartyDirector(t *testing.T) {
 
 	req, _, context, proxy := directorSample(t)
 
-	req.URL.Path = "/ochanoco/redirect/" + host
+	req.URL.Path = "/torima/redirect/" + host
 
 	proxy.Config.ProtectionScope = []string{host}
 
@@ -104,7 +104,7 @@ func TestThirdPartyDirectorNoParmit(t *testing.T) {
 
 	req, _, context, proxy := directorSample(t)
 
-	req.URL.Path = "/ochanoco/redirect/" + unpermitHost + "/"
+	req.URL.Path = "/torima/redirect/" + unpermitHost + "/"
 
 	c, err := ThirdPartyDirector(proxy, req, context)
 	assert.NoError(t, err)
@@ -120,11 +120,11 @@ func TestThirdPartyDirectorNoParmit(t *testing.T) {
 // test for AuthDirector
 func TestAuthDirector(t *testing.T) {
 	h := func(w http.ResponseWriter, r *http.Request) {
-		assert.Equal(t, "1", r.Header.Get("X-Ochanoco-UserID"))
+		assert.Equal(t, "1", r.Header.Get("X-Torima-UserID"))
 		fmt.Fprintln(w, "Hello, client")
 	}
 
-	testDirector := func(proxy *OchanocoProxy, req *http.Request, context *gin.Context) (bool, error) {
+	testDirector := func(proxy *TorimaProxy, req *http.Request, context *gin.Context) (bool, error) {
 		session := sessions.Default(context)
 
 		user := ninsho.LINE_USER{
@@ -144,7 +144,7 @@ func TestAuthDirector(t *testing.T) {
 		return CONTINUE, nil
 	}
 
-	DEFAULT_DIRECTORS = []OchanocoDirector{
+	DEFAULT_DIRECTORS = []TorimaDirector{
 		testDirector,
 	}
 
@@ -163,7 +163,7 @@ func TestAuthDirectorWithWhiteList(t *testing.T) {
 		fmt.Fprintln(w, "Hello, client")
 	}
 
-	DEFAULT_DIRECTORS = []OchanocoDirector{
+	DEFAULT_DIRECTORS = []TorimaDirector{
 		AuthDirector,
 	}
 
@@ -181,7 +181,7 @@ func TestAuthDirectorWithWhiteList(t *testing.T) {
 
 // test for AuthDirector
 func TestAuthDirectorNoPermit(t *testing.T) {
-	DEFAULT_DIRECTORS = []OchanocoDirector{
+	DEFAULT_DIRECTORS = []TorimaDirector{
 		AuthDirector,
 	}
 

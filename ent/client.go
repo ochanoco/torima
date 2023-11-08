@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/ochanoco/proxy/ent/migrate"
+	"github.com/ochanoco/torima/ent/migrate"
 
-	"github.com/ochanoco/proxy/ent/requestlog"
+	"github.com/ochanoco/torima/ent/requestlog"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
