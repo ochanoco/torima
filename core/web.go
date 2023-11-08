@@ -9,7 +9,7 @@ import (
 	gin_ninsho "github.com/ochanoco/ninsho/extension/gin"
 )
 
-func StaticWeb(proxy *OchanocoProxy, r *gin.RouterGroup) {
+func StaticWeb(proxy *TorimaProxy, r *gin.RouterGroup) {
 	r.Use(func() gin.HandlerFunc {
 		return func(c *gin.Context) {
 			c.Writer.Header().Set("Service-Worker-Allowed", "/")
@@ -19,7 +19,7 @@ func StaticWeb(proxy *OchanocoProxy, r *gin.RouterGroup) {
 	r.Static("/static", STATIC_FOLDER)
 }
 
-func ConfigWeb(proxy *OchanocoProxy, r *gin.RouterGroup) {
+func ConfigWeb(proxy *TorimaProxy, r *gin.RouterGroup) {
 	r.GET("/status", func(c *gin.Context) {
 		session := sessions.Default(c)
 		userId := session.Get("userId")
@@ -32,7 +32,7 @@ func ConfigWeb(proxy *OchanocoProxy, r *gin.RouterGroup) {
 	})
 }
 
-func LoginWebs(proxy *OchanocoProxy, r *gin.RouterGroup) {
+func LoginWebs(proxy *TorimaProxy, r *gin.RouterGroup) {
 	var redirectUri = proxy.Config.Host + proxy.Config.WebRoot + AUTH_PATH.Callback
 
 	fmt.Printf("please set '%v' to redirect uri\n", redirectUri)

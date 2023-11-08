@@ -1,4 +1,4 @@
-module github.com/ochanoco/proxy
+module github.com/ochanoco/torima
 
 go 1.19
 

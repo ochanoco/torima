@@ -21,7 +21,7 @@ protection_scope:
 scheme: http
 `
 
-func readTestConfig(t *testing.T) (*OchanocoConfig, *os.File, error) {
+func readTestConfig(t *testing.T) (*TorimaConfig, *os.File, error) {
 	file, err := os.CreateTemp("", "config.yaml")
 	assert.NoError(t, err)
 
@@ -62,16 +62,16 @@ func TestReadConfigDefault(t *testing.T) {
 	assert.Equal(t, "http", config.Scheme)
 	assert.Equal(t, 0, len(config.WhiteListPath))
 	assert.Equal(t, 0, len(config.ProtectionScope))
-	assert.Equal(t, "/ochanoco", config.WebRoot)
+	assert.Equal(t, "/torima", config.WebRoot)
 }
 
 // test for readEnv
 func TestReadEnv(t *testing.T) {
-	os.Setenv("OCHANOCO_TEST1", "TEST")
+	os.Setenv("TORIMA_TEST1", "TEST")
 
-	env := readEnv("OCHANOCO_TEST1", "TEST")
+	env := readEnv("TORIMA_TEST1", "TEST")
 	assert.Equal(t, "TEST", env)
 
-	env = readEnv("OCHANOCO_TEST2", "TEST")
+	env = readEnv("TORIMA_TEST2", "TEST")
 	assert.Equal(t, "TEST", env)
 }

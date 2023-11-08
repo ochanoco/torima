@@ -9,8 +9,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/ochanoco/proxy/ent/predicate"
-	"github.com/ochanoco/proxy/ent/requestlog"
+	"github.com/ochanoco/torima/ent/predicate"
+	"github.com/ochanoco/torima/ent/requestlog"
 )
 
 // RequestLogDelete is the builder for deleting a RequestLog entity.

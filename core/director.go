@@ -14,19 +14,19 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-func RouteDirector(host string, proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool, error) {
+func RouteDirector(host string, proxy *TorimaProxy, req *http.Request, c *gin.Context) (bool, error) {
 	req.URL.Host = host
 
-	req.Header.Set("User-Agent", "ochanoco")
-	req.Header.Set("X-Ochanoco-Proxy-Token", SECRET)
+	req.Header.Set("User-Agent", "torima")
+	req.Header.Set("X-Torima-Proxy-Token", SECRET)
 
 	req.URL.Scheme = proxy.Config.Scheme
 
 	return CONTINUE, nil
 }
 
-func DefaultRouteDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool, error) {
-	if strings.HasPrefix(req.URL.Path, "/ochanoco/") {
+func DefaultRouteDirector(proxy *TorimaProxy, req *http.Request, c *gin.Context) (bool, error) {
+	if strings.HasPrefix(req.URL.Path, "/torima/") {
 		return CONTINUE, nil
 	}
 
@@ -40,9 +40,9 @@ func DefaultRouteDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Contex
 	return RouteDirector(host, proxy, req, c)
 }
 
-func ThirdPartyDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool, error) {
+func ThirdPartyDirector(proxy *TorimaProxy, req *http.Request, c *gin.Context) (bool, error) {
 	path := strings.Split(req.URL.Path, "/")
-	hasRedirectPrefix := strings.HasPrefix(req.URL.Path, "/ochanoco/redirect/")
+	hasRedirectPrefix := strings.HasPrefix(req.URL.Path, "/torima/redirect/")
 
 	if !hasRedirectPrefix || len(path) < 3 {
 		return CONTINUE, nil
@@ -64,7 +64,7 @@ func ThirdPartyDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context)
 	return CONTINUE, nil
 }
 
-func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool, error) {
+func AuthDirector(proxy *TorimaProxy, req *http.Request, c *gin.Context) (bool, error) {
 	user, err := gin_ninsho.GetUser[ninsho.LINE_USER](c)
 
 	if err != nil {
@@ -73,7 +73,7 @@ func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool
 	}
 
 	if user != nil {
-		req.Header.Set("X-Ochanoco-UserID", user.Sub)
+		req.Header.Set("X-Torima-UserID", user.Sub)
 		return CONTINUE, nil
 	}
 
@@ -90,8 +90,8 @@ func AuthDirector(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool
 	return FINISHED, makeError(fmt.Errorf(""), unauthorizedErrorTag)
 }
 
-func MakeLogDirector(flag string) OchanocoDirector {
-	return func(proxy *OchanocoProxy, req *http.Request, c *gin.Context) (bool, error) {
+func MakeLogDirector(flag string) TorimaDirector {
+	return func(proxy *TorimaProxy, req *http.Request, c *gin.Context) (bool, error) {
 		request, err := httputil.DumpRequest(req, true)
 
 		if err != nil {

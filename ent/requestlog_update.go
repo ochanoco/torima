@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/ochanoco/proxy/ent/predicate"
-	"github.com/ochanoco/proxy/ent/requestlog"
+	"github.com/ochanoco/torima/ent/predicate"
+	"github.com/ochanoco/torima/ent/requestlog"
 )
 
 // RequestLogUpdate is the builder for updating RequestLog entities.

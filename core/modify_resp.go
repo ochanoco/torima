@@ -12,11 +12,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func MainModifyResponse(proxy *OchanocoProxy, res *http.Response) {
+func MainModifyResponse(proxy *TorimaProxy, res *http.Response) {
 	fmt.Printf("=> %v\n", res.Request.URL)
 }
 
-func InjectHTMLModifyResponse(html string, proxy *OchanocoProxy, res *http.Response, c *gin.Context) (bool, error) {
+func InjectHTMLModifyResponse(html string, proxy *TorimaProxy, res *http.Response, c *gin.Context) (bool, error) {
 	document, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
 		log.Fatal(err)
@@ -40,7 +40,7 @@ func InjectHTMLModifyResponse(html string, proxy *OchanocoProxy, res *http.Respo
 	return CONTINUE, nil
 }
 
-func InjectServiceWorkerModifyResponse(proxy *OchanocoProxy, res *http.Response, c *gin.Context) (bool, error) {
+func InjectServiceWorkerModifyResponse(proxy *TorimaProxy, res *http.Response, c *gin.Context) (bool, error) {
 	contentType := res.Header.Get("Content-Type")
 
 	if contentType != "text/html; charset=utf-8" {
