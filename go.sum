@@ -107,6 +107,12 @@ github.com/ochanoco/ninsho v0.0.0-20231109151116-dad57567519a h1:X68vZrpXjB8gmkr
 github.com/ochanoco/ninsho v0.0.0-20231109151116-dad57567519a/go.mod h1:vHTb63MeebxFSrHrPZXn0+TQIpdO3bfw8sU7LV8CypM=
 github.com/ochanoco/ninsho v0.0.0-20231109151444-d5b163c09984 h1:PjOldFoe5HsQZdvpzdpRw1/OKmZqI+PMTcMxtZq+1fc=
 github.com/ochanoco/ninsho v0.0.0-20231109151444-d5b163c09984/go.mod h1:vHTb63MeebxFSrHrPZXn0+TQIpdO3bfw8sU7LV8CypM=
+github.com/ochanoco/ninsho v0.0.0-20231109160856-d8d155b392dd h1:oKHUL1XynG2ryhzneeMuRzCCdqYCIPLDVsL60+gBYx4=
+github.com/ochanoco/ninsho v0.0.0-20231109160856-d8d155b392dd/go.mod h1:vHTb63MeebxFSrHrPZXn0+TQIpdO3bfw8sU7LV8CypM=
+github.com/ochanoco/ninsho v0.0.0-20231109183450-a284b9f5aa66 h1:G3ykPuW/J06H48f+WmMHREbMMJQzo5JsB7N9AwrLdzs=
+github.com/ochanoco/ninsho v0.0.0-20231109183450-a284b9f5aa66/go.mod h1:vHTb63MeebxFSrHrPZXn0+TQIpdO3bfw8sU7LV8CypM=
+github.com/ochanoco/ninsho v0.0.0-20231109184645-04752e670e61 h1:dpFadfQAKe8UrWAX9HpMXNcY6lf8x6nzG6iBJGyfLXA=
+github.com/ochanoco/ninsho v0.0.0-20231109184645-04752e670e61/go.mod h1:RPSgSSGMp63UEM1JAbfQwsbY7kWzv2xloMoVkz2lzfc=
 github.com/ochanoco/ninsho/extension/gin v0.0.0-20231017132245-97d093271f18 h1:fOjfcLACM/kOwxpGfX9Tr/mwZldy1n9HR6uVe966I98=
 github.com/ochanoco/ninsho/extension/gin v0.0.0-20231017132245-97d093271f18/go.mod h1:/Fv3bsT65JtbaK9WMoGFf3/CyUm53Nnf52E8dowIuFU=
 github.com/ochanoco/ninsho/extension/gin v0.0.0-20231017135123-9e47701ad514 h1:a1d1Jxhyl2Vwhi6j6lMTHIL7rh+QkuyTfyaKosVjvEg=
@@ -115,6 +121,10 @@ github.com/ochanoco/ninsho/extension/gin v0.0.0-20231109151444-d5b163c09984 h1:T
 github.com/ochanoco/ninsho/extension/gin v0.0.0-20231109151444-d5b163c09984/go.mod h1:ohNqlBY8GpA56L4IQhZxkEppE8+iBOEfNcElEiMW4z0=
 github.com/ochanoco/ninsho/extension/gin v0.0.0-20231109160559-de68357b7033 h1:dmUIMCvGL0vmaa9edCWERvaMdPKBbzmrlzWZi6KPMog=
 github.com/ochanoco/ninsho/extension/gin v0.0.0-20231109160559-de68357b7033/go.mod h1:ohNqlBY8GpA56L4IQhZxkEppE8+iBOEfNcElEiMW4z0=
+github.com/ochanoco/ninsho/extension/gin v0.0.0-20231109183316-555c40cb7598 h1:uXW1PxBYpLsFfJkOrATenN5zXulY5Pd9gvJVinVQ85Y=
+github.com/ochanoco/ninsho/extension/gin v0.0.0-20231109183316-555c40cb7598/go.mod h1:YTZOIuCIWuizQyi1lkJlKPinGcTGYGydLMNnz+A69Kc=
+github.com/ochanoco/ninsho/extension/gin v0.0.0-20231109184645-04752e670e61 h1:+HATEJnwYx6U1fkCBgWh3JaRkNwSAStXwYZem/T1QwA=
+github.com/ochanoco/ninsho/extension/gin v0.0.0-20231109184645-04752e670e61/go.mod h1:G6Ywqm1s2cEm4HKYZBeQlYzqNM1kwvkJkRDBm7NALAM=
 github.com/olekukonko/tablewriter v0.0.5 h1:P2Ga83D34wi1o9J6Wh1mRuqd4mF/x/lgBS7N7AbDhec=
 github.com/olekukonko/tablewriter v0.0.5/go.mod h1:hPp6KlRPjbx+hW8ykQs1w3UBbZlj6HuIJcUGPhkA7kY=
 github.com/pelletier/go-toml/v2 v2.1.0 h1:FnwAJ4oYMvbT/34k9zzHuZNrhlz48GB3/s6at6/MHO4=
