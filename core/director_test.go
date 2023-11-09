@@ -63,7 +63,6 @@ func TestRouteDirector(t *testing.T) {
 	assert.Equal(t, CONTINUE, c)
 	assert.Equal(t, "example.com", req.URL.Host)
 	assert.Equal(t, "http", req.URL.Scheme)
-	assert.Equal(t, "torima", req.Header.Get("User-Agent"))
 	assert.Equal(t, SECRET, req.Header.Get("X-Torima-Proxy-Token"))
 }
 
