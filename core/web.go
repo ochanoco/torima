@@ -41,6 +41,8 @@ func LoginWebs(proxy *TorimaProxy, r *gin.RouterGroup) {
 		ClientID:     CLIENT_ID,
 		ClientSecret: CLIENT_SECRET,
 		RedirectUri:  redirectUri,
+		Scope:        "profile openid",
+		UsePKCE:      true,
 	}
 
 	login, err := gin_ninsho.NewNinshoGin(r, &provider, &ninsho.LINE_LOGIN, proxy.Config.WebRoot, &AUTH_PATH)
@@ -62,7 +64,7 @@ func LoginWebs(proxy *TorimaProxy, r *gin.RouterGroup) {
 	})
 
 	r.GET("/auth/redirect", login.AuthMiddleware(), func(c *gin.Context) {
-		user, err := gin_ninsho.GetUser[ninsho.LINE_USER](c)
+		user, err := gin_ninsho.LoadUser[ninsho.LINE_USER](c)
 
 		if err != nil {
 			panic(err)
