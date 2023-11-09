@@ -81,19 +81,17 @@ white_list_path:
 scheme: http 
 ```
 
-### 5. Implement validation of the token
-
-Update your servers to check the token.
-
-The token is on the HTTP header at `X-Torima-Proxy-Token`, so validate it on your source code.
-
-### 6. Deploy
+### 5. Deploy
 
 Deploy the server using the following command:
 
 ```sh
 docker-compose up
 ```
+
+## Tips
+
+The user ID is on the `X-Torima-UserID` header on your server.
 
 ## Example
 
