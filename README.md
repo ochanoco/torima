@@ -49,7 +49,7 @@ services:
 ```
 
 We **strongly recommend deploying your application server using the identical docker-compose.yaml** because of security reasons.
-  Just so you know, ports of the application server should not be exposed.
+  Just so you know, **ports of the application server should not be exposed**. (In other words, do not use `ports` except for the `torima` container).
 
 ### 3. Fill out secret.env
 
