@@ -17,7 +17,8 @@ import (
 func RouteDirector(host string, proxy *TorimaProxy, req *http.Request, c *gin.Context) (bool, error) {
 	req.URL.Host = host
 
-	req.Header.Set("User-Agent", "torima")
+	// just to be sure
+	req.Header.Del("X-Torima-Proxy-Token")
 	req.Header.Set("X-Torima-Proxy-Token", SECRET)
 
 	req.URL.Scheme = proxy.Config.Scheme
@@ -64,8 +65,34 @@ func ThirdPartyDirector(proxy *TorimaProxy, req *http.Request, c *gin.Context) (
 	return CONTINUE, nil
 }
 
+func SanitizeHeaderDirector(proxy *TorimaProxy, req *http.Request, c *gin.Context) (bool, error) {
+	headers := http.Header{
+		"Host":       {proxy.Config.Host},
+		"User-Agent": {"torima"},
+
+		"Content-Type":   req.Header["Content-Type"],
+		"Content-Length": req.Header["Content-Length"],
+
+		"Accept":     req.Header["Accept"],
+		"Connection": req.Header["Connection"],
+
+		"Accept-Encoding": req.Header["Accept-Encoding"],
+		"Accept-Language": req.Header["Accept-Language"],
+
+		"Cookie": req.Header["Cookie"],
+	}
+
+	req.Header = headers
+
+	return CONTINUE, nil
+
+}
+
 func AuthDirector(proxy *TorimaProxy, req *http.Request, c *gin.Context) (bool, error) {
 	user, err := gin_ninsho.LoadUser[ninsho.LINE_USER](c)
+
+	// just to be sure
+	req.Header.Del("X-Torima-UserID")
 
 	if err != nil {
 		err = makeError(err, "failed to get user from session: ")
