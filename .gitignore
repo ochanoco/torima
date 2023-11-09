@@ -147,6 +147,7 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+torima
 proxy
 sqlite3.db
 test.sqlite3

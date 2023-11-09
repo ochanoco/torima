@@ -65,7 +65,7 @@ func ThirdPartyDirector(proxy *TorimaProxy, req *http.Request, c *gin.Context) (
 }
 
 func AuthDirector(proxy *TorimaProxy, req *http.Request, c *gin.Context) (bool, error) {
-	user, err := gin_ninsho.GetUser[ninsho.LINE_USER](c)
+	user, err := gin_ninsho.LoadUser[ninsho.LINE_USER](c)
 
 	if err != nil {
 		err = makeError(err, "failed to get user from session: ")
