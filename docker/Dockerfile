@@ -10,6 +10,7 @@ COPY ./docker/go.nix default.nix
 RUN nix-build default.nix
 
 ENV CGO_ENABLED=1
+ENV GIN_MODE=release
 
 # download packages
 RUN mkdir -p /workspace
