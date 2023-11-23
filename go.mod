@@ -1,6 +1,6 @@
 module github.com/ochanoco/torima
 
-go 1.19
+go 1.20
 
 require (
 	ariga.io/atlas v0.8.3 // indirect
@@ -44,6 +44,7 @@ require (
 	github.com/creasty/defaults v1.7.0
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/ochanoco/ninsho v0.0.0-20231109151444-d5b163c09984
+	github.com/ochanoco/ninsho/extension/gin v0.0.0-20231109160559-de68357b7033
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/exp v0.0.0-20230713183714-613f0c0eb8a1
 )
@@ -56,7 +57,6 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.6 // indirect
-	github.com/ochanoco/ninsho/extension/gin v0.0.0-20231109160559-de68357b7033 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	golang.org/x/arch v0.6.0 // indirect
