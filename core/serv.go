@@ -34,5 +34,5 @@ func ProxyServer() (*TorimaProxy, error) {
 
 	proxy := NewOchancoProxy(r, DEFAULT_DIRECTORS, DEFAULT_MODIFY_RESPONSES, DEFAULT_PROXYWEB_PAGES, config, db)
 
-	return &proxy, err
+	return &proxy, nil
 }
