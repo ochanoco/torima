@@ -30,10 +30,10 @@ require (
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	github.com/zclconf/go-cty v1.12.1 // indirect
-	golang.org/x/crypto v0.15.0 // indirect
+	golang.org/x/crypto v0.17.0 // indirect
 	golang.org/x/mod v0.11.0 // indirect
 	golang.org/x/net v0.18.0 // indirect
-	golang.org/x/sys v0.14.0 // indirect
+	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0
@@ -43,6 +43,8 @@ require (
 	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/creasty/defaults v1.7.0
 	github.com/mattn/go-sqlite3 v1.14.18
+	github.com/ochanoco/ninsho v0.0.0-20231123133451-b5ca4d77e90a
+	github.com/ochanoco/ninsho/extension/gin v0.0.0-20231123152359-ebab831b13b2
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/exp v0.0.0-20230713183714-613f0c0eb8a1
 )
@@ -55,8 +57,6 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.6 // indirect
-	github.com/ochanoco/ninsho v0.0.0-20231123133451-b5ca4d77e90a // indirect
-	github.com/ochanoco/ninsho/extension/gin v0.0.0-20231123152359-ebab831b13b2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	golang.org/x/arch v0.6.0 // indirect
