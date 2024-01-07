@@ -114,7 +114,7 @@ docker-compose up
 ## Tips
 
 - The user ID is on the `X-Torima-UserID` header on your server.
-- If the pulling container does not work, it is possible that the container image will expire.
+- If the pulling container does not work, it is possible that the container image has expired.
   - In such cases, please contact our [Twitter account](https://twitter.com/ochanoco_sec).
   
 ## Example
