@@ -1,9 +1,10 @@
-
 # torima
 
 [![Go](https://github.com/ochanoco/torima/actions/workflows/go.yml/badge.svg)](https://github.com/ochanoco/torima/actions/workflows/go.yml)
 
 The easiest and solid security measures.
+- Torima is a proxy server authenticating users before access to the servicer, namely, IAP(Identity-Aware Proxy).
+- Using strong user identifiers (the default is LINE Account), Torima deters cyber attacks.
 
 [Japanese](https://zenn.dev/ochanoco/articles/2a532b79725a41)
 
@@ -82,7 +83,7 @@ TORIMA_CLIENT_SECRET="Channel Secret"
 
 Create the configuration file and save it as `config.yaml`.
 
-```sh
+```yaml
 port: 8080
 
 default_origin: app:5000 # your front-end server
