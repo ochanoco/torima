@@ -99,7 +99,7 @@ scheme: http
 ### 6. Implement redirected path
 
 Implement the page at `/_torima/back` on your pages for redirect back after login.
-  In torima, users jump back to the path after login.
+  In Torima, users jump back to the path after logging in.
   
 
 ### 7. Deploy
@@ -114,7 +114,9 @@ docker-compose up
 ## Tips
 
 - The user ID is on the `X-Torima-UserID` header on your server.
-
+- If the pulling container does not work, it is possible that the container image will expire.
+  - In such cases, please contact our [Twitter account](https://twitter.com/ochanoco_sec).
+  
 ## Example
 
 [This repository](https://github.com/ochanoco/torima-demo) shows the example.
