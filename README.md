@@ -3,6 +3,11 @@
 
 [![Go](https://github.com/ochanoco/torima/actions/workflows/go.yml/badge.svg)](https://github.com/ochanoco/torima/actions/workflows/go.yml)
 
+The easiest and solid security measures.
+
+[Japanese](https://zenn.dev/ochanoco/articles/2a532b79725a41)
+
+
 ## Dependencies
 
 - Docker
@@ -19,7 +24,15 @@ Finally, set the `https://<DOMAIN>/torima/auth/callback` to `Callback URL`.
 
 See [details](https://developers.line.biz/en/services/line-login/).
 
-### 2. Make docker-compose.yaml
+### 2. Login Github Container Registry
+
+Login to the GitHub container registry using the following commands.
+
+```
+docker login ghcr.io
+```
+
+### 3. Make docker-compose.yaml
 
 Set up the docker-compose configuration as follows:
 
@@ -42,16 +55,18 @@ services:
   app:
   # your front-end server...
   # we assume the server uses port 5000.
+  # do not use `port`
 
   api:
   # your API server...
   # we assume the server uses port 5001.
+  # do not use `port`
 ```
 
 We **strongly recommend deploying your application server using the identical docker-compose.yaml** because of security reasons.
-  Just so you know, **ports of the application server should not be exposed**. (In other words, do not use `ports` except for the `torima` container).
+  Just so you know, **ports of the application server should not be exposed**. (Do not use `ports` except for the `torima` container).
 
-### 3. Fill out secret.env
+### 4. Fill out secret.env
 
 Make a `secret.env` file and fill in the parameters below.
 
@@ -63,7 +78,7 @@ TORIMA_CLIENT_SECRET="Channel Secret"
 # TORIMA_SECRET="this-is-token" 
 ```
 
-### 4. Set up the configuration file
+### 5. Set up the configuration file
 
 Create the configuration file and save it as `config.yaml`.
 
@@ -81,7 +96,13 @@ white_list_path:
 scheme: http 
 ```
 
-### 5. Deploy
+### 6. Implement redirected path
+
+Implement the page at `/_torima/back` on your pages for redirect back after login.
+  In torima, users jump back to the path after login.
+  
+
+### 7. Deploy
 
 Deploy the server using the following command:
 
@@ -89,9 +110,10 @@ Deploy the server using the following command:
 docker-compose up
 ```
 
+
 ## Tips
 
-The user ID is on the `X-Torima-UserID` header on your server.
+- The user ID is on the `X-Torima-UserID` header on your server.
 
 ## Example
 
