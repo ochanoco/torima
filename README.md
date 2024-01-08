@@ -5,6 +5,10 @@
 The easiest and solid security measures.
 - Torima is a proxy server authenticating users before access to the servicer, namely, IAP(Identity-Aware Proxy).
 - Using strong user identifiers (the default is LINE Account), Torima deters cyber attacks.
+    - These are:   
+      (a)Torima mitigates bot access (because the bot does not have an account coupled with the user's strong identifier in general).  
+      (b)Torima provides the revocation features of malicious users (owing to the difficulty of making multiple accounts).  
+      (c)Torima provides a tracking feature to hold malicious users criminally accountable.  
 
 [Japanese](https://zenn.dev/ochanoco/articles/2a532b79725a41)
 
@@ -17,10 +21,9 @@ The easiest and solid security measures.
 ## Installation
 ### 1. Obtain information for authentication
 
-Make a LINE Login account at [this site](https://developers.line.biz/console/), and register as a Provider of LINE Developer.
-Then obtain `Channel ID ` and `Channel secret`.
-
-Finally, set the `https://<DOMAIN>/torima/auth/callback` to `Callback URL`.
+- a. Make a LINE Login account at [this site](https://developers.line.biz/console/), and register as a Provider of LINE Developer.
+- b. Then obtain `Channel ID` and `Channel secret`.
+- c. Finally, set the `https://<DOMAIN>/torima/auth/callback` to `Callback URL`.  
   The `<DOMAIN>` is the domain that is accessed by end users.
 
 See [details](https://developers.line.biz/en/services/line-login/).
@@ -64,8 +67,12 @@ services:
   # do not use `port`
 ```
 
+
 We **strongly recommend deploying your application server using the identical docker-compose.yaml** because of security reasons.
-  Just so you know, **ports of the application server should not be exposed**. (Do not use `ports` except for the `torima` container).
+
+> [!CAUTION]
+> **Ports of the application server should not be exposed**.  
+> (Do not use `ports` except the `torima` container.)
 
 ### 4. Fill out secret.env
 
