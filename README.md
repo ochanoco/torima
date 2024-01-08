@@ -67,8 +67,8 @@ services:
   # do not use `port`
 ```
 
-
-We **strongly recommend deploying your application server using the identical docker-compose.yaml** because of security reasons.
+> [!TIP]
+> We **recommend deploying your application server using the identical docker-compose.yaml** because of security reasons.
 
 > [!CAUTION]
 > **Ports of the application server should not be exposed**.  
