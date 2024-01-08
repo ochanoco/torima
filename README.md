@@ -8,7 +8,7 @@ The easiest and solid security measures.
     - These are:   
       (a)Torima mitigates bot access (because the bot does not have an account coupled with the user's strong identifier in general).  
       (b)Torima provides the revocation features of malicious users (owing to the difficulty of making multiple accounts).  
-      (c)Torima provides feature tracking to hold malicious users criminally accountable on.  
+      (c)Torima provides a tracking feature to hold malicious users criminally accountable.  
 
 [Japanese](https://zenn.dev/ochanoco/articles/2a532b79725a41)
 
