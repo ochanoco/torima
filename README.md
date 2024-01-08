@@ -72,7 +72,7 @@ We **strongly recommend deploying your application server using the identical do
 
 > [!CAUTION]
 > **Ports of the application server should not be exposed**.  
-> (Do not use `ports` except the `torima` container).
+> (Do not use `ports` except the `torima` container.)
 
 ### 4. Fill out secret.env
 
