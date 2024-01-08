@@ -3,12 +3,14 @@
 [![Go](https://github.com/ochanoco/torima/actions/workflows/go.yml/badge.svg)](https://github.com/ochanoco/torima/actions/workflows/go.yml)
 
 The easiest and solid security measures.
-- Torima is a proxy server authenticating users before access to the servicer, namely, IAP(Identity-Aware Proxy).
-- Using strong user identifiers (the default is LINE Account), Torima deters cyber attacks.
-    - These are:   
-      (a)Torima mitigates bot access (because the bot does not have an account coupled with the user's strong identifier in general).  
-      (b)Torima provides the revocation features of malicious users (owing to the difficulty of making multiple accounts).  
-      (c)Torima provides a tracking feature to hold malicious users criminally accountable.  
+
+Torima is a proxy server authenticating users before access to the servicer, namely, IAP(Identity-Aware Proxy).  
+Using strong user identifiers (the default is LINE Account), Torima deters cyber attacks.
+
+These are...
+- Torima mitigates bot access (because the bot does not have an account coupled with the user's strong identifier in general).  
+- Torima provides the revocation features of malicious users (owing to the difficulty of making multiple accounts).  
+- Torima provides a tracking feature to hold malicious users criminally accountable.  
 
 [Japanese](https://zenn.dev/ochanoco/articles/2a532b79725a41)
 
