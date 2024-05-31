@@ -101,6 +101,14 @@ func SkipAuthDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, err
 	return AuthNeeded, nil
 }
 
+func ForceAuthDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) {
+	if slices.Contains(c.Proxy.Config.ForceAuthList, c.Target.URL.Path) {
+		return AuthNeeded, nil
+	}
+
+	return Keep, nil
+}
+
 func AuthDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) {
 	if c.PackageStatus == NoAuthNeeded {
 		return NoAuthNeeded, nil

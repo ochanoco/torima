@@ -15,6 +15,7 @@ type TorimaConfig struct {
 	Port            int      `yaml:"port" default:"8080" `
 	Scheme          string   `yaml:"scheme" default:"http"`
 	SkipAuthList    []string `yaml:"skip_auth_list" default:"[]"`
+	ForceAuthList   []string `yaml:"force_auth_list" default:"[]"`
 	ProtectionScope []string `yaml:"protection_scope" default:"[]"`
 	WebRoot         string   `yaml:"web_root" default:"/torima"`
 }
