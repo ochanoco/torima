@@ -15,7 +15,9 @@ func runAllPackage[T TorimaPackageTarget](
 		status, err := pkg(c)
 		logger.Add(pkg, status)
 
-		c.PackageStatus = status
+		if status != Stay {
+			c.PackageStatus = status
+		}
 
 		if err != nil {
 			abordGin(err, c.GinContext)
