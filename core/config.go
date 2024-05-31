@@ -14,7 +14,8 @@ type TorimaConfig struct {
 	Host            string   `yaml:"host" default:"http://127.0.0.1:8080"`
 	Port            int      `yaml:"port" default:"8080" `
 	Scheme          string   `yaml:"scheme" default:"http"`
-	WhiteListPath   []string `yaml:"white_list_path" default:"[]"`
+	SkipAuthList    []string `yaml:"skip_auth_list" default:"[]"`
+	ForceAuthList   []string `yaml:"force_auth_list" default:"[]"`
 	ProtectionScope []string `yaml:"protection_scope" default:"[]"`
 	WebRoot         string   `yaml:"web_root" default:"/torima"`
 }
@@ -50,7 +51,9 @@ func printConfig(config *TorimaConfig) {
 	fmt.Println("host:", config.Host)
 	fmt.Println("port:", config.Port)
 	fmt.Println("scheme:", config.Scheme)
-	fmt.Println("white_list_path:", config.WhiteListPath)
+
+	fmt.Println("skip_auth_list:", config.SkipAuthList)
+
 	fmt.Println("protection_scope:", config.ProtectionScope)
 	fmt.Println("web_root:", config.WebRoot)
 }

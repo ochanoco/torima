@@ -10,7 +10,7 @@ import (
 var TEST_CONFIG = `
 port: 9000
 
-white_list_path:
+skip_auth_list:
   - /favicon.ico
 
 default_origin: 127.0.0.1:9000
@@ -45,7 +45,7 @@ func TestReadConfig(t *testing.T) {
 	assert.Equal(t, 9000, config.Port)
 	assert.Equal(t, "127.0.0.1:9000", config.DefaultOrigin)
 	assert.Equal(t, "http", config.Scheme)
-	assert.Equal(t, "/favicon.ico", config.WhiteListPath[0])
+	assert.Equal(t, "/favicon.ico", config.SkipAuthList[0])
 	assert.Equal(t, "example.com", config.ProtectionScope[0])
 }
 
@@ -60,7 +60,7 @@ func TestReadConfigDefault(t *testing.T) {
 	assert.Equal(t, "http://127.0.0.1:8080", config.Host)
 	assert.Equal(t, 8080, config.Port)
 	assert.Equal(t, "http", config.Scheme)
-	assert.Equal(t, 0, len(config.WhiteListPath))
+	assert.Equal(t, 0, len(config.SkipAuthList))
 	assert.Equal(t, 0, len(config.ProtectionScope))
 	assert.Equal(t, "/torima", config.WebRoot)
 }

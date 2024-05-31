@@ -1,6 +1,6 @@
 port: 8080
 
-white_list_path:
+skip_auth_list:
   - /favicon.ico
 
 # default_origin: 127.0.0.1:8080

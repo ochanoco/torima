@@ -10,120 +10,135 @@ import (
 	"github.com/ochanoco/ninsho"
 	gin_ninsho "github.com/ochanoco/ninsho/extension/gin"
 
-	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/slices"
 )
 
-func RouteDirector(host string, proxy *TorimaProxy, req *http.Request, c *gin.Context) (bool, error) {
-	req.URL.Host = host
+func RouteDirector(host string, c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) {
+	c.Target.URL.Host = host
 
 	// just to be sure
-	req.Header.Del("X-Torima-Proxy-Token")
-	req.Header.Set("X-Torima-Proxy-Token", SECRET)
+	c.Target.Header.Del("X-Torima-Proxy-Token")
+	c.Target.Header.Set("X-Torima-Proxy-Token", SECRET)
 
-	req.URL.Scheme = proxy.Config.Scheme
+	c.Target.URL.Scheme = c.Proxy.Config.Scheme
 
-	return CONTINUE, nil
+	return Keep, nil
 }
 
-func DefaultRouteDirector(proxy *TorimaProxy, req *http.Request, c *gin.Context) (bool, error) {
-	if strings.HasPrefix(req.URL.Path, "/torima/") {
-		return CONTINUE, nil
+func DefaultRouteDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) {
+	if strings.HasPrefix(c.Target.URL.Path, "/torima/") {
+		return Keep, nil
 	}
 
-	host := proxy.Config.DefaultOrigin
+	host := c.Proxy.Config.DefaultOrigin
 
 	if host == "" {
 		err := fmt.Errorf("failed to get destination config (%s)", host)
-		return FINISHED, err
+		return ForceStop, err
 	}
 
-	return RouteDirector(host, proxy, req, c)
+	return RouteDirector(host, c)
 }
 
-func ThirdPartyDirector(proxy *TorimaProxy, req *http.Request, c *gin.Context) (bool, error) {
-	path := strings.Split(req.URL.Path, "/")
-	hasRedirectPrefix := strings.HasPrefix(req.URL.Path, "/torima/redirect/")
+func ThirdPartyDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) {
+	path := strings.Split(c.Target.URL.Path, "/")
+	hasRedirectPrefix := strings.HasPrefix(c.Target.URL.Path, "/torima/redirect/")
 
 	if !hasRedirectPrefix || len(path) < 3 {
-		return CONTINUE, nil
+		return Keep, nil
 	}
 
-	for _, origin := range proxy.Config.ProtectionScope {
+	for _, origin := range c.Proxy.Config.ProtectionScope {
 		if origin == path[3] {
-			req.Host = origin
-			req.URL.Host = origin
+			c.Target.Host = origin
+			c.Target.URL.Host = origin
 
 			p := strings.Join(path[4:], "/")
-			req.URL.Path = "/" + p
+			c.Target.URL.Path = "/" + p
 
-			req.URL.Scheme = "https"
-			return RouteDirector(origin, proxy, req, c)
+			c.Target.URL.Scheme = "https"
+			return RouteDirector(origin, c)
 		}
 	}
 
-	return CONTINUE, nil
+	return Keep, nil
 }
 
-func SanitizeHeaderDirector(proxy *TorimaProxy, req *http.Request, c *gin.Context) (bool, error) {
+func SanitizeHeaderDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) {
 	headers := http.Header{
-		"Host":       {proxy.Config.Host},
+		"Host":       {c.Proxy.Config.Host},
 		"User-Agent": {"torima"},
 
-		"Content-Type":   req.Header["Content-Type"],
-		"Content-Length": req.Header["Content-Length"],
+		"Content-Type":   c.Target.Header["Content-Type"],
+		"Content-Length": c.Target.Header["Content-Length"],
 
-		"Accept":     req.Header["Accept"],
-		"Connection": req.Header["Connection"],
+		"Accept":     c.Target.Header["Accept"],
+		"Connection": c.Target.Header["Connection"],
 
-		"Accept-Encoding": req.Header["Accept-Encoding"],
-		"Accept-Language": req.Header["Accept-Language"],
+		"Accept-Encoding": c.Target.Header["Accept-Encoding"],
+		"Accept-Language": c.Target.Header["Accept-Language"],
 
-		"Cookie": req.Header["Cookie"],
+		"Cookie": c.Target.Header["Cookie"],
 	}
 
-	req.Header = headers
+	c.Target.Header = headers
 
-	return CONTINUE, nil
+	return Keep, nil
 
 }
 
-func AuthDirector(proxy *TorimaProxy, req *http.Request, c *gin.Context) (bool, error) {
-	user, err := gin_ninsho.LoadUser[ninsho.LINE_USER](c)
+func SkipAuthDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) {
+	if c.Target.Method == "GET" && c.Target.URL.RawQuery == "" {
+		if c.Target.URL.Path == "/" {
+			return NoAuthNeeded, nil
+		}
+
+		if slices.Contains(c.Proxy.Config.SkipAuthList, c.Target.URL.Path) {
+			return NoAuthNeeded, nil
+		}
+	}
+
+	return AuthNeeded, nil
+}
+
+func ForceAuthDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) {
+	if slices.Contains(c.Proxy.Config.ForceAuthList, c.Target.URL.Path) {
+		return AuthNeeded, nil
+	}
+
+	return Keep, nil
+}
+
+func AuthDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) {
+	if c.PackageStatus == NoAuthNeeded {
+		return NoAuthNeeded, nil
+	}
+
+	user, err := gin_ninsho.LoadUser[ninsho.LINE_USER](c.GinContext)
 
 	// just to be sure
-	req.Header.Del("X-Torima-UserID")
+	c.Target.Header.Del("X-Torima-UserID")
 
 	if err != nil {
 		err = makeError(err, "failed to get user from session: ")
-		return FINISHED, err
+		return ForceStop, err
 	}
 
 	if user != nil {
-		req.Header.Set("X-Torima-UserID", user.Sub)
-		return CONTINUE, nil
+		c.Target.Header.Set("X-Torima-UserID", user.Sub)
+		return Authed, nil
 	}
 
-	if req.Method == "GET" && req.URL.RawQuery == "" {
-		if req.URL.Path == "/" {
-			return CONTINUE, nil
-		}
-
-		if slices.Contains(proxy.Config.WhiteListPath, req.URL.Path) {
-			return CONTINUE, nil
-		}
-	}
-
-	return FINISHED, makeError(fmt.Errorf(""), unauthorizedErrorTag)
+	return ForceStop, makeError(fmt.Errorf(""), unauthorizedErrorTag)
 }
 
 func MakeLogDirector(flag string) TorimaDirector {
-	return func(proxy *TorimaProxy, req *http.Request, c *gin.Context) (bool, error) {
-		request, err := httputil.DumpRequest(req, true)
+	return func(c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) {
+		request, err := httputil.DumpRequest(c.Target, true)
 
 		if err != nil {
 			err = makeError(err, "failed to dump headers to json: ")
-			return FINISHED, err
+			return ForceStop, err
 		}
 
 		splited := bytes.Split(request, []byte("\r\n\r\n"))
@@ -133,15 +148,15 @@ func MakeLogDirector(flag string) TorimaDirector {
 
 		body := request[headerLen:]
 
-		l := proxy.Database.CreateRequestLog(string(header), body, flag)
-		_, err = l.Save(proxy.Database.Ctx)
+		l := c.Proxy.Database.CreateRequestLog(string(header), body, flag)
+		_, err = l.Save(c.Proxy.Database.Ctx)
 
 		if err != nil {
 			err = makeError(err, "failed to save request: ")
-			return FINISHED, err
+			return ForceStop, err
 		}
 
-		return CONTINUE, err
+		return Keep, err
 	}
 }
 

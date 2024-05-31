@@ -6,26 +6,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const CONTINUE = true
-const FINISHED = false
-
-type TorimaPackageArgument interface{ *http.Request | *http.Response }
-
-func runAllPackage[T TorimaPackageArgument](
-	pkgs []func(*TorimaProxy, T, *gin.Context) (bool, error),
-	args T, proxy *TorimaProxy, c *gin.Context) {
+func runAllPackage[T TorimaPackageTarget](
+	pkgs []func(*TorimaPackageContext[T]) (int, error),
+	c *TorimaPackageContext[T]) {
 
 	logger := NewFlowLogger()
-
 	for _, pkg := range pkgs {
-		isContinuing, err := pkg(proxy, args, c)
-		logger.Add(pkg, isContinuing)
+		status, err := pkg(c)
+		logger.Add(pkg, status)
 
-		if err != nil {
-			abordGin(proxy, err, c)
+		if status != Keep {
+			c.PackageStatus = status
 		}
 
-		if !isContinuing {
+		if err != nil {
+			abordGin(err, c.GinContext)
+		}
+
+		if status == ForceStop {
 			break
 		}
 	}
@@ -37,8 +35,15 @@ func runAllPackage[T TorimaPackageArgument](
  * Directors is a list of functions that modify the
  * request before it is sent to the target server.
  **/
-func (proxy *TorimaProxy) Director(req *http.Request, c *gin.Context) {
-	runAllPackage(proxy.Directors, req, proxy, c)
+func (proxy *TorimaProxy) Director(req *http.Request, ginContext *gin.Context) {
+	c := TorimaDirectorPackageContext{
+		Proxy:         proxy,
+		Target:        req,
+		GinContext:    ginContext,
+		PackageStatus: AuthNeeded,
+	}
+
+	runAllPackage[*http.Request](proxy.Directors, &c)
 
 	LogReq(req)
 }
@@ -47,7 +52,14 @@ func (proxy *TorimaProxy) Director(req *http.Request, c *gin.Context) {
   * ModifyResponses is a list of functions that modify the
   * response before it is sent to the client.
 **/
-func (proxy *TorimaProxy) ModifyResponse(res *http.Response, c *gin.Context) error {
-	runAllPackage(proxy.ModifyResponses, res, proxy, c)
+func (proxy *TorimaProxy) ModifyResponse(res *http.Response, ginContext *gin.Context) error {
+	c := TorimaModifyResponsePackageContext{
+		Proxy:         proxy,
+		Target:        res,
+		GinContext:    ginContext,
+		PackageStatus: Keep,
+	}
+
+	runAllPackage(proxy.ModifyResponses, &c)
 	return nil
 }
