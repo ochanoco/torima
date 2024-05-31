@@ -87,7 +87,25 @@ func SanitizeHeaderDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatu
 
 }
 
+func AcceptancesCheckDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) {
+	if c.Target.Method == "GET" && c.Target.URL.RawQuery == "" {
+		if c.Target.URL.Path == "/" {
+			return NoAuthNeeded, nil
+		}
+
+		if slices.Contains(c.Proxy.Config.WhiteListPath, c.Target.URL.Path) {
+			return NoAuthNeeded, nil
+		}
+	}
+
+	return AuthNeeded, nil
+}
+
 func AuthDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) {
+	if c.PackageStatus == NoAuthNeeded {
+		return NoAuthNeeded, nil
+	}
+
 	user, err := gin_ninsho.LoadUser[ninsho.LINE_USER](c.GinContext)
 
 	// just to be sure
@@ -103,17 +121,7 @@ func AuthDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) 
 		return Authed, nil
 	}
 
-	if c.Target.Method == "GET" && c.Target.URL.RawQuery == "" {
-		if c.Target.URL.Path == "/" {
-			return NoAuthNeeded, nil
-		}
-
-		if slices.Contains(c.Proxy.Config.WhiteListPath, c.Target.URL.Path) {
-			return NoAuthNeeded, nil
-		}
-	}
-
-	return AuthNeeded, makeError(fmt.Errorf(""), unauthorizedErrorTag)
+	return ForceStop, makeError(fmt.Errorf(""), unauthorizedErrorTag)
 }
 
 func MakeLogDirector(flag string) TorimaDirector {
