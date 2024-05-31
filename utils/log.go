@@ -10,7 +10,7 @@ import (
 
 type FlowLog struct {
 	name   string
-	result int
+	result string
 }
 
 type FlowLogger struct {
@@ -23,14 +23,19 @@ func NewFlowLogger() FlowLogger {
 	}
 }
 
-func (logger *FlowLogger) Add(f any, result int) {
-	rv := reflect.ValueOf(f)
-	ptr := rv.Pointer()
-	name := runtime.FuncForPC(ptr).Name()
+func (logger *FlowLogger) Add(extension any, result int) {
+	rv1 := reflect.ValueOf(extension)
+	ptr1 := rv1.Pointer()
+
+	rv2 := reflect.ValueOf(result)
+	ptr2 := rv2.Pointer()
+
+	extensionName := runtime.FuncForPC(ptr1).Name()
+	resultName := runtime.FuncForPC(ptr2).Name()
 
 	newLog := FlowLog{
-		name,
-		result,
+		extensionName,
+		resultName,
 	}
 
 	logger.logs = append(logger.logs, newLog)

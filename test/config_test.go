@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/ochanoco/torima/core"
+	"github.com/ochanoco/torima/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -70,9 +71,9 @@ func TestReadConfigDefault(t *testing.T) {
 func TestReadEnv(t *testing.T) {
 	os.Setenv("TORIMA_TEST1", "TEST")
 
-	env := core.ReadEnv("TORIMA_TEST1", "TEST")
+	env := utils.ReadEnv("TORIMA_TEST1", "TEST")
 	assert.Equal(t, "TEST", env)
 
-	env = core.ReadEnv("TORIMA_TEST2", "TEST")
+	env = utils.ReadEnv("TORIMA_TEST2", "TEST")
 	assert.Equal(t, "TEST", env)
 }
