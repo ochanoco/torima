@@ -16,10 +16,13 @@ import (
 	"github.com/ochanoco/torima/core"
 	"github.com/ochanoco/torima/extension/directors"
 	"github.com/ochanoco/torima/proxy"
+	"github.com/ochanoco/torima/test/tools"
 	"github.com/stretchr/testify/assert"
 )
 
 func directorSample(t *testing.T) (*core.TorimaPackageContext[*http.Request], *TestResponseRecorder) {
+	logger := tools.ExtensionLogger{}
+
 	core.DB_TYPE = "sqlite3"
 	core.DB_CONFIG = "../data/test.db?_fk=1"
 	core.SECRET = "test_secret"
@@ -37,7 +40,7 @@ func directorSample(t *testing.T) (*core.TorimaPackageContext[*http.Request], *T
 	assert.NoError(t, err)
 	defer os.Remove(file.Name())
 
-	proxy := core.NewOchancoProxy(r, proxy.DEFAULT_DIRECTORS, proxy.DEFAULT_MODIFY_RESPONSES, proxy.DEFAULT_PROXYWEB_PAGES, config, db)
+	proxy := core.NewOchancoProxy(r, logger.InjectDirectors(proxy.DEFAULT_DIRECTORS), proxy.DEFAULT_MODIFY_RESPONSES, proxy.DEFAULT_PROXYWEB_PAGES, config, db)
 	req := httptest.NewRequest("GET", "http://localhost:8080/", nil)
 
 	ctx := core.TorimaPackageContext[*http.Request]{
@@ -166,12 +169,13 @@ func TestAuthDirector(t *testing.T) {
 	assert.Equal(t, http.StatusOK, recorder.Result().StatusCode)
 }
 
-func TestAuthDirectorWithWhiteList(t *testing.T) {
+func TestAuthDirectorWithSkipAuthList(t *testing.T) {
 	h := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Hello, client")
 	}
 
 	proxy.DEFAULT_DIRECTORS = core.TorimaDirectors{
+		directors.SkipAuthDirector,
 		directors.AuthDirector,
 	}
 
@@ -183,6 +187,7 @@ func TestAuthDirectorWithWhiteList(t *testing.T) {
 		"/hello",
 	}
 
+	ctx.Target.URL.Path = "/hello"
 	ctx.Proxy.Engine.ServeHTTP(recorder, ctx.Target)
 	assert.Equal(t, http.StatusOK, recorder.Result().StatusCode)
 }
