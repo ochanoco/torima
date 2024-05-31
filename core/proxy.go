@@ -7,14 +7,12 @@ import (
 	"github.com/ochanoco/torima/utils"
 )
 
-func runAllPackage[T TorimaPackageTarget](
+func runAllExtension[T TorimaPackageTarget](
 	pkgs []func(*TorimaPackageContext[T]) (int, error),
 	c *TorimaPackageContext[T]) {
 
-	logger := utils.NewFlowLogger()
 	for _, pkg := range pkgs {
 		status, err := pkg(c)
-		logger.Add(pkg, status)
 
 		if status != Keep {
 			c.PackageStatus = status
@@ -28,8 +26,6 @@ func runAllPackage[T TorimaPackageTarget](
 			break
 		}
 	}
-
-	logger.Show()
 }
 
 /**
@@ -44,9 +40,7 @@ func (proxy *TorimaProxy) Director(req *http.Request, ginContext *gin.Context) {
 		PackageStatus: AuthNeeded,
 	}
 
-	runAllPackage[*http.Request](proxy.Directors, &c)
-
-	utils.LogReq(req)
+	runAllExtension[*http.Request](proxy.Directors, &c)
 }
 
 /**
@@ -61,6 +55,6 @@ func (proxy *TorimaProxy) ModifyResponse(res *http.Response, ginContext *gin.Con
 		PackageStatus: Keep,
 	}
 
-	runAllPackage(proxy.ModifyResponses, &c)
+	runAllExtension(proxy.ModifyResponses, &c)
 	return nil
 }
