@@ -93,7 +93,7 @@ func SkipAuthDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, err
 			return NoAuthNeeded, nil
 		}
 
-		if slices.Contains(c.Proxy.Config.WhiteListPath, c.Target.URL.Path) {
+		if slices.Contains(c.Proxy.Config.SkipAuthList, c.Target.URL.Path) {
 			return NoAuthNeeded, nil
 		}
 	}

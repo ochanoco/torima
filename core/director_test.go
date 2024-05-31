@@ -176,7 +176,7 @@ func TestAuthDirectorWithWhiteList(t *testing.T) {
 	mockServer, _ := setupMockServer(h, ctx.Target, t)
 	defer mockServer.Close()
 
-	ctx.Proxy.Config.WhiteListPath = []string{
+	ctx.Proxy.Config.SkipAuthList = []string{
 		"/hello",
 	}
 

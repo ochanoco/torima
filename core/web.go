@@ -26,7 +26,7 @@ func ConfigWeb(proxy *TorimaProxy, r *gin.RouterGroup) {
 
 		c.JSON(200, gin.H{
 			"protection_scope": proxy.Config.ProtectionScope,
-			"white_list_path":  proxy.Config.WhiteListPath,
+			"skip_auth_list":   proxy.Config.SkipAuthList,
 			"is_authenticated": userId != nil, // is it needed?.
 		})
 	})
