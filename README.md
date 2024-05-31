@@ -1,7 +1,19 @@
-
 # torima
 
 [![Go](https://github.com/ochanoco/torima/actions/workflows/go.yml/badge.svg)](https://github.com/ochanoco/torima/actions/workflows/go.yml)
+
+The easiest and solid security measures 😎
+
+Torima is a proxy server authenticating users before access to the servicer, namely, IAP(Identity-Aware Proxy).  
+Using strong user identifiers (the default is LINE Account), Torima deters cyber attacks 🛡️.
+
+These are...  
+☑️ Torima mitigates bot access (because the bot does not have an account coupled with the user's strong identifier in general).  
+☑️ Torima provides revocation features for malicious users (owing to the difficulty of making multiple accounts).  
+☑️ Torima provides a tracking feature to hold malicious users criminally accountable.  
+
+[Japanese](https://zenn.dev/ochanoco/articles/2a532b79725a41)
+
 
 ## Dependencies
 
@@ -11,15 +23,22 @@
 ## Installation
 ### 1. Obtain information for authentication
 
-Make a LINE Login account at [this site](https://developers.line.biz/console/), and register as a Provider of LINE Developer.
-Then obtain `Channel ID ` and `Channel secret`.
-
-Finally, set the `https://<DOMAIN>/torima/auth/callback` to `Callback URL`.
+- a. Make a LINE Login account at [this site](https://developers.line.biz/console/), and register as a Provider of LINE Developer.
+- b. Then obtain `Channel ID` and `Channel secret`.
+- c. Finally, set the `https://<DOMAIN>/torima/auth/callback` to `Callback URL`.  
   The `<DOMAIN>` is the domain that is accessed by end users.
 
 See [details](https://developers.line.biz/en/services/line-login/).
 
-### 2. Make docker-compose.yaml
+### 2. Login Github Container Registry
+
+Login to the GitHub container registry using the following commands.
+
+```
+docker login ghcr.io
+```
+
+### 3. Make docker-compose.yaml
 
 Set up the docker-compose configuration as follows:
 
@@ -42,16 +61,22 @@ services:
   app:
   # your front-end server...
   # we assume the server uses port 5000.
+  # do not use `port`
 
   api:
   # your API server...
   # we assume the server uses port 5001.
+  # do not use `port`
 ```
 
-We **strongly recommend deploying your application server using the identical docker-compose.yaml** because of security reasons.
-  Just so you know, **ports of the application server should not be exposed**. (In other words, do not use `ports` except for the `torima` container).
+> [!TIP]
+> We **recommend deploying your application server using the identical docker-compose.yaml** because of security reasons.
 
-### 3. Fill out secret.env
+> [!CAUTION]
+> **Ports of the application server should not be exposed**.  
+> (Do not use `ports` except the `torima` container.)
+
+### 4. Fill out secret.env
 
 Make a `secret.env` file and fill in the parameters below.
 
@@ -63,16 +88,16 @@ TORIMA_CLIENT_SECRET="Channel Secret"
 # TORIMA_SECRET="this-is-token" 
 ```
 
-### 4. Set up the configuration file
+### 5. Set up the configuration file
 
 Create the configuration file and save it as `config.yaml`.
 
-```sh
+```yaml
 port: 8080
 
 default_origin: app:5000 # your front-end server
 
-protection_scope 
+protection_scope: 
 - api:5001 # your API servers
 
 skip_auth_list: 
@@ -81,7 +106,13 @@ skip_auth_list:
 scheme: http 
 ```
 
-### 5. Deploy
+### 6. Implement redirected path
+
+Implement the page at `/_torima/back` on your pages for redirect back after login.
+  In Torima, users jump back to the path after logging in.
+  
+
+### 7. Deploy
 
 Deploy the server using the following command:
 
@@ -89,10 +120,13 @@ Deploy the server using the following command:
 docker-compose up
 ```
 
+
 ## Tips
 
-The user ID is on the `X-Torima-UserID` header on your server.
-
+- The user ID is on the `X-Torima-UserID` header on your server.
+- If the pulling container does not work, it is possible that the container image has expired.
+  - In such cases, please contact our [Twitter account](https://twitter.com/ochanoco_sec).
+  
 ## Example
 
 [This repository](https://github.com/ochanoco/torima-demo) shows the example.
