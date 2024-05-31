@@ -10,7 +10,7 @@ var DB_CONFIG = readEnv("TORIMA_DB_CONFIG", "file:./data/db.sqlite3?_fk=1")
 var SECRET = readEnv("TORIMA_SECRET", randomString(32))
 
 /* other */
-var DEFAULT_DIRECTORS = []TorimaDirector{
+var DEFAULT_DIRECTORS = TorimaDirectors{
 	BeforeLogDirector,
 	SanitizeHeaderDirector,
 	AuthDirector,
@@ -19,7 +19,7 @@ var DEFAULT_DIRECTORS = []TorimaDirector{
 	AfterLogDirector,
 }
 
-var DEFAULT_MODIFY_RESPONSES = []TorimaModifyResponse{
+var DEFAULT_MODIFY_RESPONSES = TorimaModifyResponses{
 	InjectServiceWorkerModifyResponse,
 }
 

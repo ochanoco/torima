@@ -10,7 +10,7 @@ import (
 
 type FlowLog struct {
 	name   string
-	result bool
+	result int
 }
 
 type FlowLogger struct {
@@ -23,7 +23,7 @@ func NewFlowLogger() FlowLogger {
 	}
 }
 
-func (logger *FlowLogger) Add(f any, result bool) {
+func (logger *FlowLogger) Add(f any, result int) {
 	rv := reflect.ValueOf(f)
 	ptr := rv.Pointer()
 	name := runtime.FuncForPC(ptr).Name()

@@ -16,13 +16,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func directorSample(t *testing.T) (*http.Request, *TestResponseRecorder, *gin.Context, *TorimaProxy) {
+func directorSample(t *testing.T) (*TorimaPackageContext[*http.Request], *TestResponseRecorder) {
 	DB_TYPE = "sqlite3"
 	DB_CONFIG = "../data/test.db?_fk=1"
 	SECRET = "test_secret"
 
 	recorder := CreateTestResponseRecorder()
-	context, r := gin.CreateTestContext(recorder)
+	ginContext, r := gin.CreateTestContext(recorder)
 
 	store := cookie.NewStore([]byte("test"))
 	r.Use(sessions.Sessions("torima-session", store))
@@ -37,7 +37,13 @@ func directorSample(t *testing.T) (*http.Request, *TestResponseRecorder, *gin.Co
 	proxy := NewOchancoProxy(r, DEFAULT_DIRECTORS, DEFAULT_MODIFY_RESPONSES, DEFAULT_PROXYWEB_PAGES, config, db)
 	req := httptest.NewRequest("GET", "http://localhost:8080/", nil)
 
-	return req, recorder, context, &proxy
+	ctx := TorimaPackageContext[*http.Request]{
+		GinContext: ginContext,
+		Proxy:      &proxy,
+		Target:     req,
+	}
+
+	return &ctx, recorder
 }
 
 func setupMockServer(handler http.HandlerFunc, req *http.Request, t *testing.T) (*httptest.Server, *url.URL) {
@@ -56,14 +62,14 @@ func setupMockServer(handler http.HandlerFunc, req *http.Request, t *testing.T) 
 
 // test for RouteDirector
 func TestRouteDirector(t *testing.T) {
-	req, _, context, proxy := directorSample(t)
-	c, err := RouteDirector("example.com", proxy, req, context)
+	ctx, _ := directorSample(t)
+	c, err := RouteDirector("example.com", ctx)
 
 	assert.NoError(t, err)
-	assert.Equal(t, CONTINUE, c)
-	assert.Equal(t, "example.com", req.URL.Host)
-	assert.Equal(t, "http", req.URL.Scheme)
-	assert.Equal(t, SECRET, req.Header.Get("X-Torima-Proxy-Token"))
+	assert.Equal(t, Stay, c)
+	assert.Equal(t, "example.com", ctx.Target.URL.Host)
+	assert.Equal(t, "http", ctx.Target.URL.Scheme)
+	assert.Equal(t, SECRET, ctx.Target.Header.Get("X-Torima-Proxy-Token"))
 }
 
 // test for DefaultRouteDirector
@@ -80,40 +86,40 @@ func TestThirdPartyDirector(t *testing.T) {
 
 	host := fmt.Sprintf("%v:%v", u.Host, u.Port())
 
-	req, _, context, proxy := directorSample(t)
+	ctx, _ := directorSample(t)
 
-	req.URL.Path = "/torima/redirect/" + host
+	ctx.Target.URL.Path = "/torima/redirect/" + host
 
-	proxy.Config.ProtectionScope = []string{host}
+	ctx.Proxy.Config.ProtectionScope = []string{host}
 
-	c, err := ThirdPartyDirector(proxy, req, context)
+	c, err := ThirdPartyDirector(ctx)
 	assert.NoError(t, err)
-	assert.Equal(t, CONTINUE, c)
+	assert.Equal(t, Stay, c)
 
-	c, err = ThirdPartyDirector(proxy, req, context)
+	c, err = ThirdPartyDirector(ctx)
 	assert.NoError(t, err)
 
-	assert.Equal(t, CONTINUE, c)
-	assert.Equal(t, host, req.URL.Host)
+	assert.Equal(t, Stay, c)
+	assert.Equal(t, host, ctx.Target.URL.Host)
 }
 
 // test for DefaultRouteDirector
 func TestThirdPartyDirectorNoParmit(t *testing.T) {
 	unpermitHost := "not-in-list.example.com"
 
-	req, _, context, proxy := directorSample(t)
+	ctx, _ := directorSample(t)
 
-	req.URL.Path = "/torima/redirect/" + unpermitHost + "/"
+	ctx.Target.URL.Path = "/torima/redirect/" + unpermitHost + "/"
 
-	c, err := ThirdPartyDirector(proxy, req, context)
+	c, err := ThirdPartyDirector(ctx)
 	assert.NoError(t, err)
-	assert.Equal(t, CONTINUE, c)
+	assert.Equal(t, Stay, c)
 
-	c, err = ThirdPartyDirector(proxy, req, context)
+	c, err = ThirdPartyDirector(ctx)
 	assert.NoError(t, err)
 
-	assert.Equal(t, CONTINUE, c)
-	assert.NotEqual(t, unpermitHost, req.URL.Host)
+	assert.Equal(t, Stay, c)
+	assert.NotEqual(t, unpermitHost, ctx.Target.URL.Host)
 }
 
 // test for AuthDirector
@@ -123,8 +129,8 @@ func TestAuthDirector(t *testing.T) {
 		fmt.Fprintln(w, "Hello, client")
 	}
 
-	testDirector := func(proxy *TorimaProxy, req *http.Request, context *gin.Context) (bool, error) {
-		session := sessions.Default(context)
+	testDirector := func(c *TorimaPackageContext[*http.Request]) (TorimaPackageStatus, error) {
+		session := sessions.Default(c.GinContext)
 
 		user := ninsho.LINE_USER{
 			Sub: "1",
@@ -135,25 +141,25 @@ func TestAuthDirector(t *testing.T) {
 		err := session.Save()
 		assert.NoError(t, err)
 
-		c, err := AuthDirector(proxy, req, context)
+		status, err := AuthDirector(c)
 
 		assert.NoError(t, err)
-		assert.Equal(t, CONTINUE, c)
+		assert.Equal(t, Authed, status)
 
-		return CONTINUE, nil
+		return Authed, nil
 	}
 
-	DEFAULT_DIRECTORS = []TorimaDirector{
+	DEFAULT_DIRECTORS = TorimaDirectors{
 		testDirector,
 	}
 
-	req, recorder, _, proxy := directorSample(t)
-	mockServer, _ := setupMockServer(h, req, t)
+	ctx, recorder := directorSample(t)
+	mockServer, _ := setupMockServer(h, ctx.Target, t)
 	defer mockServer.Close()
 
-	req.URL.Path = "/hello?hoge"
+	ctx.Target.URL.Path = "/hello?hoge"
 
-	proxy.Engine.ServeHTTP(recorder, req)
+	ctx.Proxy.Engine.ServeHTTP(recorder, ctx.Target)
 	assert.Equal(t, http.StatusOK, recorder.Result().StatusCode)
 }
 
@@ -162,32 +168,32 @@ func TestAuthDirectorWithWhiteList(t *testing.T) {
 		fmt.Fprintln(w, "Hello, client")
 	}
 
-	DEFAULT_DIRECTORS = []TorimaDirector{
+	DEFAULT_DIRECTORS = TorimaDirectors{
 		AuthDirector,
 	}
 
-	req, recorder, _, proxy := directorSample(t)
-	mockServer, _ := setupMockServer(h, req, t)
+	ctx, recorder := directorSample(t)
+	mockServer, _ := setupMockServer(h, ctx.Target, t)
 	defer mockServer.Close()
 
-	proxy.Config.WhiteListPath = []string{
+	ctx.Proxy.Config.WhiteListPath = []string{
 		"/hello",
 	}
 
-	proxy.Engine.ServeHTTP(recorder, req)
+	ctx.Proxy.Engine.ServeHTTP(recorder, ctx.Target)
 	assert.Equal(t, http.StatusOK, recorder.Result().StatusCode)
 }
 
 // test for AuthDirector
 func TestAuthDirectorNoPermit(t *testing.T) {
-	DEFAULT_DIRECTORS = []TorimaDirector{
+	DEFAULT_DIRECTORS = TorimaDirectors{
 		AuthDirector,
 	}
 
-	req, recorder, _, proxy := directorSample(t)
-	req.URL.Path = "/hello"
+	ctx, recorder := directorSample(t)
+	ctx.Target.URL.Path = "/hello"
 
-	proxy.Engine.ServeHTTP(recorder, req)
+	ctx.Proxy.Engine.ServeHTTP(recorder, ctx.Target)
 	assert.Equal(t, http.StatusUnauthorized, recorder.Result().StatusCode)
 }
 
@@ -212,23 +218,23 @@ func CreateTestResponseRecorder() *TestResponseRecorder {
 }
 
 func TestLogDirector(t *testing.T) {
-	req, recorder, context, proxy := directorSample(t)
+	ctx, recorder := directorSample(t)
 
-	before, err := proxy.Database.Client.RequestLog.Query().Count(proxy.Database.Ctx)
+	before, err := ctx.Proxy.Database.Client.RequestLog.Query().Count(ctx.Proxy.Database.Ctx)
 	assert.NoError(t, err)
 
-	req.URL.Path = "/"
+	ctx.Target.URL.Path = "/"
 
-	BeforeLogDirector(proxy, req, context)
+	BeforeLogDirector(ctx)
 
 	assert.Equal(t, http.StatusOK, recorder.Result().StatusCode)
 
-	after, err := proxy.Database.Client.RequestLog.Query().Count(proxy.Database.Ctx)
+	after, err := ctx.Proxy.Database.Client.RequestLog.Query().Count(ctx.Proxy.Database.Ctx)
 	assert.NoError(t, err)
 
 	assert.Equal(t, before+1, after)
 
-	all, err := proxy.Database.Client.RequestLog.Query().All(proxy.Database.Ctx)
+	all, err := ctx.Proxy.Database.Client.RequestLog.Query().All(ctx.Proxy.Database.Ctx)
 	assert.NoError(t, err)
 
 	requestLog := all[after-1]

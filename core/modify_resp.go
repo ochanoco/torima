@@ -3,21 +3,20 @@ package core
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/gin-gonic/gin"
 )
 
 func MainModifyResponse(proxy *TorimaProxy, res *http.Response) {
 	fmt.Printf("=> %v\n", res.Request.URL)
 }
 
-func InjectHTMLModifyResponse(html string, proxy *TorimaProxy, res *http.Response, c *gin.Context) (bool, error) {
-	document, err := goquery.NewDocumentFromReader(res.Body)
+func InjectHTMLModifyResponse(html string, c *TorimaModifyResponsePackageContext) (TorimaPackageStatus, error) {
+	document, err := goquery.NewDocumentFromReader(c.Target.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -26,28 +25,28 @@ func InjectHTMLModifyResponse(html string, proxy *TorimaProxy, res *http.Respons
 
 	html, err = document.Html()
 	if err != nil {
-		return FINISHED, err
+		return ForceStop, err
 	}
 
 	// fmt.Printf("%v", html)
 
 	b := []byte(html)
-	res.Body = ioutil.NopCloser(bytes.NewReader(b))
+	c.Target.Body = io.NopCloser(bytes.NewReader(b))
 
-	res.Header.Set("Content-Length", strconv.Itoa(len(b)))
-	res.ContentLength = int64(len(b))
+	c.Target.Header.Set("Content-Length", strconv.Itoa(len(b)))
+	c.Target.ContentLength = int64(len(b))
 
-	return CONTINUE, nil
+	return Stay, nil
 }
 
-func InjectServiceWorkerModifyResponse(proxy *TorimaProxy, res *http.Response, c *gin.Context) (bool, error) {
-	contentType := res.Header.Get("Content-Type")
+func InjectServiceWorkerModifyResponse(c *TorimaModifyResponsePackageContext) (TorimaPackageStatus, error) {
+	contentType := c.Target.Header.Get("Content-Type")
 
 	if contentType != "text/html; charset=utf-8" {
-		return CONTINUE, nil
+		return Stay, nil
 	}
 
 	html := scripts + "\n"
 
-	return InjectHTMLModifyResponse(html, proxy, res, c)
+	return InjectHTMLModifyResponse(html, c)
 }

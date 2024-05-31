@@ -49,7 +49,7 @@ func findStatusCodeByErr(err *error) int {
 	return statusCode
 }
 
-func abordGin(proxy *TorimaProxy, err error, c *gin.Context) {
+func abordGin(err error, c *gin.Context) {
 	statusCode := findStatusCodeByErr(&err)
 	tag, _ := splitErrorTag(err)
 	fmt.Printf("error: %d, %v, %v", statusCode, err, tag)
