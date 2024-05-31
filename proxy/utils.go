@@ -13,8 +13,6 @@ func printConfig(config *core.TorimaConfig) {
 	fmt.Println("scheme:", config.Scheme)
 
 	fmt.Println("skip_auth_list:", config.SkipAuthList)
-	fmt.Println("force_auth_list:", config.ForceAuthList)
-
 	fmt.Println("protection_scope:", config.ProtectionScope)
 	fmt.Println("web_root:", config.WebRoot)
 }

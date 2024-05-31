@@ -25,14 +25,6 @@ func SkipAuthDirector(c *core.TorimaDirectorPackageContext) (core.TorimaPackageS
 	return core.AuthNeeded, nil
 }
 
-func ForceAuthDirector(c *core.TorimaDirectorPackageContext) (core.TorimaPackageStatus, error) {
-	if slices.Contains(c.Proxy.Config.ForceAuthList, c.Target.URL.Path) {
-		return core.AuthNeeded, nil
-	}
-
-	return core.Keep, nil
-}
-
 func AuthDirector(c *core.TorimaDirectorPackageContext) (core.TorimaPackageStatus, error) {
 	if c.PackageStatus == core.NoAuthNeeded {
 		return core.NoAuthNeeded, nil

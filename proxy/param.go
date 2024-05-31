@@ -11,7 +11,6 @@ var DEFAULT_DIRECTORS = core.TorimaDirectors{
 	directors.BeforeLogDirector,
 	directors.SanitizeHeaderDirector,
 	directors.SkipAuthDirector,
-	directors.ForceAuthDirector,
 	directors.AuthDirector,
 	directors.DefaultRouteDirector,
 	directors.ThirdPartyDirector,

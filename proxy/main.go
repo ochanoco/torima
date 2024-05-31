@@ -38,5 +38,3 @@ func ProxyServer() (*core.TorimaProxy, error) {
 
 	return &proxy, nil
 }
-
-
