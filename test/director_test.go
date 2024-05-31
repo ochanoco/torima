@@ -169,7 +169,7 @@ func TestAuthDirector(t *testing.T) {
 	assert.Equal(t, http.StatusOK, recorder.Result().StatusCode)
 }
 
-func TestAuthDirectorWithSkipAuthList(t *testing.T) {
+func TestSkipAuthList(t *testing.T) {
 	h := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Hello, client")
 	}
@@ -190,6 +190,30 @@ func TestAuthDirectorWithSkipAuthList(t *testing.T) {
 	ctx.Target.URL.Path = "/hello"
 	ctx.Proxy.Engine.ServeHTTP(recorder, ctx.Target)
 	assert.Equal(t, http.StatusOK, recorder.Result().StatusCode)
+}
+
+func TestForceAuthList(t *testing.T) {
+	h := func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, "Hello, client")
+	}
+
+	proxy.DEFAULT_DIRECTORS = core.TorimaDirectors{
+		directors.DefaultRouteDirector,
+		directors.ForceAuthDirector,
+		directors.AuthDirector,
+	}
+
+	ctx, recorder := directorSample(t)
+	mockServer, _ := setupMockServer(h, ctx.Target, t)
+	defer mockServer.Close()
+
+	ctx.Proxy.Config.ForceAuthList = []string{
+		"/",
+	}
+
+	ctx.Target.URL.Path = "/"
+	ctx.Proxy.Engine.ServeHTTP(recorder, ctx.Target)
+	assert.Equal(t, http.StatusUnauthorized, recorder.Result().StatusCode)
 }
 
 // test for AuthDirector
