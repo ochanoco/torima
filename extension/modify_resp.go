@@ -17,7 +17,7 @@ func MainModifyResponse(proxy *core.TorimaProxy, res *http.Response) {
 	fmt.Printf("=> %v\n", res.Request.URL)
 }
 
-func InjectHTMLModifyResponse(html string, c *core.TorimaModifyResponsePackageContext) (core.TorimaPackageStatus, error) {
+func InjectHTML(html string, c *core.TorimaModifyResponsePackageContext) (core.TorimaPackageStatus, error) {
 	document, err := goquery.NewDocumentFromReader(c.Target.Body)
 	if err != nil {
 		log.Fatal(err)
@@ -50,5 +50,5 @@ func InjectServiceWorkerModifyResponse(c *core.TorimaModifyResponsePackageContex
 
 	html := utils.Scripts + "\n"
 
-	return InjectHTMLModifyResponse(html, c)
+	return InjectHTML(html, c)
 }

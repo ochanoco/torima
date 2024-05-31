@@ -66,7 +66,7 @@ func setupMockServer(handler http.HandlerFunc, req *http.Request, t *testing.T) 
 // test for RouteDirector
 func TestRouteDirector(t *testing.T) {
 	ctx, _ := directorSample(t)
-	c, err := directors.RouteDirector("example.com", ctx)
+	c, err := directors.BasicRoute("example.com", ctx)
 
 	assert.NoError(t, err)
 	assert.Equal(t, core.Keep, c)

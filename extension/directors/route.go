@@ -7,7 +7,7 @@ import (
 	"github.com/ochanoco/torima/core"
 )
 
-func RouteDirector(host string, c *core.TorimaDirectorPackageContext) (core.TorimaPackageStatus, error) {
+func BasicRoute(host string, c *core.TorimaDirectorPackageContext) (core.TorimaPackageStatus, error) {
 	c.Target.URL.Host = host
 
 	// just to be sure
@@ -31,5 +31,5 @@ func DefaultRouteDirector(c *core.TorimaDirectorPackageContext) (core.TorimaPack
 		return core.ForceStop, err
 	}
 
-	return RouteDirector(host, c)
+	return BasicRoute(host, c)
 }

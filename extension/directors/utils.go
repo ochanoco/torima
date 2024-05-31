@@ -24,7 +24,7 @@ func ThirdPartyDirector(c *core.TorimaDirectorPackageContext) (core.TorimaPackag
 			c.Target.URL.Path = "/" + p
 
 			c.Target.URL.Scheme = "https"
-			return RouteDirector(origin, c)
+			return BasicRoute(origin, c)
 		}
 	}
 
