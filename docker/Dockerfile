@@ -20,10 +20,15 @@ RUN nix-shell /docker/default.nix --command "go mod download"
 
 # build serv
 COPY ./core /workspace/core
-COPY ./serv /workspace/serv
+COPY ./proxy /workspace/proxy
+COPY ./extension /workspace/extension
+COPY ./utils /workspace/utils
 COPY ./ent /workspace/ent
-COPY main.go /workspace
+COPY ./serv /workspace/serv
+
+WORKDIR /workspace/serv
 RUN nix-shell /docker/default.nix --command "go build"
 
+WORKDIR /workspace
 COPY ./static /workspace/static
-CMD ["/workspace/torima"]
+CMD ["/workspace/serv/serv"]
