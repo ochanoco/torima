@@ -1,4 +1,4 @@
-package serv
+package main
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ func Run() (*core.TorimaProxy, error) {
 	return proxyServ, err
 }
 
-func Main() {
+func main() {
 	proxyServ, err := Run()
 	if err != nil {
 		panic(err)
