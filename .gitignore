@@ -148,7 +148,6 @@ dist
 .pnp.*
 
 torima
-proxy
 sqlite3.db
 test.sqlite3
 secret.env
@@ -157,7 +156,8 @@ private.der
 .gitignore
 cert.der
 
-example/main
+serv/serv
 *.db
 tmp
+
 

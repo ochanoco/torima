@@ -7,13 +7,38 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type TorimaDirector = func(proxy *TorimaProxy, req *http.Request, c *gin.Context) (bool, error)
-type TorimaModifyResponse = func(proxy *TorimaProxy, req *http.Response, c *gin.Context) (bool, error)
+type TorimaPackageStatus = int
+
+const (
+	AuthNeeded TorimaPackageStatus = iota
+	Authed
+	NoAuthNeeded
+	ForceStop
+	Keep
+)
+
+type TorimaPackageTarget interface{ *http.Request | *http.Response }
+
+type TorimaPackageContext[T TorimaPackageTarget] struct {
+	Proxy         *TorimaProxy
+	Target        T
+	GinContext    *gin.Context
+	PackageStatus TorimaPackageStatus
+}
+
+type TorimaDirectorPackageContext = TorimaPackageContext[*http.Request]
+type TorimaModifyResponsePackageContext = TorimaPackageContext[*http.Response]
+
+type TorimaDirector func(*TorimaDirectorPackageContext) (TorimaPackageStatus, error)
+type TorimaModifyResponse func(*TorimaModifyResponsePackageContext) (TorimaPackageStatus, error)
+type TorimaDirectors []func(*TorimaDirectorPackageContext) (TorimaPackageStatus, error)
+type TorimaModifyResponses []func(*TorimaModifyResponsePackageContext) (TorimaPackageStatus, error)
+
 type TorimaProxyWebPage = func(proxy *TorimaProxy, c *gin.RouterGroup)
 
 type TorimaProxy struct {
-	Directors       []TorimaDirector
-	ModifyResponses []TorimaModifyResponse
+	Directors       TorimaDirectors
+	ModifyResponses TorimaModifyResponses
 	ProxyWebPages   []TorimaProxyWebPage
 	Engine          *gin.Engine
 	Database        *Database
@@ -24,8 +49,8 @@ type TorimaProxy struct {
 
 func NewOchancoProxy(
 	r *gin.Engine,
-	directors []TorimaDirector,
-	modifyResponses []TorimaModifyResponse,
+	directors TorimaDirectors,
+	modifyResponses TorimaModifyResponses,
 	proxyWebPages []TorimaProxyWebPage,
 	config *TorimaConfig,
 	database *Database,

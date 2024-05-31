@@ -100,7 +100,7 @@ default_origin: app:5000 # your front-end server
 protection_scope: 
 - api:5001 # your API servers
 
-white_list_path: 
+skip_auth_list: 
 - /favicon.ico
 
 scheme: http 

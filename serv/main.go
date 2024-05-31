@@ -1,19 +1,20 @@
-package serv
+package main
 
 import (
 	"fmt"
 
 	"github.com/ochanoco/torima/core"
+	"github.com/ochanoco/torima/proxy"
 )
 
 const NAME = "line"
 
 func Run() (*core.TorimaProxy, error) {
-	proxyServ, err := core.ProxyServer()
+	proxyServ, err := proxy.ProxyServer()
 	return proxyServ, err
 }
 
-func Main() {
+func main() {
 	proxyServ, err := Run()
 	if err != nil {
 		panic(err)

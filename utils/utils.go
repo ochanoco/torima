@@ -1,8 +1,8 @@
-package core
+package utils
 
 import "math/rand"
 
-func randomString(n int) string {
+func RandomString(n int) string {
 	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 
 	s := make([]rune, n)
