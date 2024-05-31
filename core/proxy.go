@@ -4,31 +4,28 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/ochanoco/torima/utils"
 )
 
-func runAllPackage[T TorimaPackageTarget](
+func runAllExtension[T TorimaPackageTarget](
 	pkgs []func(*TorimaPackageContext[T]) (int, error),
 	c *TorimaPackageContext[T]) {
 
-	logger := NewFlowLogger()
 	for _, pkg := range pkgs {
 		status, err := pkg(c)
-		logger.Add(pkg, status)
 
 		if status != Keep {
 			c.PackageStatus = status
 		}
 
 		if err != nil {
-			abordGin(err, c.GinContext)
+			utils.AbordGin(err, c.GinContext)
 		}
 
 		if status == ForceStop {
 			break
 		}
 	}
-
-	logger.Show()
 }
 
 /**
@@ -43,9 +40,7 @@ func (proxy *TorimaProxy) Director(req *http.Request, ginContext *gin.Context) {
 		PackageStatus: AuthNeeded,
 	}
 
-	runAllPackage[*http.Request](proxy.Directors, &c)
-
-	LogReq(req)
+	runAllExtension[*http.Request](proxy.Directors, &c)
 }
 
 /**
@@ -60,6 +55,6 @@ func (proxy *TorimaProxy) ModifyResponse(res *http.Response, ginContext *gin.Con
 		PackageStatus: Keep,
 	}
 
-	runAllPackage(proxy.ModifyResponses, &c)
+	runAllExtension(proxy.ModifyResponses, &c)
 	return nil
 }

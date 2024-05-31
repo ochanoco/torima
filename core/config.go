@@ -1,8 +1,6 @@
 package core
 
 import (
-	"fmt"
-	"log"
 	"os"
 
 	"github.com/creasty/defaults"
@@ -20,7 +18,7 @@ type TorimaConfig struct {
 	WebRoot         string   `yaml:"web_root" default:"/torima"`
 }
 
-func readConfig() (*TorimaConfig, error) {
+func ReadConfig() (*TorimaConfig, error) {
 	var m TorimaConfig
 	var def TorimaConfig // default config
 
@@ -44,37 +42,4 @@ func readConfig() (*TorimaConfig, error) {
 	}
 
 	return &m, err
-}
-
-func printConfig(config *TorimaConfig) {
-	fmt.Println("default_origin:", config.DefaultOrigin)
-	fmt.Println("host:", config.Host)
-	fmt.Println("port:", config.Port)
-	fmt.Println("scheme:", config.Scheme)
-
-	fmt.Println("skip_auth_list:", config.SkipAuthList)
-
-	fmt.Println("protection_scope:", config.ProtectionScope)
-	fmt.Println("web_root:", config.WebRoot)
-}
-
-func readEnv(name, def string) string {
-	value := os.Getenv(name)
-
-	if value == "" {
-		fmt.Printf("environment variable '%v' is not found so that proxy use '%v'\n", name, def)
-		value = def
-	}
-
-	return value
-}
-
-func readEnvOrPanic(name string) string {
-	value := os.Getenv(name)
-
-	if value == "" {
-		log.Fatalf("environment variable '%v' is not found", name)
-	}
-
-	return value
 }

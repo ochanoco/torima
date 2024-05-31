@@ -1,9 +1,11 @@
-package core
+package test
 
 import (
 	"os"
 	"testing"
 
+	"github.com/ochanoco/torima/core"
+	"github.com/ochanoco/torima/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,16 +23,16 @@ protection_scope:
 scheme: http
 `
 
-func readTestConfig(t *testing.T) (*TorimaConfig, *os.File, error) {
+func readTestConfig(t *testing.T) (*core.TorimaConfig, *os.File, error) {
 	file, err := os.CreateTemp("", "config.yaml")
 	assert.NoError(t, err)
 
-	CONFIG_FILE = file.Name()
+	core.CONFIG_FILE = file.Name()
 
 	_, err = file.Write([]byte(TEST_CONFIG))
 	assert.NoError(t, err)
 
-	config, err := readConfig()
+	config, err := core.ReadConfig()
 
 	return config, file, err
 }
@@ -50,9 +52,9 @@ func TestReadConfig(t *testing.T) {
 }
 
 func TestReadConfigDefault(t *testing.T) {
-	CONFIG_FILE = ""
+	core.CONFIG_FILE = ""
 
-	config, err := readConfig()
+	config, err := core.ReadConfig()
 
 	assert.Error(t, err)
 	assert.NotNil(t, config)
@@ -69,9 +71,9 @@ func TestReadConfigDefault(t *testing.T) {
 func TestReadEnv(t *testing.T) {
 	os.Setenv("TORIMA_TEST1", "TEST")
 
-	env := readEnv("TORIMA_TEST1", "TEST")
+	env := utils.ReadEnv("TORIMA_TEST1", "TEST")
 	assert.Equal(t, "TEST", env)
 
-	env = readEnv("TORIMA_TEST2", "TEST")
+	env = utils.ReadEnv("TORIMA_TEST2", "TEST")
 	assert.Equal(t, "TEST", env)
 }

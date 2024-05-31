@@ -1,4 +1,4 @@
-package core
+package proxy
 
 import (
 	"fmt"
@@ -7,21 +7,23 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
+	"github.com/ochanoco/torima/core"
+	"github.com/ochanoco/torima/utils"
 )
 
-func ProxyServer() (*TorimaProxy, error) {
-	secret := randomString(64)
+func ProxyServer() (*core.TorimaProxy, error) {
+	secret := utils.RandomString(64)
 	r := gin.Default()
 
 	store := cookie.NewStore([]byte(secret))
 	r.Use(sessions.Sessions("torima-session", store))
 
-	db, err := InitDB(DB_CONFIG)
+	db, err := core.InitDB(core.DB_CONFIG)
 	if err != nil {
 		log.Fatalf("failed to init db: %v", err)
 	}
 
-	config, err := readConfig()
+	config, err := core.ReadConfig()
 	if config == nil {
 		panic("failed to read config: " + err.Error())
 	}
@@ -32,7 +34,9 @@ func ProxyServer() (*TorimaProxy, error) {
 
 	printConfig(config)
 
-	proxy := NewOchancoProxy(r, DEFAULT_DIRECTORS, DEFAULT_MODIFY_RESPONSES, DEFAULT_PROXYWEB_PAGES, config, db)
+	proxy := core.NewOchancoProxy(r, DEFAULT_DIRECTORS, DEFAULT_MODIFY_RESPONSES, DEFAULT_PROXYWEB_PAGES, config, db)
 
 	return &proxy, nil
 }
+
+

@@ -148,7 +148,6 @@ dist
 .pnp.*
 
 torima
-proxy
 sqlite3.db
 test.sqlite3
 secret.env
