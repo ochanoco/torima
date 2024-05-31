@@ -36,14 +36,14 @@ func InjectHTMLModifyResponse(html string, c *TorimaModifyResponsePackageContext
 	c.Target.Header.Set("Content-Length", strconv.Itoa(len(b)))
 	c.Target.ContentLength = int64(len(b))
 
-	return Stay, nil
+	return Keep, nil
 }
 
 func InjectServiceWorkerModifyResponse(c *TorimaModifyResponsePackageContext) (TorimaPackageStatus, error) {
 	contentType := c.Target.Header.Get("Content-Type")
 
 	if contentType != "text/html; charset=utf-8" {
-		return Stay, nil
+		return Keep, nil
 	}
 
 	html := scripts + "\n"

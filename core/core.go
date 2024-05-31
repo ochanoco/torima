@@ -14,7 +14,7 @@ const (
 	Authed
 	NoAuthNeeded
 	ForceStop
-	Stay
+	Keep
 )
 
 type TorimaPackageTarget interface{ *http.Request | *http.Response }

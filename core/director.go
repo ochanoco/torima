@@ -22,12 +22,12 @@ func RouteDirector(host string, c *TorimaDirectorPackageContext) (TorimaPackageS
 
 	c.Target.URL.Scheme = c.Proxy.Config.Scheme
 
-	return Stay, nil
+	return Keep, nil
 }
 
 func DefaultRouteDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) {
 	if strings.HasPrefix(c.Target.URL.Path, "/torima/") {
-		return Stay, nil
+		return Keep, nil
 	}
 
 	host := c.Proxy.Config.DefaultOrigin
@@ -45,7 +45,7 @@ func ThirdPartyDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, e
 	hasRedirectPrefix := strings.HasPrefix(c.Target.URL.Path, "/torima/redirect/")
 
 	if !hasRedirectPrefix || len(path) < 3 {
-		return Stay, nil
+		return Keep, nil
 	}
 
 	for _, origin := range c.Proxy.Config.ProtectionScope {
@@ -61,7 +61,7 @@ func ThirdPartyDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, e
 		}
 	}
 
-	return Stay, nil
+	return Keep, nil
 }
 
 func SanitizeHeaderDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) {
@@ -83,7 +83,7 @@ func SanitizeHeaderDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatu
 
 	c.Target.Header = headers
 
-	return Stay, nil
+	return Keep, nil
 
 }
 
@@ -148,7 +148,7 @@ func MakeLogDirector(flag string) TorimaDirector {
 			return ForceStop, err
 		}
 
-		return Stay, err
+		return Keep, err
 	}
 }
 

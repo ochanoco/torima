@@ -66,7 +66,7 @@ func TestRouteDirector(t *testing.T) {
 	c, err := RouteDirector("example.com", ctx)
 
 	assert.NoError(t, err)
-	assert.Equal(t, Stay, c)
+	assert.Equal(t, Keep, c)
 	assert.Equal(t, "example.com", ctx.Target.URL.Host)
 	assert.Equal(t, "http", ctx.Target.URL.Scheme)
 	assert.Equal(t, SECRET, ctx.Target.Header.Get("X-Torima-Proxy-Token"))
@@ -94,12 +94,12 @@ func TestThirdPartyDirector(t *testing.T) {
 
 	c, err := ThirdPartyDirector(ctx)
 	assert.NoError(t, err)
-	assert.Equal(t, Stay, c)
+	assert.Equal(t, Keep, c)
 
 	c, err = ThirdPartyDirector(ctx)
 	assert.NoError(t, err)
 
-	assert.Equal(t, Stay, c)
+	assert.Equal(t, Keep, c)
 	assert.Equal(t, host, ctx.Target.URL.Host)
 }
 
@@ -113,12 +113,12 @@ func TestThirdPartyDirectorNoParmit(t *testing.T) {
 
 	c, err := ThirdPartyDirector(ctx)
 	assert.NoError(t, err)
-	assert.Equal(t, Stay, c)
+	assert.Equal(t, Keep, c)
 
 	c, err = ThirdPartyDirector(ctx)
 	assert.NoError(t, err)
 
-	assert.Equal(t, Stay, c)
+	assert.Equal(t, Keep, c)
 	assert.NotEqual(t, unpermitHost, ctx.Target.URL.Host)
 }
 

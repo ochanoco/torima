@@ -15,7 +15,7 @@ func runAllPackage[T TorimaPackageTarget](
 		status, err := pkg(c)
 		logger.Add(pkg, status)
 
-		if status != Stay {
+		if status != Keep {
 			c.PackageStatus = status
 		}
 
@@ -57,7 +57,7 @@ func (proxy *TorimaProxy) ModifyResponse(res *http.Response, ginContext *gin.Con
 		Proxy:         proxy,
 		Target:        res,
 		GinContext:    ginContext,
-		PackageStatus: Stay,
+		PackageStatus: Keep,
 	}
 
 	runAllPackage(proxy.ModifyResponses, &c)
