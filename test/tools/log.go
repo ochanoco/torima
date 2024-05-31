@@ -21,14 +21,14 @@ type ExtensionLogger struct {
 
 func (logger *ExtensionLogger) Director(count int) core.TorimaDirector {
 	return func(c *core.TorimaDirectorPackageContext) (int, error) {
-		Log(count, c.Proxy.Directors[count*2+1], c.PackageStatus)
+		Log(count, c.Proxy.Directors[count*2+2], c.PackageStatus, c.Target.URL.Path)
 		return core.Keep, nil
 	}
 }
 
 func (logger *ExtensionLogger) ModifyResp(count int) core.TorimaModifyResponse {
 	return func(c *core.TorimaModifyResponsePackageContext) (int, error) {
-		Log(count, c.Proxy.Directors[count*2+1], c.PackageStatus)
+		Log(count, c.Proxy.Directors[count*2+2], c.PackageStatus, "")
 		return core.Keep, nil
 	}
 }
@@ -62,7 +62,7 @@ func (logger *ExtensionLogger) InjectModifyResps(source core.TorimaModifyRespons
 	return result
 }
 
-func Log(count int, extension any, result int) {
+func Log(count int, extension any, result int, path string) {
 	rv1 := reflect.ValueOf(extension)
 	ptr1 := rv1.Pointer()
 
@@ -71,25 +71,6 @@ func Log(count int, extension any, result int) {
 	log.Printf("id: %v\n", count)
 	log.Printf("name: %v\n", extensionName)
 	log.Printf("result: %v\n", STATE[result])
+	log.Printf("path: %v\n", path)
 
-}
-
-func DirectorSliceToDirectors(slice []core.TorimaDirector) core.TorimaDirectors {
-	var directors core.TorimaDirectors
-
-	for _, s := range slice {
-		directors = append(directors, s)
-	}
-
-	return directors
-}
-
-func ModifyRespSliceToModifyResps(slice []core.TorimaModifyResponse) core.TorimaModifyResponses {
-	var modifyResps core.TorimaModifyResponses
-
-	for _, s := range slice {
-		modifyResps = append(modifyResps, s)
-	}
-
-	return modifyResps
 }
