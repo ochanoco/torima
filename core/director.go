@@ -87,7 +87,7 @@ func SanitizeHeaderDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatu
 
 }
 
-func AcceptancesCheckDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) {
+func SkipAuthDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) {
 	if c.Target.Method == "GET" && c.Target.URL.RawQuery == "" {
 		if c.Target.URL.Path == "/" {
 			return NoAuthNeeded, nil

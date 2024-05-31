@@ -13,6 +13,7 @@ var SECRET = readEnv("TORIMA_SECRET", randomString(32))
 var DEFAULT_DIRECTORS = TorimaDirectors{
 	BeforeLogDirector,
 	SanitizeHeaderDirector,
+	SkipAuthDirector,
 	AuthDirector,
 	DefaultRouteDirector,
 	ThirdPartyDirector,
