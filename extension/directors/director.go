@@ -1,4 +1,4 @@
-package core
+package directors
 
 import (
 	"bytes"
@@ -9,43 +9,45 @@ import (
 
 	"github.com/ochanoco/ninsho"
 	gin_ninsho "github.com/ochanoco/ninsho/extension/gin"
+	"github.com/ochanoco/torima/core"
+	"github.com/ochanoco/torima/utils"
 
 	"golang.org/x/exp/slices"
 )
 
-func RouteDirector(host string, c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) {
+func RouteDirector(host string, c *core.TorimaDirectorPackageContext) (core.TorimaPackageStatus, error) {
 	c.Target.URL.Host = host
 
 	// just to be sure
 	c.Target.Header.Del("X-Torima-Proxy-Token")
-	c.Target.Header.Set("X-Torima-Proxy-Token", SECRET)
+	c.Target.Header.Set("X-Torima-Proxy-Token", core.SECRET)
 
 	c.Target.URL.Scheme = c.Proxy.Config.Scheme
 
-	return Keep, nil
+	return core.Keep, nil
 }
 
-func DefaultRouteDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) {
+func DefaultRouteDirector(c *core.TorimaDirectorPackageContext) (core.TorimaPackageStatus, error) {
 	if strings.HasPrefix(c.Target.URL.Path, "/torima/") {
-		return Keep, nil
+		return core.Keep, nil
 	}
 
 	host := c.Proxy.Config.DefaultOrigin
 
 	if host == "" {
 		err := fmt.Errorf("failed to get destination config (%s)", host)
-		return ForceStop, err
+		return core.ForceStop, err
 	}
 
 	return RouteDirector(host, c)
 }
 
-func ThirdPartyDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) {
+func ThirdPartyDirector(c *core.TorimaDirectorPackageContext) (core.TorimaPackageStatus, error) {
 	path := strings.Split(c.Target.URL.Path, "/")
 	hasRedirectPrefix := strings.HasPrefix(c.Target.URL.Path, "/torima/redirect/")
 
 	if !hasRedirectPrefix || len(path) < 3 {
-		return Keep, nil
+		return core.Keep, nil
 	}
 
 	for _, origin := range c.Proxy.Config.ProtectionScope {
@@ -61,10 +63,10 @@ func ThirdPartyDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, e
 		}
 	}
 
-	return Keep, nil
+	return core.Keep, nil
 }
 
-func SanitizeHeaderDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) {
+func SanitizeHeaderDirector(c *core.TorimaDirectorPackageContext) (core.TorimaPackageStatus, error) {
 	headers := http.Header{
 		"Host":       {c.Proxy.Config.Host},
 		"User-Agent": {"torima"},
@@ -83,35 +85,35 @@ func SanitizeHeaderDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatu
 
 	c.Target.Header = headers
 
-	return Keep, nil
+	return core.Keep, nil
 
 }
 
-func SkipAuthDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) {
+func SkipAuthDirector(c *core.TorimaDirectorPackageContext) (core.TorimaPackageStatus, error) {
 	if c.Target.Method == "GET" && c.Target.URL.RawQuery == "" {
 		if c.Target.URL.Path == "/" {
-			return NoAuthNeeded, nil
+			return core.NoAuthNeeded, nil
 		}
 
 		if slices.Contains(c.Proxy.Config.SkipAuthList, c.Target.URL.Path) {
-			return NoAuthNeeded, nil
+			return core.NoAuthNeeded, nil
 		}
 	}
 
-	return AuthNeeded, nil
+	return core.AuthNeeded, nil
 }
 
-func ForceAuthDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) {
+func ForceAuthDirector(c *core.TorimaDirectorPackageContext) (core.TorimaPackageStatus, error) {
 	if slices.Contains(c.Proxy.Config.ForceAuthList, c.Target.URL.Path) {
-		return AuthNeeded, nil
+		return core.AuthNeeded, nil
 	}
 
-	return Keep, nil
+	return core.Keep, nil
 }
 
-func AuthDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) {
-	if c.PackageStatus == NoAuthNeeded {
-		return NoAuthNeeded, nil
+func AuthDirector(c *core.TorimaDirectorPackageContext) (core.TorimaPackageStatus, error) {
+	if c.PackageStatus == core.NoAuthNeeded {
+		return core.NoAuthNeeded, nil
 	}
 
 	user, err := gin_ninsho.LoadUser[ninsho.LINE_USER](c.GinContext)
@@ -120,25 +122,25 @@ func AuthDirector(c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) 
 	c.Target.Header.Del("X-Torima-UserID")
 
 	if err != nil {
-		err = makeError(err, "failed to get user from session: ")
-		return ForceStop, err
+		err = utils.MakeError(err, "failed to get user from session: ")
+		return core.ForceStop, err
 	}
 
 	if user != nil {
 		c.Target.Header.Set("X-Torima-UserID", user.Sub)
-		return Authed, nil
+		return core.Authed, nil
 	}
 
-	return ForceStop, makeError(fmt.Errorf(""), unauthorizedErrorTag)
+	return core.ForceStop, utils.MakeError(fmt.Errorf(""), utils.UnauthorizedErrorTag)
 }
 
-func MakeLogDirector(flag string) TorimaDirector {
-	return func(c *TorimaDirectorPackageContext) (TorimaPackageStatus, error) {
+func MakeLogDirector(flag string) core.TorimaDirector {
+	return func(c *core.TorimaDirectorPackageContext) (core.TorimaPackageStatus, error) {
 		request, err := httputil.DumpRequest(c.Target, true)
 
 		if err != nil {
-			err = makeError(err, "failed to dump headers to json: ")
-			return ForceStop, err
+			err = utils.MakeError(err, "failed to dump headers to json: ")
+			return core.ForceStop, err
 		}
 
 		splited := bytes.Split(request, []byte("\r\n\r\n"))
@@ -152,11 +154,11 @@ func MakeLogDirector(flag string) TorimaDirector {
 		_, err = l.Save(c.Proxy.Database.Ctx)
 
 		if err != nil {
-			err = makeError(err, "failed to save request: ")
-			return ForceStop, err
+			err = utils.MakeError(err, "failed to save request: ")
+			return core.ForceStop, err
 		}
 
-		return Keep, err
+		return core.Keep, err
 	}
 }
 

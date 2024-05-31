@@ -1,4 +1,4 @@
-package core
+package extension
 
 import (
 	"bytes"
@@ -9,13 +9,15 @@ import (
 	"strconv"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/ochanoco/torima/core"
+	"github.com/ochanoco/torima/utils"
 )
 
-func MainModifyResponse(proxy *TorimaProxy, res *http.Response) {
+func MainModifyResponse(proxy *core.TorimaProxy, res *http.Response) {
 	fmt.Printf("=> %v\n", res.Request.URL)
 }
 
-func InjectHTMLModifyResponse(html string, c *TorimaModifyResponsePackageContext) (TorimaPackageStatus, error) {
+func InjectHTMLModifyResponse(html string, c *core.TorimaModifyResponsePackageContext) (core.TorimaPackageStatus, error) {
 	document, err := goquery.NewDocumentFromReader(c.Target.Body)
 	if err != nil {
 		log.Fatal(err)
@@ -25,7 +27,7 @@ func InjectHTMLModifyResponse(html string, c *TorimaModifyResponsePackageContext
 
 	html, err = document.Html()
 	if err != nil {
-		return ForceStop, err
+		return core.ForceStop, err
 	}
 
 	// fmt.Printf("%v", html)
@@ -36,17 +38,17 @@ func InjectHTMLModifyResponse(html string, c *TorimaModifyResponsePackageContext
 	c.Target.Header.Set("Content-Length", strconv.Itoa(len(b)))
 	c.Target.ContentLength = int64(len(b))
 
-	return Keep, nil
+	return core.Keep, nil
 }
 
-func InjectServiceWorkerModifyResponse(c *TorimaModifyResponsePackageContext) (TorimaPackageStatus, error) {
+func InjectServiceWorkerModifyResponse(c *core.TorimaModifyResponsePackageContext) (core.TorimaPackageStatus, error) {
 	contentType := c.Target.Header.Get("Content-Type")
 
 	if contentType != "text/html; charset=utf-8" {
-		return Keep, nil
+		return core.Keep, nil
 	}
 
-	html := scripts + "\n"
+	html := utils.Scripts + "\n"
 
 	return InjectHTMLModifyResponse(html, c)
 }

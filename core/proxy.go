@@ -4,13 +4,14 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/ochanoco/torima/utils"
 )
 
 func runAllPackage[T TorimaPackageTarget](
 	pkgs []func(*TorimaPackageContext[T]) (int, error),
 	c *TorimaPackageContext[T]) {
 
-	logger := NewFlowLogger()
+	logger := utils.NewFlowLogger()
 	for _, pkg := range pkgs {
 		status, err := pkg(c)
 		logger.Add(pkg, status)
@@ -20,7 +21,7 @@ func runAllPackage[T TorimaPackageTarget](
 		}
 
 		if err != nil {
-			abordGin(err, c.GinContext)
+			utils.AbordGin(err, c.GinContext)
 		}
 
 		if status == ForceStop {
@@ -45,7 +46,7 @@ func (proxy *TorimaProxy) Director(req *http.Request, ginContext *gin.Context) {
 
 	runAllPackage[*http.Request](proxy.Directors, &c)
 
-	LogReq(req)
+	utils.LogReq(req)
 }
 
 /**

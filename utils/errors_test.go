@@ -1,4 +1,4 @@
-package core
+package utils
 
 import (
 	"errors"
@@ -10,7 +10,7 @@ import (
 // test for splitErrorTagfunc TestSplitErrorTag() {
 func TestSplitErrorTag(t *testing.T) {
 	err := errors.New("test error: this is test error")
-	tag, err := splitErrorTag(err)
+	tag, err := SplitErrorTag(err)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "test error", tag)
@@ -19,11 +19,11 @@ func TestSplitErrorTag(t *testing.T) {
 // test for findStatusCodeByErr
 func TestFindStatusCodeByErr(t *testing.T) {
 	err := errors.New("")
-	unauthorizedErr := makeError(err, unauthorizedErrorTag)
-	unexpectedErr := makeError(err, "unexpected error")
+	unauthorizedErr := MakeError(err, UnauthorizedErrorTag)
+	unexpectedErr := MakeError(err, "unexpected error")
 
-	unauthorizedErrStatusCode := findStatusCodeByErr(&unauthorizedErr)
-	unexpectedError := findStatusCodeByErr(&unexpectedErr)
+	unauthorizedErrStatusCode := FindStatusCodeByErr(&unauthorizedErr)
+	unexpectedError := FindStatusCodeByErr(&unexpectedErr)
 
 	assert.Equal(t, 401, unauthorizedErrStatusCode)
 	assert.Equal(t, 500, unexpectedError)
