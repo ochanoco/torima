@@ -8,7 +8,7 @@ import (
 )
 
 type TorimaDirector = func(proxy *TorimaProxy, req *http.Request, c *gin.Context) (bool, error)
-type TorimaModifyResponse = func(proxy *TorimaProxy, req *http.Response, c *gin.Context) (bool, error)
+type TorimaModifyResponse = func(proxy *TorimaProxy, resp *http.Response, c *gin.Context) (bool, error)
 type TorimaProxyWebPage = func(proxy *TorimaProxy, c *gin.RouterGroup)
 
 type TorimaProxy struct {
