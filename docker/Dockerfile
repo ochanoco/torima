@@ -25,10 +25,10 @@ COPY ./extension /workspace/extension
 COPY ./utils /workspace/utils
 COPY ./ent /workspace/ent
 COPY ./serv /workspace/serv
+COPY ./static /workspace/static
 
 WORKDIR /workspace/serv
 RUN nix-shell /docker/default.nix --command "go build"
 
 WORKDIR /workspace
-COPY ./static /workspace/static
 CMD ["/workspace/serv/serv"]
