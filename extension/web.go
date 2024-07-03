@@ -2,12 +2,14 @@ package extension
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/ochanoco/ninsho"
 	gin_ninsho "github.com/ochanoco/ninsho/extension/gin"
 	"github.com/ochanoco/torima/core"
+	"github.com/ochanoco/torima/static"
 )
 
 func StaticWeb(proxy *core.TorimaProxy, r *gin.RouterGroup) {
@@ -17,7 +19,7 @@ func StaticWeb(proxy *core.TorimaProxy, r *gin.RouterGroup) {
 		}
 	}())
 
-	r.Static("/static", core.STATIC_FOLDER)
+	r.StaticFS("/static", http.FS(static.Static))
 }
 
 func ConfigWeb(proxy *core.TorimaProxy, r *gin.RouterGroup) {
