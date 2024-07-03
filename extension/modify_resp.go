@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/ochanoco/torima/core"
@@ -44,7 +45,7 @@ func InjectHTML(html string, c *core.TorimaModifyResponsePackageContext) (core.T
 func InjectServiceWorkerModifyResponse(c *core.TorimaModifyResponsePackageContext) (core.TorimaPackageStatus, error) {
 	contentType := c.Target.Header.Get("Content-Type")
 
-	if contentType != "text/html; charset=utf-8" {
+	if !strings.HasPrefix(contentType, "text/html") {
 		return core.Keep, nil
 	}
 
