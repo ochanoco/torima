@@ -33,7 +33,7 @@ func AuthDirector(c *core.TorimaDirectorPackageContext) (core.TorimaPackageStatu
 			return core.NoAuthNeeded, nil
 		}
 
-		err = utils.MakeError(err, "failed to authenticate: ")
+		err = utils.MakeError(err, utils.UnauthorizedErrorTag)
 		return core.ForceStop, err
 	}
 
