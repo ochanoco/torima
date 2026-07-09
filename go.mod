@@ -1,6 +1,6 @@
 module github.com/ochanoco/torima
 
-go 1.24.0
+go 1.25.0
 
 require (
 	ariga.io/atlas v0.8.3 // indirect
@@ -30,11 +30,11 @@ require (
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	github.com/zclconf/go-cty v1.12.1 // indirect
-	golang.org/x/crypto v0.45.0 // indirect
-	golang.org/x/mod v0.29.0 // indirect
-	golang.org/x/net v0.47.0 // indirect
-	golang.org/x/sys v0.38.0 // indirect
-	golang.org/x/text v0.31.0 // indirect
+	golang.org/x/crypto v0.51.0 // indirect
+	golang.org/x/mod v0.35.0 // indirect
+	golang.org/x/net v0.55.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
+	golang.org/x/text v0.37.0 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0
 )
