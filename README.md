@@ -18,7 +18,6 @@ These are...
 ## Dependencies
 
 - Docker
-- Docker Compose
 
 ## Installation
 ### 1. Obtain information for authentication
@@ -38,9 +37,9 @@ Login to the GitHub container registry using the following commands.
 docker login ghcr.io
 ```
 
-### 3. Make docker-compose.yaml
+### 3. Make docker compose configuration
 
-Set up the docker-compose configuration as follows:
+Set up the docker compose configuration (`compose.yaml`) as follows:
 
 ```yaml
 version: "3"
@@ -70,7 +69,7 @@ services:
 ```
 
 > [!TIP]
-> We **recommend deploying your application server using the identical docker-compose.yaml** because of security reasons.
+> We **recommend deploying your application server using the identical compose.yaml** because of security reasons.
 
 > [!CAUTION]
 > **Ports of the application server should not be exposed**.  
@@ -117,7 +116,7 @@ Implement the page at `/_torima/back` on your pages for redirect back after logi
 Deploy the server using the following command:
 
 ```sh
-docker-compose up
+docker compose up
 ```
 
 
