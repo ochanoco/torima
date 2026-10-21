@@ -8,7 +8,8 @@ import (
 
 /* other */
 var DEFAULT_DIRECTORS = core.TorimaDirectors{
-	directors.BeforeLogDirector,
+	// BeforeLogDirector is only for measurements
+	// directors.BeforeLogDirector, 
 	directors.SanitizeHeaderDirector,
 	directors.SkipAuthDirector,
 	directors.AuthDirector,
